@@ -73,8 +73,8 @@ void MainWindow::on_pushButton_3_clicked()
 
     int i;
     QString tmp=ui->FolderEdit->text();
-    cv::namedWindow("display",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
-    cv::resizeWindow("display", 800,800);
+    cv::namedWindow("display - track",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
+    cv::resizeWindow("display - track", 800,800);
 
 // Read number of lines in the output file
     string line;
@@ -94,8 +94,8 @@ void MainWindow::on_pushButton_3_clicked()
     bool VisualStimulation_on=ui->radioButton->isChecked();
 
     if(VisualStimulation_on)
-        ReadImageSeq_vs(tmp.toStdString(),"display",0,".tiff",optstimfile,LN);
+        ReadImageSeq_vs(tmp.toStdString(),"display - track",0,".tiff",optstimfile,LN);
     else
-        ReadImageSeq_and_track(tmp.toStdString(),"display",0,".tiff",LN);
+        ReadImageSeq_and_track(tmp.toStdString(),"display - track",0,".tiff",LN);
 
 }
