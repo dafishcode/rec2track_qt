@@ -56,6 +56,7 @@ int Rec_SingleCamera(void*);
 void *Rec_onDisk_SingleCamera2(void *tdata, size_t &);
 void *Rec_onDisk_conditional(void *tdata,bool);
 void ReadImageSeq(string prefix,char* display,int mode=0,char* format=".pgm",char* prefix0="",int maxind=1);
-void ReadImageSeq_vs(string prefix,char* display,int mode=0,char* format=".pgm",char* prefix0="",int maxind=1);
-void ReadImageSeq_vs_bin(string prefix,char* display,int mode=0,char* format=".pgm",char* prefix0="",int maxind=1);
+void ReadImageSeq_vs(string prefix,char* display,int mode=0,char* format=".pgm",string prefix0="",int maxind=1);
+void ReadImageSeq_and_track(string prefix,char* display,int mode=0,char* format=".pgm",int maxind=1);
+
 int Run_SingleCamera(PGRGuid);

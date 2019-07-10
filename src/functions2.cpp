@@ -510,17 +510,124 @@ void ReadImageSeq(string prefix,char* display, int mode, char* format,char* pref
     }
 }
 
-void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,char* StimListFile,int maxind){
+void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,int maxind){
+
+    unsigned int i;
+
+    bool hide_trace=false;
+
+    int64 tmptime,tmpframe;
+    double tmpfreq;
+    int tmprec;
+    string tmplab;
+    ifstream tcamera_file((prefix+"/time.log").c_str());
+    vector<int64> tcam;
+    vector<int> stimseq, frameseq,framerec;
+
+    while(tcamera_file>>tmptime>>tmpfreq>>tmprec) {
+        tcam.push_back(tmptime);
+        framerec.push_back(tmprec);
+    }
+
+    int ind=0;
+    int speed=1;
+    int max_angle=20;
+    int blur=4;
+    int AP_N=20;
+    double th;
+    int th_int=0;
+    int step=4;
+    int brightness_int=0;
+    double brightness;
+
+    cv::Mat image;
+
+    // Get index of the first recorded image ///////////////////////////////
+    while(image.empty()){
+        stringstream ss;
+        ss<<prefix<<'/'<<fixedLengthString(ind)<<".pgm";
+        image=cv::imread(ss.str().c_str(),cv::IMREAD_UNCHANGED);
+        ind++;
+    }
+    // #####################################################################
+
+    cv::namedWindow(display,cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO );
+    cv::resizeWindow(display, 800,800);
+    cv::createTrackbar( "level", display, &ind, maxind);
+    cv::createTrackbar( "speed", display, &speed, 50);
+    cv::createTrackbar( "max_angle", display, &max_angle, 50);
+    cv::createTrackbar( "anchors", display, &AP_N, 50);
+    cv::createTrackbar( "th", display, &th_int, 50);
+    cv::createTrackbar( "step", display, &step, 20);
+    cv::createTrackbar( "blur", display, &blur, 8);
+    cv::createTrackbar( "brightness", display, &brightness_int, 100);
+
+    cout << "Reading image sequence. Press q to exit." << endl;
+    char c='1';
+
+    mouse_GetVector_param p; p.status=false;
+    cv::setMouseCallback(display,mouse_GetVector,&p);
+
+    while(c!='x'){
+        stringstream ss;
+        ss<<prefix<<'/'<<fixedLengthString(ind)<<".pgm";
+        image=cv::imread(ss.str().c_str(),cv::IMREAD_UNCHANGED);
+
+        if(p.status) {
+            cv::arrowedLine(image,p.pt1,p.pt2,255);
+            cv::circle(image,p.pt2,10,255);
+        }
+        if(!image.empty()) {
+            brightness=0.5+(brightness_int-1)/100.*(4-0.5);
+            cv::imshow(display,brightness*image);
+        }
+        c=cv::waitKey(10);
+    }
+
+    while(c!='q'){
+        if(c=='f') ind+=speed;
+        if(c=='t') ind+=40;
+        if(c=='b') ind=max(0,ind-speed);
+        if(c=='h') hide_trace=!hide_trace;
+        stringstream filename;
+
+        filename<<prefix<<'/'<<fixedLengthString(ind)<<".pgm";
+
+        image=cv::imread(filename.str().c_str(),cv::IMREAD_UNCHANGED);
+
+        if(!image.empty()){
+            vector<cv::Point2i> a_pts;
+            cv::Point2d tangent;
+            tangent=p.pt2-p.pt1;
+            th=-2+2./50*th_int;
+
+            get_interp4(image,p.pt1,tangent,step,a_pts,AP_N,max_angle,th,2*blur+1);
+            if(!hide_trace) for(unsigned int j=0;j<a_pts.size()-1;++j) cv::line(image,a_pts[j],a_pts[j+1],255,1);
+
+            brightness=0.5+(brightness_int-1)/100.*(4-0.5);
+            cv::imshow(display,brightness*image);
+        }
+
+        cv::setTrackbarPos("level",display,ind);
+
+        c=cv::waitKey(10);
+    }
+}
+
+
+void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,string StimListFile,int maxind){
 
     unsigned int i;
 
     barrage Barrage;
+    Barrage.setStimLib();
+
     bool hide_trace=false;
 
     // Build barrage
 
     map<int,int> StimMap;
-    ifstream StimList_file(StimListFile);        
+    ifstream StimList_file(StimListFile);
 
     vector<stim> StimList;
 
@@ -550,7 +657,7 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,char* S
     string tmplab;
     ifstream tcamera_file((prefix+"/time.log").c_str());
     ifstream tvs_file((prefix+"/ticks.log").c_str());
-    vector<int64> tcam;    
+    vector<int64> tcam;
     vector<int64> tvs;
     vector<int> stimseq, frameseq,framerec;
 
@@ -565,7 +672,7 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,char* S
         else stimseq.push_back(StimMap[(int)Barrage.string_to_stim(tmplab.c_str())]);
         frameseq.push_back(tmpframe);
     }
-    
+
 
     int ind=0,ind_vs=0;
     int speed=1;
@@ -605,7 +712,7 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,char* S
     char c='1';
 
     mouse_GetVector_param p; p.status=false;
-    cv::setMouseCallback(display,mouse_GetVector,&p);    
+    cv::setMouseCallback(display,mouse_GetVector,&p);
 
     while(c!='x'){
         stringstream ss;
@@ -664,123 +771,6 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,char* S
         c=cv::waitKey(10);
     }
 }
-
-/*
-// ############################################################################################################
-void ReadImageSeq_vs_bin(string prefix,char* display, int mode, char* format,char* prefix0,int maxind){
-    barrage Barrage;
-    cv::Mat mask_mat(Barrage.H,Barrage.W,CV_8U);
-    Barrage.get_vs_mask(mask_mat);
-    vector<unsigned char*> stimdata(Barrage.numEP);
-    ifstream epoch_order((prefix+"/epoch_order.log").c_str());
-    size_t IMGSIZE=10000;
-
-    for( unsigned int i=0;i<Barrage.numEP;i++){
-        unsigned int j;
-        epoch_order>>j;
-        j=i;
-        stimdata[i] = new unsigned char[Barrage.H*Barrage.W*(Barrage.nframes_vec[j]+1)];
-    }
-
-    Barrage.FillPoints(stimdata,Barrage.numEP);
-
-    int64 tmptime,tmplab,tmpframe;
-    ifstream tcamera_file((prefix+"/time.log").c_str());
-    ifstream tvs_file((prefix+"/ticks.log").c_str());
-    vector<int64> tcam;
-    vector<int64> tvs;
-    vector<int> stimseq, frameseq;
-    while(tcamera_file>>tmptime) tcam.push_back(tmptime);
-    while(tvs_file>>tmptime>>tmplab>>tmpframe){
-        tvs.push_back(tmptime);
-        stimseq.push_back(tmplab);
-        frameseq.push_back(tmpframe);
-    }
-    
-
-    int ind=0,ind_vs=0;
-    int speed=1;
-    int max_angle=45;
-    int blur=2;
-    int AP_N=22;
-    double th;
-    int th_int=0;
-    int step=4;
-
-    cout<<"opening "<<(prefix+".bin").c_str()<<endl;
-    ifstream binary((prefix+".bin").c_str(), ios::binary | ios::in);
-    binary.seekg(0,binary.end);
-    size_t NIMG = binary.tellg()/IMGSIZE;
-    binary.seekg(0,binary.beg);
-    cout<<"NIMG = "<<NIMG<<endl;
-
-    cv::Mat image(100,100,CV_8U),image_vs;
-    cv::namedWindow(display,cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO );
-    cv::namedWindow("vs",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO );
-    cv::resizeWindow(display, 800,800);
-    cv::createTrackbar( "level", display, &ind, NIMG-1);
-    cv::createTrackbar( "speed", display, &speed, 200);
-    cv::createTrackbar( "max_angle", display, &max_angle, 50);
-    cv::createTrackbar( "anchors", display, &AP_N, 50);
-    cv::createTrackbar( "th", display, &th_int, 50);
-    cv::createTrackbar( "step", display, &step, 20);
-    cv::createTrackbar( "blur", display, &blur, 8);
-
-    cout << "Reading image sequence. Press q to exit." << endl;
-    char c='1';
-
-    mouse_GetVector_param p; p.status=false;
-    cv::setMouseCallback(display,mouse_GetVector,&p);
-    char* data = new char[IMGSIZE];
-    while(c!='x'){
-        binary.seekg(0,binary.beg);
-        binary.read(data,IMGSIZE);
-        image.data=(uchar*)data;
-        if(p.status) {
-            cv::arrowedLine(image,p.pt1,p.pt2,2);
-            cv::circle(image,p.pt2,12,2);
-        }
-        cv::imshow(display,image);
-        c=cv::waitKey(10);
-    }
-
-
-    while(c!='q'){
-        if(c=='f') ind=min((size_t)ind+speed,(NIMG-1));
-        if(c=='b') ind=max(0,ind-speed);
-        binary.seekg(IMGSIZE*ind);
-        binary.read(data,IMGSIZE);
-        image.data=(uchar*)data;
-        ind_vs=matchtime(tcam[ind],tvs);
-        if(stimseq[ind_vs]<0){
-            image_vs=mask_mat;
-        } else {
-            image_vs.data=stimdata[stimseq[ind_vs]]+H*W*frameseq[ind_vs];
-        }
-
-        stringstream ss;
-        if(!image.empty()){
-            vector<cv::Point2i> a_pts;
-            cv::Point2d tangent;
-            tangent=p.pt2-p.pt1;
-            th=-2+2./50*th_int;
-
-            get_interp4(image,p.pt1,tangent,step,a_pts,AP_N,max_angle,th,2*blur+1);
-            for(unsigned int j=0;j<a_pts.size()-1;++j) cv::line(image,a_pts[j],a_pts[j+1],255,1);
-            cv::imshow(display,image);
-            ss<<ind<<' '<<ind_vs;
-            cv::displayStatusBar(display,ss.str(),0);
-        }
-
-        if(!image_vs.empty())
-            imshow("vs",image_vs);
-        //else
-        //break;
-        c=cv::waitKey(10);
-    }
-}
-// ############################################################################################################
-*/
 
 int Run_SingleCamera(PGRGuid guid)
 {
