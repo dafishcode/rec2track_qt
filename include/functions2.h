@@ -11,7 +11,8 @@ class ioparam {
 	public:
 	cv::Point2i center;
 	cv::Point2i pt1, pt2;
-    int WinSize;
+        int WinSize;
+        cv::Size OrigSize;
 	bool status;
 };
 

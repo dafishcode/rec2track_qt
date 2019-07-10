@@ -100,8 +100,35 @@ void on_mouse(int event, int x, int y, int flags, void* p){
     int ws=param->WinSize;
     param->center.x=x;
     param->center.y=y;
-    param->pt1.x=x-ws; param->pt1.y=y-ws;
-    param->pt2.x=x+ws; param->pt2.y=y+ws;
+    
+    param->pt1.x=max(0,(int)(x-ws)); 
+    param->pt1.y=max(0,(int)(y-ws));
+
+    param->pt2.x=min(param->OrigSize.width,(int)(x+ws)); 
+    param->pt2.y=min(param->OrigSize.height,(int)(y+ws));
+
+    if  ( event == cv::EVENT_LBUTTONDOWN ){
+        param->status=true;
+    }
+    
+    if (event==cv::EVENT_LBUTTONUP ){
+        param->status=false;
+    }
+
+}
+
+void on_mouse2(int event, int x, int y, int flags, void* p){    
+    ioparam* param=(ioparam*)p;
+    int ws=param->WinSize;
+    param->center.x=x;
+    param->center.y=y;
+    
+    param->pt1.x=max(0,(int)(x-ws)); 
+    param->pt1.y=max(0,(int)(y-ws));
+
+    param->pt2.x=min(param->OrigSize.width,(int)(x+ws)); 
+    param->pt2.y=min(param->OrigSize.height,(int)(y+ws));
+
     if  ( event == cv::EVENT_LBUTTONDOWN ){
         param->status=true;
     }
@@ -248,6 +275,7 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
     ioparam tmp_center;
     tmp_center.status=0;
     tmp_center.WinSize=ROISize;
+    tmp_center.OrigSize=cvm.size();
     cv::setMouseCallback("ROI selection",on_mouse,&tmp_center);
 
     cv::Mat drawing;
@@ -285,6 +313,7 @@ void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=100){
     ioparam tmp_center;
     tmp_center.status=0;
     tmp_center.WinSize=ROISize;
+    tmp_center.OrigSize=cvm.size();
     cv::setMouseCallback("ROI selection",on_mouse,&tmp_center);
 
     cv::Mat drawing;
@@ -1197,7 +1226,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON)
     pMOG = cv::createBackgroundSubtractorMOG2(2000,16,true);
 
     // Select tail ROI //////////////////////////////////////////////////////////////
-    Select_ROI(RSC_input->cam, center , ROI_acquired, 80);
+    Select_ROI(RSC_input->cam, center , ROI_acquired, 100);
     if(!ROI_acquired){
         cout<<"Error with ROI detection"<<endl;
         exit(0);
