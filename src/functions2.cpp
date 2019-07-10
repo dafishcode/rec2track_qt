@@ -219,10 +219,10 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
     cam->StartCapture();
 }
 
-void CreateOutputFolder(char* folder){
+void CreateOutputFolder(string folder){
     struct stat sb;
-    if (stat(folder, &sb) != 0){
-        const int dir_err = mkdir(folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if (stat(folder.c_str(), &sb) != 0){
+        const int dir_err = mkdir(folder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         if (-1 == dir_err){
             printf("Error creating directory!");
             exit(1);
@@ -1268,8 +1268,10 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON)
     // ################################################################################################
 
     barrage Barrage;
-    if(VisualStimulation_ON && run) Barrage.VisualStimulation(RSC_input->optstimfile, RSC_input->proc_folder,RSC_input->repeats,run);
-    else display_blobs(circ_buffer);
+    if(VisualStimulation_ON && run){
+        if(RSC_input->userIndex==0) Barrage.VisualStimulation(RSC_input->optstimfile, RSC_input->proc_folder,RSC_input->repeats,run);
+        else Barrage.VisualStimulation_BG(RSC_input->optstimfile, RSC_input->proc_folder,RSC_input->repeats,run);
+    } else display_blobs(circ_buffer);
 
     if(T_REC.joinable()){
         T_REC.join();

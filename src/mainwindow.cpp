@@ -30,15 +30,15 @@ void MainWindow::record(){
     struct thread_data2 RSC_input;
     QString tmp=ui->FolderEdit->text();
     RSC_input.cam = &cam;
-    RSC_input.proc_folder= tmp.toLocal8Bit().data();
+    RSC_input.proc_folder= tmp.toStdString();
     RSC_input.display="display";
     RSC_input.crop=true;
     RSC_input.repeats=ui->repeats->value();
 
-    int userIndex = ui->comboBox->currentIndex();
+    RSC_input.userIndex = ui->comboBox->currentIndex();
 
-    if(userIndex==0) RSC_input.optstimfile="opt/StimList_Tom.txt";
-    if(userIndex==1) RSC_input.optstimfile="opt/StimList_Rachel.txt";
+    if(RSC_input.userIndex==0) RSC_input.optstimfile="opt/StimList_Tom.txt";
+    if(RSC_input.userIndex==1) RSC_input.optstimfile="opt/StimList_Rachel.txt";
 
     bool VisualStimulation_on=ui->radioButton->isChecked();
 

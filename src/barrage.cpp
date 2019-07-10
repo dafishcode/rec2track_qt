@@ -1160,7 +1160,7 @@ void barrage::displayXbackground(char* window,
     }
 }
 
-void barrage::VisualStimulation(string StimListFile, char* prefix, int repeats, bool &run){
+void barrage::VisualStimulation(string StimListFile, string prefix, int repeats, bool &run){
 
     double t0 = (double)cv::getTickCount();
     size_t i;
@@ -1342,7 +1342,7 @@ void barrage::VisualStimulation(string StimListFile, char* prefix, int repeats, 
 
 }
 
-void barrage::VisualStimulation_BG(string StimListFile, char *prefix, int repeats, bool &run)
+void barrage::VisualStimulation_BG(string StimListFile, string prefix, int repeats, bool &run)
 {
     double t0 = (double)cv::getTickCount();
     size_t i;

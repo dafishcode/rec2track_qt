@@ -21,7 +21,7 @@ public:
 
     circular_buffer_ts() {}
 
-    circular_buffer_ts(int n, char* pf,ofstream* lf) {
+    circular_buffer_ts(int n, string pf,ofstream* lf) {
         cb.set_capacity(n);
         frame_index.set_capacity(n);
         time_index.set_capacity(n);
@@ -142,7 +142,7 @@ private:
     bool writing_buffer;
     long int last_recorded_index;
 
-    char* proc_folder;
+    string proc_folder;
     ofstream* logfile;
     bool verbose=false;
 };

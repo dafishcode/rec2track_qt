@@ -3,7 +3,6 @@
 #include"include/mainwindow.h"
 
 using namespace std;
-using namespace FlyCapture2;
 
 int main(int argc, char** argv)
 {

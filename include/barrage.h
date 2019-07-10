@@ -51,8 +51,8 @@ public:
                           const vector<int>& random_order_all,
                           int background_type);
 
-    void VisualStimulation(string StimListFile, char* prefix, int repeats, bool &run);
-    void VisualStimulation_BG(string StimListFile, char* prefix, int repeats, bool &run);
+    void VisualStimulation(string StimListFile, string prefix, int repeats, bool &run);
+    void VisualStimulation_BG(string StimListFile, string prefix, int repeats, bool &run);
 
     size_t W;
     size_t H;

@@ -35,12 +35,13 @@ struct thread_data{
 
 struct thread_data2{
 	Camera *cam;
-    char* proc_folder;
+    string proc_folder;
     char* display;
-    char* optstimfile;
+    string optstimfile;
     size_t seq_size;
     bool crop;
     int repeats;
+    int userIndex; // 1=Tom, 2=Rachel
 };
 
 void my_handler(int);
