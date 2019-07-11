@@ -1043,12 +1043,15 @@ void barrage::ProgressBar(double d){
 
 }
 
-void barrage::WriteStim(char** argv)
+void barrage::WriteStim()
 {
 
     vector<Point*> points;
     vec2d* grid = new vec2d[W*H];
-    vector<stim> sti_ind(numEP);
+    vector<stim> sti_ind;
+    ifstream stimfile(optstimfile.c_str());
+    string stim_string;
+
 
     int i,j,k;
     double u,v;
@@ -1065,22 +1068,13 @@ void barrage::WriteStim(char** argv)
 
     }
 
-    bool all=(strcmp(argv[1],"ALL")==0) ? true : false;
     int ngen;
 
-    if(!all){
-        for(i=0;i<numEP;i++){
-            cout<<i<<": "<<code_stim(static_cast<stim>(i))<<endl;
-        }
-        cout<<endl;
-        cout<<"Select Stimulus: ";
-        cin>>i;
-        sti_ind[0]=static_cast<stim>(i);
-        ngen=1;
-    } else {
-        for(i=0;i<numEP;i++) sti_ind[i]=static_cast<stim>(i);
-        ngen=numEP;
+    while(stimfile>>stim_string){
+        sti_ind.push_back(string_to_stim(stim_string.c_str()));
     }
+
+    ngen=sti_ind.size();
 
     for(i=0;i<ngen;i++){
         points.resize(nframes_vec[sti_ind[i]]+1);

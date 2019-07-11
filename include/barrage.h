@@ -40,7 +40,7 @@ public:
     int matchtime(int64 timecamera, vector<int64>& trace2);
     void ProgressBar(double);
     void FillPoints(vector<unsigned char*> &,vector<stim> &);
-    void WriteStim(char **);
+    void WriteStim();
 
     double barrage_duration();
 

@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    StimulationBarrage.setStimLib();
 }
 
 MainWindow::~MainWindow()
@@ -122,4 +124,9 @@ void MainWindow::on_repeats_valueChanged(int arg1)
 void MainWindow::on_spinBox_inter_epoch_valueChanged(int arg1)
 {
     StimulationBarrage.inter_epoch_time=arg1;
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    StimulationBarrage.WriteStim();
 }

@@ -45,6 +45,8 @@ private slots:
 
     void on_spinBox_inter_epoch_valueChanged(int arg1);
 
+    void on_pushButton_4_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

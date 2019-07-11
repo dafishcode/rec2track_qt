@@ -617,9 +617,7 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
 
 void ReadImageSeq_vs(string prefix,char* display, int mode, char* format, barrage *Barrage,int maxind){
 
-    unsigned int i;
-
-    Barrage->setStimLib();
+    unsigned int i;  
 
     bool hide_trace=false;
 
