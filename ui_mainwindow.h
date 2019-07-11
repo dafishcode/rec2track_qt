@@ -34,7 +34,7 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
-    QWidget *horizontalLayoutWidget;
+    QGridLayout *gridLayout;
     QHBoxLayout *horizontalLayout;
     QGroupBox *groupBox_2;
     QWidget *gridLayoutWidget_2;
@@ -42,13 +42,21 @@ public:
     QLabel *label;
     QLineEdit *FolderEdit;
     QRadioButton *radioButton;
-    QComboBox *comboBox;
+    QSpinBox *spinBox_inter_epoch;
     QLabel *label_2;
+    QLabel *label_4;
+    QLabel *Duration;
     QSpinBox *repeats;
     QLabel *label_3;
+    QLabel *label_5;
     QPushButton *pushButton_2;
+    QComboBox *comboBox;
+    QLabel *label_6;
+    QSpinBox *spinBox_rectime;
+    QGridLayout *gridLayout_2;
     QGroupBox *groupBox;
     QPushButton *pushButton;
+    QGroupBox *groupBox_3;
     QPushButton *pushButton_3;
     QMenuBar *menubar;
     QStatusBar *statusbar;
@@ -57,20 +65,19 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(666, 255);
+        MainWindow->resize(554, 344);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        horizontalLayoutWidget = new QWidget(centralwidget);
-        horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(10, 10, 641, 201));
-        horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
+        gridLayout = new QGridLayout(centralwidget);
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        groupBox_2 = new QGroupBox(horizontalLayoutWidget);
+        groupBox_2 = new QGroupBox(centralwidget);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
+        groupBox_2->setMinimumSize(QSize(330, 0));
         gridLayoutWidget_2 = new QWidget(groupBox_2);
         gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
-        gridLayoutWidget_2->setGeometry(QRect(0, 30, 266, 152));
+        gridLayoutWidget_2->setGeometry(QRect(10, 30, 311, 216));
         gridLayout_4 = new QGridLayout(gridLayoutWidget_2);
         gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
         gridLayout_4->setContentsMargins(0, 0, 0, 0);
@@ -89,50 +96,101 @@ public:
 
         gridLayout_4->addWidget(radioButton, 0, 0, 1, 3);
 
-        comboBox = new QComboBox(gridLayoutWidget_2);
-        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+        spinBox_inter_epoch = new QSpinBox(gridLayoutWidget_2);
+        spinBox_inter_epoch->setObjectName(QString::fromUtf8("spinBox_inter_epoch"));
+        spinBox_inter_epoch->setValue(20);
 
-        gridLayout_4->addWidget(comboBox, 5, 1, 1, 1);
+        gridLayout_4->addWidget(spinBox_inter_epoch, 5, 2, 1, 1);
 
         label_2 = new QLabel(gridLayoutWidget_2);
         label_2->setObjectName(QString::fromUtf8("label_2"));
 
-        gridLayout_4->addWidget(label_2, 4, 0, 1, 1);
+        gridLayout_4->addWidget(label_2, 4, 0, 1, 2);
+
+        label_4 = new QLabel(gridLayoutWidget_2);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+
+        gridLayout_4->addWidget(label_4, 5, 0, 1, 2);
+
+        Duration = new QLabel(gridLayoutWidget_2);
+        Duration->setObjectName(QString::fromUtf8("Duration"));
+
+        gridLayout_4->addWidget(Duration, 8, 1, 1, 1);
 
         repeats = new QSpinBox(gridLayoutWidget_2);
         repeats->setObjectName(QString::fromUtf8("repeats"));
         repeats->setValue(1);
 
-        gridLayout_4->addWidget(repeats, 4, 1, 1, 1);
+        gridLayout_4->addWidget(repeats, 4, 2, 1, 1);
 
         label_3 = new QLabel(gridLayoutWidget_2);
         label_3->setObjectName(QString::fromUtf8("label_3"));
 
-        gridLayout_4->addWidget(label_3, 5, 0, 1, 1);
+        gridLayout_4->addWidget(label_3, 6, 0, 1, 2);
+
+        label_5 = new QLabel(gridLayoutWidget_2);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+
+        gridLayout_4->addWidget(label_5, 8, 0, 1, 1);
 
         pushButton_2 = new QPushButton(gridLayoutWidget_2);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
 
-        gridLayout_4->addWidget(pushButton_2, 5, 2, 1, 1);
+        gridLayout_4->addWidget(pushButton_2, 8, 2, 1, 1);
+
+        comboBox = new QComboBox(gridLayoutWidget_2);
+        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+
+        gridLayout_4->addWidget(comboBox, 6, 2, 1, 1);
+
+        label_6 = new QLabel(gridLayoutWidget_2);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+
+        gridLayout_4->addWidget(label_6, 7, 0, 1, 2);
+
+        spinBox_rectime = new QSpinBox(gridLayoutWidget_2);
+        spinBox_rectime->setObjectName(QString::fromUtf8("spinBox_rectime"));
+        spinBox_rectime->setValue(60);
+
+        gridLayout_4->addWidget(spinBox_rectime, 7, 2, 1, 1);
 
 
         horizontalLayout->addWidget(groupBox_2);
 
-        groupBox = new QGroupBox(horizontalLayoutWidget);
+        gridLayout_2 = new QGridLayout();
+        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
+        gridLayout_2->setSizeConstraint(QLayout::SetDefaultConstraint);
+        gridLayout_2->setContentsMargins(-1, -1, 0, -1);
+        groupBox = new QGroupBox(centralwidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setMinimumSize(QSize(120, 100));
+        groupBox->setMaximumSize(QSize(16777215, 16777215));
         pushButton = new QPushButton(groupBox);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(20, 30, 98, 27));
-        pushButton_3 = new QPushButton(groupBox);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-        pushButton_3->setGeometry(QRect(20, 70, 98, 27));
+        pushButton->setGeometry(QRect(10, 30, 98, 27));
 
-        horizontalLayout->addWidget(groupBox);
+        gridLayout_2->addWidget(groupBox, 0, 0, 1, 1);
+
+        groupBox_3 = new QGroupBox(centralwidget);
+        groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
+        groupBox_3->setMinimumSize(QSize(120, 100));
+        groupBox_3->setMaximumSize(QSize(16777215, 16777215));
+        pushButton_3 = new QPushButton(groupBox_3);
+        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+        pushButton_3->setGeometry(QRect(10, 30, 98, 27));
+
+        gridLayout_2->addWidget(groupBox_3, 1, 0, 1, 1);
+
+
+        horizontalLayout->addLayout(gridLayout_2);
+
+
+        gridLayout->addLayout(horizontalLayout, 0, 0, 1, 1);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 666, 22));
+        menubar->setGeometry(QRect(0, 0, 554, 22));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -149,17 +207,22 @@ public:
         groupBox_2->setTitle(QApplication::translate("MainWindow", "Settings", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("MainWindow", "Folder", 0, QApplication::UnicodeUTF8));
         radioButton->setText(QApplication::translate("MainWindow", "Visual Stimulation", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("MainWindow", "Repeats", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("MainWindow", "Inter epoch time (s)", 0, QApplication::UnicodeUTF8));
+        Duration->setText(QApplication::translate("MainWindow", "0 s", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("MainWindow", "User", 0, QApplication::UnicodeUTF8));
+        label_5->setText(QApplication::translate("MainWindow", "Barrage duration", 0, QApplication::UnicodeUTF8));
+        pushButton_2->setText(QApplication::translate("MainWindow", "Record", 0, QApplication::UnicodeUTF8));
         comboBox->clear();
         comboBox->insertItems(0, QStringList()
          << QApplication::translate("MainWindow", "Tom", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("MainWindow", "Rachel", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("MainWindow", "Dominic", 0, QApplication::UnicodeUTF8)
         );
-        label_2->setText(QApplication::translate("MainWindow", "Repeats", 0, QApplication::UnicodeUTF8));
-        label_3->setText(QApplication::translate("MainWindow", "User", 0, QApplication::UnicodeUTF8));
-        pushButton_2->setText(QApplication::translate("MainWindow", "Run", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("MainWindow", "Recording time (m)", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("MainWindow", "Display", 0, QApplication::UnicodeUTF8));
         pushButton->setText(QApplication::translate("MainWindow", "Show camera", 0, QApplication::UnicodeUTF8));
+        groupBox_3->setTitle(QApplication::translate("MainWindow", "Analysis", 0, QApplication::UnicodeUTF8));
         pushButton_3->setText(QApplication::translate("MainWindow", "Track", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

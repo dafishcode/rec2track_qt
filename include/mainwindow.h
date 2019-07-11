@@ -13,6 +13,7 @@
 #include<signal.h>
 #include<cstdio>
 #include"../include/functions2.h"
+#include"../include/barrage.h"
 
 
 namespace Ui {
@@ -28,12 +29,21 @@ public:
     ~MainWindow();
     void record();
 
+    barrage StimulationBarrage;
+
 private slots:
+
+    void updateBarrage();
+
     void on_pushButton_2_clicked();
 
     void on_pushButton_clicked();
 
     void on_pushButton_3_clicked();
+
+    void on_repeats_valueChanged(int arg1);
+
+    void on_spinBox_inter_epoch_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

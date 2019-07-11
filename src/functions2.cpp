@@ -615,40 +615,39 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
 }
 
 
-void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,string StimListFile,int maxind){
+void ReadImageSeq_vs(string prefix,char* display, int mode, char* format, barrage *Barrage,int maxind){
 
     unsigned int i;
 
-    barrage Barrage;
-    Barrage.setStimLib();
+    Barrage->setStimLib();
 
     bool hide_trace=false;
 
     // Build barrage
 
     map<int,int> StimMap;
-    ifstream StimList_file(StimListFile);
+    ifstream StimList_file(Barrage->optstimfile.c_str());
 
     vector<stim> StimList;
 
     string str;
     int counter=0;
     while(StimList_file>>str){
-        StimList.push_back(Barrage.string_to_stim(str.c_str()));
-        StimMap[(int)Barrage.string_to_stim(str.c_str())]=counter;
+        StimList.push_back(Barrage->string_to_stim(str.c_str()));
+        StimMap[(int)Barrage->string_to_stim(str.c_str())]=counter;
         counter++;
     }
 
-    cv::Mat mask_mat(Barrage.H,Barrage.W,CV_8U);
-    Barrage.get_vs_mask(mask_mat);
+    cv::Mat mask_mat(Barrage->H,Barrage->W,CV_8U);
+    Barrage->get_vs_mask(mask_mat);
     vector<unsigned char*> stimdata(StimList.size());
 
     for(i=0;i<StimList.size();i++){
-        stimdata[i] = new unsigned char[Barrage.H*Barrage.W*(Barrage.nframes_vec[(int)StimList[i]]+1)];
+        stimdata[i] = new unsigned char[Barrage->H*Barrage->W*(Barrage->nframes_vec[(int)StimList[i]]+1)];
     }
 
 
-    Barrage.FillPoints(stimdata,StimList);
+    Barrage->FillPoints(stimdata,StimList);
 
 
     int64 tmptime,tmpframe;
@@ -669,7 +668,7 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,string 
     while(tvs_file>>tmptime>>tmplab>>tmpframe){
         tvs.push_back(tmptime);
         if(strcmp(tmplab.c_str(),"-1")==0) stimseq.push_back(-1);
-        else stimseq.push_back(StimMap[(int)Barrage.string_to_stim(tmplab.c_str())]);
+        else stimseq.push_back(StimMap[(int)Barrage->string_to_stim(tmplab.c_str())]);
         frameseq.push_back(tmpframe);
     }
 
@@ -741,12 +740,12 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format,string 
 
         image=cv::imread(filename.str().c_str(),cv::IMREAD_UNCHANGED);
 
-        ind_vs=Barrage.matchtime(tcam[ind],tvs);
+        ind_vs=Barrage->matchtime(tcam[ind],tvs);
 
         if(stimseq[ind_vs]<0){
             image_vs=mask_mat;
         } else {
-            image_vs.data=stimdata[stimseq[ind_vs]]+Barrage.H*Barrage.W*frameseq[ind_vs];
+            image_vs.data=stimdata[stimseq[ind_vs]]+Barrage->H*Barrage->W*frameseq[ind_vs];
         }
 
         if(!image.empty()){
@@ -1053,6 +1052,7 @@ void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_
     bool large_blobs=false;
     setup_blob_detector(detector);
 
+
     mtx.lock();
     cout<<"Created blob detector on thread "<<boost::this_thread::get_id()<<endl;
     mtx.unlock();
@@ -1132,6 +1132,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
     mtx.lock();
     cout<<"Created main on thread "<<boost::this_thread::get_id()<<endl;
     mtx.unlock();
+    int64 initial_time=cv::getTickCount();
 
     FlyCapture2::Error error;
     CreateOutputFolder(RSC_input->proc_folder);
@@ -1175,6 +1176,12 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
         frame_counter++;
         mtx.unlock();
 
+        if((cv::getTickCount()-initial_time)/1e9>RSC_input->recording_time){
+            mtx.lock();
+            run=false;
+            mtx.unlock();
+        }
+
     }
 
     // Stop capturing images
@@ -1184,7 +1191,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
     error = RSC_input->cam->Disconnect();
 }
 
-void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON)
+void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Barrage)
 {
 
     // Set SIGINT
@@ -1286,10 +1293,9 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON)
     boost::thread T_PROC(blob_detector_thread,std::ref(circ_buffer),std::ref(center_head));
     // ################################################################################################
 
-    barrage Barrage;
     if(VisualStimulation_ON && run){
-        if(RSC_input->userIndex==0) Barrage.VisualStimulation(RSC_input->optstimfile, RSC_input->proc_folder,RSC_input->repeats,run);
-        else Barrage.VisualStimulation_BG(RSC_input->optstimfile, RSC_input->proc_folder,RSC_input->repeats,run);
+        if(!Barrage->Background_ON) Barrage->VisualStimulation(RSC_input->proc_folder,run);
+        else Barrage->VisualStimulation_BG(RSC_input->proc_folder,run);
     } else display_blobs(circ_buffer);
 
     if(T_REC.joinable()){

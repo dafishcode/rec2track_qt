@@ -33,20 +33,31 @@ void MainWindow::record(){
     RSC_input.proc_folder= tmp.toStdString();
     RSC_input.display="display";
     RSC_input.crop=true;
-    RSC_input.repeats=ui->repeats->value();
+    RSC_input.recording_time=ui->spinBox_rectime->value() * 60;
 
-    RSC_input.userIndex = ui->comboBox->currentIndex();
-
-    if(RSC_input.userIndex==0) RSC_input.optstimfile="opt/StimList_Tom.txt";
-    if(RSC_input.userIndex==1) RSC_input.optstimfile="opt/StimList_Rachel.txt";
+    updateBarrage();
 
     bool VisualStimulation_on=ui->radioButton->isChecked();
 
+    Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
+}
 
+void MainWindow::updateBarrage()
+{
+    int userIndex = ui->comboBox->currentIndex();
 
-    size_t counter;
+    if(userIndex==0) {
+        StimulationBarrage.optstimfile="../opt/StimList_Tom.txt";
+        StimulationBarrage.Background_ON=true;
+    }
 
-    Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on);
+    if(userIndex==1) {
+        StimulationBarrage.optstimfile="../opt/StimList_Rachel.txt";
+        StimulationBarrage.Background_ON=false;
+    }
+
+    StimulationBarrage.repeats=ui->repeats->value();
+    StimulationBarrage.inter_epoch_time=ui->spinBox_inter_epoch->value();
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -71,6 +82,7 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_pushButton_3_clicked()
 {
 
+    updateBarrage();
     int i;
     QString tmp=ui->FolderEdit->text();
     cv::namedWindow("display - track",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
@@ -84,18 +96,30 @@ void MainWindow::on_pushButton_3_clicked()
     while(getline(logfile,line)) LN++;
     logfile.close();
 
-    // Get Stim file
-    string optstimfile;
+    // Get Stim file    
     int userIndex = ui->comboBox->currentIndex();
-
-    if(userIndex==0) optstimfile="opt/StimList_Tom.txt";
-    if(userIndex==1) optstimfile="opt/StimList_Rachel.txt";
+    if(userIndex==0) StimulationBarrage.optstimfile="opt/StimList_Tom.txt";
+    if(userIndex==1) StimulationBarrage.optstimfile="opt/StimList_Rachel.txt";
 
     bool VisualStimulation_on=ui->radioButton->isChecked();
 
+
+
     if(VisualStimulation_on)
-        ReadImageSeq_vs(tmp.toStdString(),"display - track",0,".tiff",optstimfile,LN);
+        ReadImageSeq_vs(tmp.toStdString(),"display - track",0,".tiff",&StimulationBarrage,LN);
     else
         ReadImageSeq_and_track(tmp.toStdString(),"display - track",0,".tiff",LN);
 
+}
+
+void MainWindow::on_repeats_valueChanged(int arg1)
+{
+    updateBarrage();
+    StimulationBarrage.repeats=arg1;
+    ui->Duration->setText(QString::number(StimulationBarrage.barrage_duration())+" s");
+}
+
+void MainWindow::on_spinBox_inter_epoch_valueChanged(int arg1)
+{
+    StimulationBarrage.inter_epoch_time=arg1;
 }

@@ -1108,6 +1108,29 @@ void barrage::WriteStim(char** argv)
 
 }
 
+double barrage::barrage_duration()
+{
+    // Build barrage
+    ifstream StimList_file(optstimfile.c_str());
+
+    string str;
+    double duration=30; // initial wait in seconds
+    int nstim=0;
+
+    while(StimList_file>>str){
+        nstim++;
+        stim tmpstim=string_to_stim(str.c_str());
+        duration+=repeats*(nframes_vec[(int)tmpstim]*dt/1000.);
+    }
+
+    duration+=inter_epoch_time*(repeats*nstim-1);
+
+    StimList_file.close();
+
+    return(duration);
+}
+
+
 void barrage::displayXbackground(char* window,
                                  ofstream &ticksfile, ofstream &OUTFILE,
                                  const cv::Mat &mask_mat,
@@ -1160,7 +1183,7 @@ void barrage::displayXbackground(char* window,
     }
 }
 
-void barrage::VisualStimulation(string StimListFile, string prefix, int repeats, bool &run){
+void barrage::VisualStimulation(string prefix, bool &run){
 
     double t0 = (double)cv::getTickCount();
     size_t i;
@@ -1173,7 +1196,7 @@ void barrage::VisualStimulation(string StimListFile, string prefix, int repeats,
     vector<int> random_order;
 
     // Build barrage
-    ifstream StimList_file(StimListFile.c_str());
+    ifstream StimList_file(optstimfile.c_str());
     vector<stim> StimList;
     vector<stim> StimList_tmp;
     string str;
@@ -1182,7 +1205,7 @@ void barrage::VisualStimulation(string StimListFile, string prefix, int repeats,
         StimList.push_back(string_to_stim(str.c_str()));
         if(StimList.size()>1 && StimList.back()==CONCENTRIC){
             cout << "Please put CONCENTRIC in the first line of "<<
-                    StimListFile<<". Thanks."<<endl;
+                    optstimfile<<". Thanks."<<endl;
             exit(0);
         }
 
@@ -1342,7 +1365,7 @@ void barrage::VisualStimulation(string StimListFile, string prefix, int repeats,
 
 }
 
-void barrage::VisualStimulation_BG(string StimListFile, string prefix, int repeats, bool &run)
+void barrage::VisualStimulation_BG(string prefix, bool &run)
 {
     double t0 = (double)cv::getTickCount();
     size_t i;
@@ -1357,7 +1380,7 @@ void barrage::VisualStimulation_BG(string StimListFile, string prefix, int repea
 
 
     // Build barrage
-    ifstream StimList_file(StimListFile.c_str());
+    ifstream StimList_file(optstimfile.c_str());
     vector<stim> StimList;
     vector<stim> StimList_tmp;
     string str;
@@ -1369,7 +1392,7 @@ void barrage::VisualStimulation_BG(string StimListFile, string prefix, int repea
         StimList.push_back(string_to_stim(str.c_str()));
         if(StimList.back()==CONCENTRIC){
             cout << "Please remove CONCENTRIC from the StimList file "
-                 << StimListFile <<". Thanks."<<endl;
+                 << optstimfile <<". Thanks."<<endl;
             exit(0);
         }
 

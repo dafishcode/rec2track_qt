@@ -42,6 +42,8 @@ public:
     void FillPoints(vector<unsigned char*> &,vector<stim> &);
     void WriteStim(char **);
 
+    double barrage_duration();
+
     void displayXbackground(char* window,
                           ofstream &ticksfile, ofstream &OUTFILE,
                           const cv::Mat &mask_mat,
@@ -51,8 +53,8 @@ public:
                           const vector<int>& random_order_all,
                           int background_type);
 
-    void VisualStimulation(string StimListFile, string prefix, int repeats, bool &run);
-    void VisualStimulation_BG(string StimListFile, string prefix, int repeats, bool &run);
+    void VisualStimulation(string prefix, bool &run);
+    void VisualStimulation_BG(string prefix, bool &run);
 
     size_t W;
     size_t H;
@@ -64,6 +66,7 @@ public:
     double dt;
     int timeEP;
     int inter_epoch_time;
+    int repeats;
     int numEP;
     double hs;
     double th_max;
@@ -75,10 +78,12 @@ public:
     int nframes;
     double time_bar_horizontal;
     double time_bar_vertical;
-    int nframes_vec[47];
+    int nframes_vec[51];
     bool fading;
     Point *mask;
     vector<unsigned char> background;
+    string optstimfile;
+    bool Background_ON;
 
 private:
     double radDot(double);

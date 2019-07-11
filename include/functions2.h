@@ -3,6 +3,7 @@
 #include <FlyCapture2.h>
 #include <CameraBase.h>
 #include <iostream>
+#include"../include/barrage.h"
 
 using namespace std;
 using namespace FlyCapture2;
@@ -37,12 +38,10 @@ struct thread_data{
 struct thread_data2{
 	Camera *cam;
     string proc_folder;
-    char* display;
-    string optstimfile;
+    char* display;    
     size_t seq_size;
-    bool crop;
-    int repeats;
-    int userIndex; // 1=Tom, 2=Rachel
+    int recording_time;
+    bool crop;   
 };
 
 void my_handler(int);
@@ -54,9 +53,9 @@ void PrintFormat7Capabilities(Format7Info fmt7Info);
 void PrintCameraInfo(CameraInfo *pCamInfo);
 int Rec_SingleCamera(void*);
 void *Rec_onDisk_SingleCamera2(void *tdata, size_t &);
-void *Rec_onDisk_conditional(void *tdata,bool);
+void *Rec_onDisk_conditional(void *tdata,bool, barrage*);
 void ReadImageSeq(string prefix,char* display,int mode=0,char* format=".pgm",char* prefix0="",int maxind=1);
-void ReadImageSeq_vs(string prefix,char* display,int mode=0,char* format=".pgm",string prefix0="",int maxind=1);
+void ReadImageSeq_vs(string prefix,char* display,int mode=0,char* format=".pgm",barrage *B = nullptr,int maxind=1);
 void ReadImageSeq_and_track(string prefix,char* display,int mode=0,char* format=".pgm",int maxind=1);
 
 int Run_SingleCamera(PGRGuid);
