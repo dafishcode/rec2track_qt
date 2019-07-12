@@ -48,6 +48,7 @@ void my_handler(int);
 
 void SetCam(Camera *,F7&,const Mode, const PixelFormat);
 
+void CreateOutputFolder(string folder);
 void PrintBuildInfo();
 void PrintFormat7Capabilities(Format7Info fmt7Info);
 void PrintCameraInfo(CameraInfo *pCamInfo);

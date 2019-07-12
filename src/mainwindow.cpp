@@ -38,8 +38,10 @@ void MainWindow::record(){
     RSC_input.recording_time=ui->spinBox_rectime->value() * 60;
 
     updateBarrage();
+    CreateOutputFolder(RSC_input.proc_folder);
 
     bool VisualStimulation_on=ui->radioButton->isChecked();
+    cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
     Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
 }

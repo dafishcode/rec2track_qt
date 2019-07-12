@@ -259,10 +259,13 @@ void CreateOutputFolder(string folder){
 
 void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
 
+    int ind_brightness=0, ind_brightness_max=100;
+    double brightness;
     Image rawImage;
     cv::Mat tmp_image;
     cv::namedWindow("ROI selection",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     cv::resizeWindow("ROI selection", 800,800);
+    cv::createTrackbar( "brightness", "ROI selection", &ind_brightness, ind_brightness_max);
 
     // Retrieve a single image
     cam->RetrieveBuffer(&rawImage);
@@ -283,15 +286,16 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
     
     char key=' ';
     while(key!='q'){
+        brightness=0.2+(2-0.2)*(ind_brightness-1)/ind_brightness_max;
         if(tmp_center.status){
             cvm.copyTo(drawing);
             cv::rectangle(drawing,tmp_center.pt1,tmp_center.pt2,255,4,8,0);
             ostringstream info;
             info<<"center = ("<<tmp_center.center.x<<','<<tmp_center.center.y<<")";
-            cv::imshow("ROI selection",drawing);
+            cv::imshow("ROI selection",brightness*drawing);
             cv::displayStatusBar("ROI selection",info.str(),0);
             center=tmp_center;
-        } else cv::imshow("ROI selection",drawing);
+        } else cv::imshow("ROI selection",brightness*drawing);
 
         key=cv::waitKey(10);
         if(key=='r'){
@@ -306,6 +310,8 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
 
 void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=100){
 
+    int ind_brightness=0, ind_brightness_max=100;
+    double brightness;
     cv::namedWindow("ROI selection",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     cv::resizeWindow("ROI selection", 800,800);
 
@@ -315,21 +321,23 @@ void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=100){
     tmp_center.WinSize=ROISize;
     tmp_center.OrigSize=cvm.size();
     cv::setMouseCallback("ROI selection",on_mouse,&tmp_center);
+    cv::createTrackbar( "brightness", "ROI selection", &ind_brightness, ind_brightness_max);
 
     cv::Mat drawing;
     cvm.copyTo(drawing);
 
     char key=' ';
     while(key!='q'){
+        brightness=0.2+(2-0.2)*(ind_brightness-1)/ind_brightness_max;
         if(tmp_center.status){
             cvm.copyTo(drawing);
             cv::rectangle(drawing,tmp_center.pt1,tmp_center.pt2,255,4,8,0);
             ostringstream info;
             info<<"center = ("<<tmp_center.center.x<<','<<tmp_center.center.y<<")";
-            cv::imshow("ROI selection",drawing);
+            cv::imshow("ROI selection",brightness*drawing);
             cv::displayStatusBar("ROI selection",info.str(),0);
             center=tmp_center;
-        } else cv::imshow("ROI selection",drawing);
+        } else cv::imshow("ROI selection",brightness*drawing);
 
         key=cv::waitKey(10);
         if(key=='r'){
@@ -1133,7 +1141,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
     int64 initial_time=cv::getTickCount();
 
     FlyCapture2::Error error;
-    CreateOutputFolder(RSC_input->proc_folder);
+
 
     unsigned char* data;
 

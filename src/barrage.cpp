@@ -66,7 +66,7 @@ barrage::barrage(){
 
     nframes_vec[46]=nframes; // CONCENTRIC
 
-    for(unsigned int k=47;k<50;++k) nframes_vec[k]=nframes; // WDOTS
+    for(unsigned int k=47;k<50;++k) nframes_vec[k]=floor(5.0/dt*1000); // WDOTS TOM
 
     mask = new Point[H*W];
 
@@ -1134,10 +1134,6 @@ void barrage::displayXbackground(char* window,
     int k=0;
     int epID=(CONCENTRIC_ON) ? 0 : 1;
 
-    // Display the mask and wait
-    cv::imshow(window,mask_mat);
-    cout<<"Wait 30 seconds..."<<endl;
-    cv::waitKey(30000);
 
     ticksfile<<cv::getTickCount()<<" -1 0"<<endl;
 
@@ -1497,10 +1493,17 @@ void barrage::VisualStimulation_BG(string prefix, bool &run)
 
     int background_type=(rng.uniform((double)0,(double)1)<.5) ? 0 : 1;
 
+    // Display the mask and wait
+    cv::imshow("vs",mask_mat[background_type]);
+    cout<<"Wait 30 seconds..."<<endl;
+    cv::waitKey(30000);
+
     displayXbackground("vs",ticksfile,OUTFILE,mask_mat[background_type],numEP_spec,t0,stimdata,StimList,random_order_all,background_type);
 
     CONCENTRIC_ON=false;
     background_type=(background_type==1) ? 0 : 1;
+
+    cv::waitKey(inter_epoch_time*1000);
 
     displayXbackground("vs",ticksfile,OUTFILE,mask_mat[background_type],numEP_spec,t0,stimdata,StimList,random_order_all,background_type);
 
