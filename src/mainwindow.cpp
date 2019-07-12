@@ -49,12 +49,12 @@ void MainWindow::updateBarrage()
     int userIndex = ui->comboBox->currentIndex();
 
     if(userIndex==0) {
-        StimulationBarrage.optstimfile="../opt/StimList_Tom.txt";
+        StimulationBarrage.optstimfile="/home/meyerlab/rec2track_qt/opt/StimList_Tom.txt";
         StimulationBarrage.Background_ON=true;
     }
 
     if(userIndex==1) {
-        StimulationBarrage.optstimfile="../opt/StimList_Rachel.txt";
+        StimulationBarrage.optstimfile="/home/meyerlab/rec2track_qt/StimList_Rachel.txt";
         StimulationBarrage.Background_ON=false;
     }
 
@@ -128,5 +128,7 @@ void MainWindow::on_spinBox_inter_epoch_valueChanged(int arg1)
 
 void MainWindow::on_pushButton_4_clicked()
 {
+    updateBarrage();
+    StimulationBarrage.transform_image("/home/meyerlab/rec2track_qt/opt/background.jpg");
     StimulationBarrage.WriteStim();
 }

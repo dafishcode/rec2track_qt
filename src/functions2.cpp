@@ -1187,13 +1187,17 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
 
     // Disconnect the camera
     error = RSC_input->cam->Disconnect();
+
+    mtx.lock();
+    cout<<"Camera disconnected."<<endl;
+    mtx.unlock();
 }
 
 void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Barrage)
 {
 
     // Set SIGINT
-    signal(SIGINT,my_handler);
+    //signal(SIGINT,my_handler);
 
     // Retrieve RSC input from main
     struct thread_data2 * RSC_input;

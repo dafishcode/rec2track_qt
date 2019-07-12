@@ -39,7 +39,7 @@ barrage::barrage(){
 
     // Time settings
     dt=40;
-    numEP=51;
+    numEP=50;
     timeEP=10;
     inter_epoch_time=20;
     //double rp_max=sqrt(pow(d+(r-r*cos(th_max)),2)+pow(r*sin(th_max),2)+pow(get_z((double)th_max,ymax),2));
@@ -66,7 +66,7 @@ barrage::barrage(){
 
     nframes_vec[46]=nframes; // CONCENTRIC
 
-    for(unsigned int k=47;k<51;++k) nframes_vec[k]=nframes; // WDOTS
+    for(unsigned int k=47;k<50;++k) nframes_vec[k]=nframes; // WDOTS
 
     mask = new Point[H*W];
 
@@ -237,9 +237,6 @@ string barrage::code_stim(stim s){
     case WDOT_T3:
         r="WDOT_T3";
         break;
-    case WDOT_T4:
-        r="WDOT_T4";
-        break;
     case CONCENTRIC :
         r = "CONCENTRIC";
         break;
@@ -332,7 +329,6 @@ stim barrage::string_to_stim(const char* s){
     else if(strcmp(s,"WDOT_T1")==0) r=WDOT_T1;
     else if(strcmp(s,"WDOT_T2")==0) r=WDOT_T2;
     else if(strcmp(s,"WDOT_T3")==0) r=WDOT_T3;
-    else if(strcmp(s,"WDOT_T4")==0) r=WDOT_T4;
     else if(strcmp(s,"CONCENTRIC")==0) r=CONCENTRIC;
     else {
         std::cout<<"Stimulus "<<s<<" not recognized"<<std::endl;
@@ -351,7 +347,7 @@ double barrage::spatFreq(double angle){
 }
 
 void barrage::setStimLib(){
-    ifstream StimLib_optfile("/home/meyerlab/camera/opt/StimLibFolder.txt");
+    ifstream StimLib_optfile("/home/meyerlab/rec2track_qt/opt/StimLibFolder.txt");
     StimLib_optfile>>stimlibloc;
     StimLib_optfile.close();
 }
@@ -438,7 +434,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
     unsigned int i,ti;
     double x,y;
     int P0=0,P1=0;
-    ProgressBar(0);
+    //ProgressBar(0);
 
     switch (s) {
     // ---------- LOOMing stimulus --------------
@@ -468,7 +464,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
             P1 = floor(((double)ti) / NF *100);
             if(P1>=P0+1){
-                ProgressBar(((double)ti) / NF);
+                //ProgressBar(((double)ti) / NF);
                 P0=P1;
             }
 
@@ -522,7 +518,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
             P1 = floor(((double)ti) / NF *100);
             if(P1>=P0+1){
-                ProgressBar(((double)ti) / NF);
+                //ProgressBar(((double)ti) / NF);
                 P0=P1;
             }
 
@@ -592,7 +588,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
             P1 = floor(((double)ti) / NF *100);
             if(P1>=P0+1){
-                ProgressBar(((double)ti) / NF);
+                //ProgressBar(((double)ti) / NF);
                 P0=P1;
             }
 
@@ -726,7 +722,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
             P1 = floor(((double)ti) / NF *100);
             if(P1>=P0+1){
-                ProgressBar(((double)ti) / NF);
+                //ProgressBar(((double)ti) / NF);
                 P0=P1;
             }
 
@@ -788,7 +784,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
             P1 = floor(((double)ti) / NF *100);
             if(P1>=P0+1){
-                ProgressBar(((double)ti) / NF);
+                //ProgressBar(((double)ti) / NF);
                 P0=P1;
             }
 
@@ -870,7 +866,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
             P1 = floor(((double)ti) / NF *100);
             if(P1>=P0+1){
-                ProgressBar(((double)ti) / NF);
+                //ProgressBar(((double)ti) / NF);
                 P0=P1;
             }
 
@@ -879,18 +875,17 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
         cout<<endl;
         break;
 
-    case WDOT_T1 : case WDOT_T2 : case WDOT_T3 : case WDOT_T4 :
+    case WDOT_T1 : case WDOT_T2 : case WDOT_T3 :
         rad_dot=radDot(5.0);
 
         switch (s) {
         case WDOT_T1: wdotx=1; break;
         case WDOT_T2: wdotx=2; break;
         case WDOT_T3: wdotx=3; break;
-        case WDOT_T4: wdotx=4; break;
         }
 
         // Set random generator
-        cen_dots_x=rdelta*(wdotx-2.5) ;
+        cen_dots_x=rdelta*(wdotx-2) ;
         cen_dots_y=ymax/10.;
 
         th_ran=gsl_ran_flat(rg,0,2*pi);
@@ -900,8 +895,8 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
             step_dots_y=dot_diff*sin(th_ran);
             th_ran+=gsl_ran_gaussian(rg,pi/12);
 
-            while(cen_dots_x+step_dots_x+1.5*rad_dot>rdelta*(wdotx-2.5)+0.5*rdelta ||
-                  cen_dots_x+step_dots_x-1.5*rad_dot<rdelta*(wdotx-2.5)-0.5*rdelta ||
+            while(cen_dots_x+step_dots_x+1.5*rad_dot>rdelta*(wdotx-2)+0.5*rdelta ||
+                  cen_dots_x+step_dots_x-1.5*rad_dot<rdelta*(wdotx-2)-0.5*rdelta ||
                   cen_dots_y+step_dots_y+2*rad_dot>ymax/3. ||
                   cen_dots_y+step_dots_y-2*rad_dot<0){
 
@@ -939,7 +934,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
             P1 = floor(((double)ti) / NF *100);
             if(P1>=P0+1){
-                ProgressBar(((double)ti) / NF);
+                //ProgressBar(((double)ti) / NF);
                 P0=P1;
             }
 
@@ -970,7 +965,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
             P1 = floor(((double)ti) / NF *100);
             if(P1>=P0+1){
-                ProgressBar(((double)ti) / NF);
+                //ProgressBar(((double)ti) / NF);
                 P0=P1;
             }
 
@@ -1070,6 +1065,7 @@ void barrage::WriteStim()
 
     int ngen;
 
+    cout<<optstimfile<<endl;
     while(stimfile>>stim_string){
         sti_ind.push_back(string_to_stim(stim_string.c_str()));
     }
@@ -1138,11 +1134,13 @@ void barrage::displayXbackground(char* window,
     int k=0;
     int epID=(CONCENTRIC_ON) ? 0 : 1;
 
+    // Display the mask and wait
+    cv::imshow(window,mask_mat);
     cout<<"Wait 30 seconds..."<<endl;
     cv::waitKey(30000);
 
     ticksfile<<cv::getTickCount()<<" -1 0"<<endl;
-    cv::imshow(window,mask_mat);
+
     cv::waitKey(1000);
     cv::Mat A(H,W,CV_8U,cv::Scalar(0));
     cv::Mat Asub(H,W,CV_8U,cv::Scalar(0));
@@ -1326,11 +1324,13 @@ void barrage::VisualStimulation(string prefix, bool &run){
     //cv::resizeWindow("vs",1024,678);
     cv::setWindowProperty("vs", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
     // ##############################################################################
+
+    // Display the mask and wait
+    cv::imshow("vs",mask_mat);
     cout<<"Wait 30 seconds..."<<endl;
     cv::waitKey(30000);
 
-    ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
-    cv::imshow("vs",mask_mat);
+    ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;    
     cv::waitKey(1000);
     cv::Mat A(H,W,CV_8U);
 
@@ -1503,5 +1503,8 @@ void barrage::VisualStimulation_BG(string prefix, bool &run)
     background_type=(background_type==1) ? 0 : 1;
 
     displayXbackground("vs",ticksfile,OUTFILE,mask_mat[background_type],numEP_spec,t0,stimdata,StimList,random_order_all,background_type);
+
+    cout<<"exiting."<<endl;
+    cv::destroyAllWindows();
 }
 
