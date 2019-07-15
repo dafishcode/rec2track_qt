@@ -27,7 +27,8 @@ void MainWindow::record(){
     Mode mode;
     mode=MODE_1;
 
-    Camera cam; cam.Connect(&guid); SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8);
+    Camera cam; cam.Connect(&guid);
+    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8);
 
     struct thread_data2 RSC_input;
     QString tmp=ui->FolderEdit->text();

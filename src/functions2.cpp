@@ -195,7 +195,6 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
     //f7.config.numBuffers = 10; THIS IS CORRECT
     f7.config.numBuffers = 10;
 
-
     // Set the camera configuration
     cam->SetConfiguration(&(f7.config));
 
@@ -241,6 +240,14 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
     error = cam->SetProperty( &prop );
     // #############################################################################
 
+    // Set TRIGGER /////////////////////////////////////////////////////////////////
+    TriggerMode mTrigger;
+    mTrigger.mode = 0;
+    mTrigger.source = 3;
+    mTrigger.parameter = 0;
+    mTrigger.onOff = true;
+    mTrigger.polarity = 0;
+    cam->SetTriggerMode(&mTrigger);
     
     // Start capturing images
     cam->StartCapture();
@@ -777,6 +784,26 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format, barrag
     }
 }
 
+int WaitTrigger(Camera *cam, int &start){
+
+    // Set TRIGGER /////////////////////////////////////////////////////////////////
+    TriggerMode mTrigger;
+    mTrigger.mode = 0;
+    mTrigger.source = 3;
+    mTrigger.parameter = 0;
+    mTrigger.onOff = true;
+    mTrigger.polarity = 0;
+    cam->SetTriggerMode(&mTrigger);
+
+    Image rawImage;
+    cam->RetrieveBuffer(&rawImage);
+    start=1;
+
+    mTrigger.onOff = false;
+    cam->SetTriggerMode(&mTrigger);
+
+}
+
 int Run_SingleCamera(PGRGuid guid)
 {
 
@@ -823,6 +850,8 @@ int Run_SingleCamera(PGRGuid guid)
     cam.ValidateFormat7Settings(&fmt7ImageSettings, &valid, &fmt7PacketInfo);
     cam.SetFormat7Configuration(&fmt7ImageSettings, fmt7PacketInfo.recommendedBytesPerPacket);
 
+
+
     // Start capturing images
     cam.StartCapture();
 
@@ -834,7 +863,7 @@ int Run_SingleCamera(PGRGuid guid)
     while (cv::waitKey(30)!='q')
     {
         // Retrieve an image
-        cam.RetrieveBuffer(&rawImage);
+        cam.RetrieveBuffer(&rawImage);        
 
         // Create a converted image
         Image convertedImage=rawImage;
@@ -1258,26 +1287,28 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     // ##############################################################################
 
     // Snippet for detecting laser scanning on the head ROI /////////////
-    double rat=1;
-    double old_sum=-1, new_sum;
-    while(rat<1.5 && run){
-        RSC_input->cam->RetrieveBuffer(&rawImage);       
-        data = rawImage.GetData();
-        cv::Mat cvm(rawImage.GetRows(),rawImage.GetCols(),CV_8U,(void*)data);
-        cv::Mat image,headROI;
-        image=cvm(cv::Range(center.pt1.y,center.pt2.y),cv::Range(center.pt1.x,center.pt2.x));
-        headROI=image(cv::Range(center_head.pt1.y,center_head.pt2.y),cv::Range(center_head.pt1.x,center_head.pt2.x));
-        if(old_sum<0){
-            old_sum=cv::sum(headROI)[0];
-            new_sum=old_sum;
-        } else {
-            old_sum=new_sum;
-            new_sum=cv::sum(headROI)[0];
-            if(new_sum>0) rat=new_sum/old_sum;
-        }
-    }
+//    double rat=1;
+//    double old_sum=-1, new_sum;
+//    while(rat<1.5 && run){
+//        RSC_input->cam->RetrieveBuffer(&rawImage);
+//        data = rawImage.GetData();
+//        cv::Mat cvm(rawImage.GetRows(),rawImage.GetCols(),CV_8U,(void*)data);
+//        cv::Mat image,headROI;
+//        image=cvm(cv::Range(center.pt1.y,center.pt2.y),cv::Range(center.pt1.x,center.pt2.x));
+//        headROI=image(cv::Range(center_head.pt1.y,center_head.pt2.y),cv::Range(center_head.pt1.x,center_head.pt2.x));
+//        if(old_sum<0){
+//            old_sum=cv::sum(headROI)[0];
+//            new_sum=old_sum;
+//        } else {
+//            old_sum=new_sum;
+//            new_sum=cv::sum(headROI)[0];
+//            if(new_sum>0) rat=new_sum/old_sum;
+//        }
+//    }
     // ####################################################################
 
+    int triggered=0;
+    WaitTrigger(RSC_input->cam,triggered);
     cout<<"Start!"<<endl;    
     cout<<"Wait 30 seconds..."<<endl;
 

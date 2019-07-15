@@ -47,7 +47,7 @@ struct thread_data2{
 void my_handler(int);
 
 void SetCam(Camera *,F7&,const Mode, const PixelFormat);
-
+int WaitTrigger(Camera &cam, int &start);
 void CreateOutputFolder(string folder);
 void PrintBuildInfo();
 void PrintFormat7Capabilities(Format7Info fmt7Info);
