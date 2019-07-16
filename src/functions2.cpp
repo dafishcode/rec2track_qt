@@ -562,9 +562,12 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
         stringstream ss;
         ss<<prefix<<'/'<<fixedLengthString(ind)<<".pgm";
         image=cv::imread(ss.str().c_str(),cv::IMREAD_UNCHANGED);
+        cout<<ss.str()<<endl;
         ind++;
     }
     // #####################################################################
+
+
 
     cv::namedWindow(display,cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO );
     cv::resizeWindow(display, 800,800);
@@ -614,9 +617,9 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
             vector<cv::Point2i> a_pts;
             cv::Point2d tangent;
             tangent=p.pt2-p.pt1;
-            th=-2+2./50*th_int;
+            th=-2+4./50*th_int;
 
-            get_interp4(image,p.pt1,tangent,step,a_pts,AP_N,max_angle,th,2*blur+1);
+            get_interp5(image,p.pt1,tangent,step,a_pts,AP_N,max_angle,th,2*blur+1);
             if(!hide_trace) for(unsigned int j=0;j<a_pts.size()-1;++j) cv::line(image,a_pts[j],a_pts[j+1],255,1);
 
             brightness=0.5+(brightness_int-1)/100.*(4-0.5);
@@ -627,6 +630,8 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
 
         c=cv::waitKey(10);
     }
+
+    cv::destroyWindow(display);
 }
 
 

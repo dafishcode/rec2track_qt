@@ -18,3 +18,4 @@ void get_interp(cv::Mat &src, cv::Point2i start, cv::Point2d tgt,vector<cv::Poin
 void get_interp2(cv::Mat &src, cv::Point2i start, cv::Point2d tgt,double, vector<cv::Point2i>& anchor_pts);
 void get_interp3(cv::Mat &src, cv::Point2i start, cv::Point2d tgt,double, vector<cv::Point2i>& anchor_pts);
 void get_interp4(cv::Mat &src, cv::Point2i start, cv::Point2d tgt,int, vector<cv::Point2i>& anchor_pts,const size_t AP, int,double,int);
+void get_interp5(cv::Mat &src, cv::Point2i start, cv::Point2d tgt,int, vector<cv::Point2i>& anchor_pts,const size_t AP, int,double,int);

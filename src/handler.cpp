@@ -239,6 +239,86 @@ void get_interp4(Mat &src0, Point2i start, Point2d tgt_start,
 }
 
 
+void get_interp5(Mat &src0, Point2i start, Point2d tgt_start,
+                 int step, vector<Point2i>& anchor_pts,
+                 const size_t AP_N,int max_angle,double threshold,int blur){
+
+    Mat kernel = (Mat_<float>(3,3) << 1,  1, 1,
+                                      1, -8, 1,
+                                      1,  1, 1);
+
+    Mat src,src1;
+    Mat ones(src0.rows,src0.cols,CV_32F,Scalar(1));
+
+    src0.convertTo(src,CV_32F,1./255);
+    src1 = Mat::zeros(src.size(),CV_32F);
+    Mat draw, imgLaplacian,mask, draw_inv;
+    GaussianBlur(src,draw,Size(blur,blur),2*blur,2*blur);
+
+    filter2D(draw,imgLaplacian,CV_32F,kernel);
+    cv::threshold(imgLaplacian, mask,threshold,1,THRESH_BINARY);
+    mask.convertTo(mask,CV_8U);
+    //draw_inv=ones-draw;
+    draw_inv=draw;
+    draw_inv.copyTo(src1,mask);
+
+    vector<Point2i> tmp_pts(AP_N);
+    Point2i tgt;
+    Point2i mid;
+    anchor_pts.resize(AP_N);
+    anchor_pts[0]=start;
+    tmp_pts[0]=start;
+    unsigned int k=0;
+    double loc,loc_add, val=0;
+    int angle;
+    ofstream out("file.log");
+
+    for(k=1;k<AP_N;k++){
+        vector<Point2i> ellipse_pts;
+        if(k==1) tgt=tgt_start;
+        else tgt=tmp_pts[k-1]-tmp_pts[k-2];
+
+        if(tgt.x>0 ){
+            angle=floor(atan((double)tgt.y/tgt.x)/CV_PI*180);
+        } else if(tgt.x<0) {
+            angle=180+floor(atan((double)tgt.y/tgt.x)/CV_PI*180);
+        } else if(tgt.x==0){
+            if(tgt.y>0) angle=90;
+            else angle=-90;
+        }
+
+        ellipse2Poly(tmp_pts[k-1], Size(step,step), 0, angle-max_angle, angle+max_angle, 1, ellipse_pts);
+
+        int index;
+        loc_add=0;
+        index=0;
+        for(index=0;index<ellipse_pts.size()-1;++index){
+            Point2i triangle[1][3];
+            triangle[0][0]=tmp_pts[k-1];
+            triangle[0][1]=ellipse_pts[index];
+            triangle[0][2]=ellipse_pts[index+1];
+
+            const Point* ppt[1] = { triangle[0] };
+            int npt[]={3};
+
+            Mat mask(src0.rows,src0.cols,CV_8U,Scalar(0));
+
+            fillPoly(mask,ppt,npt,1,Scalar(1));
+
+
+            loc=cv::mean(src1,mask)[0];
+            if(loc>loc_add){
+                tmp_pts[k]=ellipse_pts[index];
+                loc_add=loc;
+            }
+        }
+
+        //out<<tgt<<' '<<angle<<' '<<tmp_pts[k]<<' '<<loc<<' '<<index<<' '<<ellipse_pts.size()<<endl;
+
+        anchor_pts[k]=tmp_pts[k];
+    }
+    out<<endl;
+}
 
 
 
