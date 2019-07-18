@@ -8,6 +8,19 @@
 using namespace std;
 using namespace cv;
 
+int get_angle_deg(const Point2i& tgt){
+    int angle;
+    if(tgt.x>0 ){
+        angle=floor(atan((double)tgt.y/tgt.x)/CV_PI*180);
+    } else if(tgt.x<0) {
+        angle=180+floor(atan((double)tgt.y/tgt.x)/CV_PI*180);
+    } else if(tgt.x==0){
+        if(tgt.y>0) angle=90;
+        else angle=-90;
+    }
+    return(angle);
+}
+
 void mouse_GetVector(int event, int x, int y, int flags, void* p){
     mouse_GetVector_param* param=(mouse_GetVector_param*)p;
 	if  ( event == cv::EVENT_LBUTTONDOWN ){
@@ -238,7 +251,7 @@ void get_interp4(Mat &src0, Point2i start, Point2d tgt_start,
 	out<<endl;
 }
 
-
+// Uses fillPoly to use the cones instead of single pixel values.
 void get_interp5(Mat &src0, Point2i start, Point2d tgt_start,
                  int step, vector<Point2i>& anchor_pts,
                  const size_t AP_N,int max_angle,double threshold,int blur){
@@ -320,6 +333,74 @@ void get_interp5(Mat &src0, Point2i start, Point2d tgt_start,
     out<<endl;
 }
 
+// use 2-points search
+void get_interp_quadsearch(Mat &src0, Point2i start, Point2d tgt_start,
+                 int step, vector<Point2i>& anchor_pts,
+                 const size_t AP_N,int max_angle,double threshold,int blur,int circle_size, const Mat& mask){
+
+
+    Mat src,src1,sub;
+    Mat draw;
+
+
+
+    cv::subtract(src0,mask,sub);
+
+    src=0.5*src0+sub*0.5;
+    medianBlur(src,src1,blur);
+
+    vector<Point2i> tmp_pts(AP_N);
+    Point2i tgt1,tgt2;
+    anchor_pts.resize(AP_N);
+    anchor_pts[0]=start;
+    tmp_pts[0]=start;
+    unsigned int k=0;
+    double loc1,loc2,loc_add, val=0;
+    int angle1, angle2;
+    ofstream out("file.log");
+
+    for(k=1;k<AP_N;k++){
+        vector<Point2i> ellipse_pts1, ellipse_pts2;
+        if(k==1) tgt1=tgt_start;
+        else tgt1=tmp_pts[k-1]-tmp_pts[k-2];
+
+        angle1=get_angle_deg(tgt1);
+
+        ellipse2Poly(tmp_pts[k-1], Size(step,step), 0, angle1-max_angle, angle1+max_angle, 1, ellipse_pts1);
+
+        int index1,index2;
+        loc_add=0;
+
+        for(index1=0;index1<ellipse_pts1.size();++index1){
+            Mat circle1(src.size(),CV_8U,Scalar(0));
+            circle(circle1,ellipse_pts1[index1],circle_size,Scalar(1),-1);
+            loc1=mean(src1,circle1)[0];
+
+            tgt2=ellipse_pts1[index1]-tmp_pts[k-1];
+            angle2=get_angle_deg(tgt2);
+
+            ellipse_pts2.resize(0);
+            ellipse2Poly(ellipse_pts1[index1], Size(step,step), 0, angle2-max_angle, angle2+max_angle, 1, ellipse_pts2);
+
+            for(index2=0;index2<ellipse_pts2.size();++index2){
+                Mat circle2(src.size(),CV_8U,Scalar(0));
+                circle(circle2,ellipse_pts2[index2],circle_size,Scalar(1),-1);
+                loc2=loc1+mean(src1,circle2)[0];
+
+                if(loc2>loc_add){
+                    tmp_pts[k]=ellipse_pts1[index1];
+                    loc_add=loc2;
+                }
+            }
+
+
+        }
+
+        anchor_pts[k]=tmp_pts[k];
+    }
+
+    out<<endl;
+}
 
 
 

@@ -547,11 +547,12 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
     int ind=0;
     int speed=1;
     int max_angle=20;
-    int blur=4;
-    int AP_N=20;
+    int blur=2;
+    int circle_size=3;
+    int AP_N=10;
     double th;
     int th_int=0;
-    int step=4;
+    int step=17;
     int brightness_int=0;
     double brightness;
 
@@ -562,22 +563,23 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
         stringstream ss;
         ss<<prefix<<'/'<<fixedLengthString(ind)<<".pgm";
         image=cv::imread(ss.str().c_str(),cv::IMREAD_UNCHANGED);
-        cout<<ss.str()<<endl;
+        //cout<<ss.str()<<endl;
         ind++;
     }
     // #####################################################################
 
 
-
     cv::namedWindow(display,cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO );
+    cv::namedWindow("fg mask",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO );
     cv::resizeWindow(display, 800,800);
     cv::createTrackbar( "level", display, &ind, maxind);
     cv::createTrackbar( "speed", display, &speed, 50);
     cv::createTrackbar( "max_angle", display, &max_angle, 50);
     cv::createTrackbar( "anchors", display, &AP_N, 50);
-    cv::createTrackbar( "th", display, &th_int, 50);
+    cv::createTrackbar( "th", display, &th_int, 500);
     cv::createTrackbar( "step", display, &step, 20);
     cv::createTrackbar( "blur", display, &blur, 8);
+    cv::createTrackbar( "circle size", display, &circle_size, 8);
     cv::createTrackbar( "brightness", display, &brightness_int, 100);
 
     cout << "Reading image sequence. Press q to exit." << endl;
@@ -596,11 +598,34 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
             cv::circle(image,p.pt2,10,255);
         }
         if(!image.empty()) {
-            brightness=0.5+(brightness_int-1)/100.*(4-0.5);
-            cv::imshow(display,brightness*image);
+            brightness=0.5+(brightness_int-1)/100.*(10-0.5);
+            cv::imshow(display,brightness*image);            
         }
         c=cv::waitKey(10);
+        if(c=='q'){break; cv::destroyAllWindows(); exit(0);}
     }
+
+    cv::Mat background(image.size(),CV_32F,cv::Scalar(0));
+
+    int counter=0;
+    i=ind;
+    while(i<1000){
+        stringstream filename;
+        filename<<prefix<<'/'<<fixedLengthString(i)<<".pgm";
+        image=cv::imread(filename.str().c_str(),cv::IMREAD_UNCHANGED);
+        if(!image.empty()){
+            image.convertTo(image,CV_32F);
+            background+=image;
+            counter++;
+        }
+        i++;
+        cout<<i<<"       \r";
+    }
+
+    cout<<endl;
+    background/=counter;
+    background.convertTo(background,CV_8U);
+
 
     while(c!='q'){
         if(c=='f') ind+=speed;
@@ -617,13 +642,19 @@ void ReadImageSeq_and_track(string prefix,char* display, int mode, char* format,
             vector<cv::Point2i> a_pts;
             cv::Point2d tangent;
             tangent=p.pt2-p.pt1;
-            th=-2+4./50*th_int;
+            th=-20+40./500*th_int;
 
-            get_interp5(image,p.pt1,tangent,step,a_pts,AP_N,max_angle,th,2*blur+1);
+            get_interp_quadsearch(image,p.pt1,tangent,step,a_pts,AP_N,max_angle,th,2*blur+1,circle_size,background);
             if(!hide_trace) for(unsigned int j=0;j<a_pts.size()-1;++j) cv::line(image,a_pts[j],a_pts[j+1],255,1);
 
-            brightness=0.5+(brightness_int-1)/100.*(4-0.5);
+            brightness=0.5+(brightness_int-1)/100.*(10-0.5);
             cv::imshow(display,brightness*image);
+
+            cv::Mat sub;
+            cv::subtract(image,background,sub);
+
+
+            cv::imshow("fg mask",brightness*(0.1*image+sub*0.9));
         }
 
         cv::setTrackbarPos("level",display,ind);
@@ -903,59 +934,6 @@ int Run_SingleCamera(PGRGuid guid)
     return 0;
 }
 
-/*
-#########################################################################################################################################################
-// Deprecated function
-
-void display_fbMOG(circular_buffer_ts &circ_buffer){
-
-    mtx.lock();
-    cout<<"run display_image on thread "<<boost::this_thread::get_id()<<endl;
-    mtx.unlock();
-
-    cv::namedWindow("display",cv::WINDOW_NORMAL);
-    cv::resizeWindow("display",400,400);
-    
-    cv::namedWindow("camera",cv::WINDOW_NORMAL);
-    cv::resizeWindow("camera",400,400);
-
-    cv::Mat image;
-    cv::Mat rawImage;
-
-    double th,th_sd;
-    long int cfc;
-    char c=' ';
-    while(c!='q' && run){
-        ostringstream info;
-
-        {
-            boost::mutex::scoped_lock lk(mtx);
-            if(!fgMaskMOG.empty()) fgMaskMOG.copyTo(image);
-            circ_buffer.retrieve_last(rawImage, cfc);
-            th=threshold;
-            th_sd=threshold_sd;
-        }
-
-        info<<setw(6)<<"c="<<((double)cv::countNonZero(image))/image.total()
-                  <<' '<<"th="<<th
-                  <<' '<<"th_sd="<<th_sd;
-
-        if(!image.empty()){
-            imshow("display",image);
-            imshow("camera",rawImage);
-            cv::displayStatusBar("display",info.str(),0);
-        }
-
-        c=cv::waitKey(10);
-    }
-
-    cv::destroyWindow("display");
-    boost::mutex::scoped_lock lk(mtx);
-    run=false;
-
-}
-#########################################################################################################################################################
-*/
 
 void display_blobs(circular_buffer_ts &circ_buffer){
 
@@ -999,88 +977,7 @@ void display_blobs(circular_buffer_ts &circ_buffer){
 
 }
 
-/*
-#########################################################################################################################################################
-// Deprecated function
 
-void MOG_thread(circular_buffer_ts &circ_buffer){
-
-    double ref_norm;
-    double current_threshold, current_threshold_sd;
-    long int last_processed=0;
-    long int current_frame_counter;
-    int timer_init=490*1;
-    int timer=timer_init;
-    double SD_TIMES=1.5;
-
-    mtx.lock();
-    cout<<"Created MOG on thread "<<boost::this_thread::get_id()<<endl;
-    mtx.unlock();
-
-    while(run){
-        cv::Mat image_from_buffer;
-        circ_buffer.retrieve_last(image_from_buffer, current_frame_counter);
-
-        if(last_processed<current_frame_counter){
-            timer-=(current_frame_counter-last_processed);
-            
-
-            {
-                boost::mutex::scoped_lock lk(mtx);
-                pMOG->apply(image_from_buffer, fgMaskMOG,learning_rate);
-                ref_norm=((double)cv::countNonZero(fgMaskMOG))/fgMaskMOG.total();
-                if(!circ_buffer.get_recorder_state()){
-                    threshold_frame_count++;
-                    if(threshold_frame_count==1){
-                        threshold=ref_norm;
-                        threshold_var=pow(ref_norm,2);
-                        threshold_sd=1;
-                    } else {
-                        threshold=(threshold_frame_count-1)*threshold/threshold_frame_count+ref_norm/threshold_frame_count;
-                        threshold_var=(threshold_frame_count-1)*threshold_var/threshold_frame_count+pow(ref_norm,2.)/threshold_frame_count;
-                        threshold_sd=sqrt(threshold_var-pow(threshold,2));
-                    }
-                    current_threshold=threshold;
-                    current_threshold_sd=threshold_sd;
-                }
-            }
-
-
-            if(!circ_buffer.get_recorder_state()){
-                if(fabs(ref_norm-current_threshold) > SD_TIMES*current_threshold_sd ){
-                    timer=timer_init;
-                    circ_buffer.set_recorder_state(true);
-
-                    mtx.lock();
-                    cout<<"------------------------"<<endl;
-                    cout<<"recording at time frame "<<current_frame_counter<<endl;
-                    cout<<"threshold="<< current_threshold<<' '<<"sd="<<current_threshold_sd<<' '<<"val="<<ref_norm<<' '<<current_frame_counter<<endl;
-                    mtx.unlock();
-                    circ_buffer.write_buffer();
-
-                }
-            } else {
-                if(fabs(ref_norm-current_threshold) < SD_TIMES*current_threshold_sd && timer<=0){
-                    circ_buffer.set_recorder_state(false);
-                    mtx.lock();
-                    cout<<"Stop recording at time frame "<<current_frame_counter<<endl;
-                    cout<<"threshold="<< current_threshold<<' '<<"sd="<<current_threshold_sd<<' '<<"val="<<ref_norm<<' '<<current_frame_counter<<endl;
-                    cout<<"-----------------------------"<<endl<<endl;
-                    mtx.unlock();
-                }
-            }
-
-        }
-
-        last_processed=current_frame_counter;
-    }
-
-    mtx.lock();
-    cout<<"out of while loop (MOG)"<<endl;
-    mtx.unlock();
-}
-#########################################################################################################################################################
-*/
 
 void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_head){
 
