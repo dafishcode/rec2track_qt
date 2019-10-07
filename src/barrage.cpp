@@ -420,7 +420,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
     double th_ran;
     double step_dots_x,step_dots_y;
     double rad_dot;
-    double dot_diff=r*pi/180*1.2;
+    double dot_diff=r*pi/180*0.6;
     double fading_factor;
     double width_bar,min_bar, v_bar;
     double cen_bar;

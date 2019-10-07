@@ -58,6 +58,7 @@ public:
     QGridLayout *gridLayout_2;
     QGroupBox *groupBox;
     QPushButton *pushButton;
+    QPushButton *pushButton_5;
     QGroupBox *groupBox_3;
     QPushButton *pushButton_3;
     QProgressBar *progressBar;
@@ -176,6 +177,9 @@ public:
         pushButton = new QPushButton(groupBox);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setGeometry(QRect(10, 30, 98, 27));
+        pushButton_5 = new QPushButton(groupBox);
+        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
+        pushButton_5->setGeometry(QRect(10, 70, 99, 27));
 
         gridLayout_2->addWidget(groupBox, 0, 0, 1, 1);
 
@@ -204,7 +208,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 582, 22));
+        menubar->setGeometry(QRect(0, 0, 582, 23));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -230,6 +234,7 @@ public:
          << QApplication::translate("MainWindow", "Tom", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("MainWindow", "Rachel", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("MainWindow", "Dominic", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("MainWindow", "Tom Shallcross", 0, QApplication::UnicodeUTF8)
         );
         label_5->setText(QApplication::translate("MainWindow", "Barrage duration", 0, QApplication::UnicodeUTF8));
         label_6->setText(QApplication::translate("MainWindow", "Recording time (m)", 0, QApplication::UnicodeUTF8));
@@ -237,6 +242,7 @@ public:
         pushButton_2->setText(QApplication::translate("MainWindow", "Record", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("MainWindow", "Display", 0, QApplication::UnicodeUTF8));
         pushButton->setText(QApplication::translate("MainWindow", "Show camera", 0, QApplication::UnicodeUTF8));
+        pushButton_5->setText(QApplication::translate("MainWindow", "Run barrage", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Analysis", 0, QApplication::UnicodeUTF8));
         pushButton_3->setText(QApplication::translate("MainWindow", "Track", 0, QApplication::UnicodeUTF8));
     } // retranslateUi

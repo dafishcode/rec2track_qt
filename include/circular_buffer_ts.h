@@ -36,10 +36,10 @@ public:
     void update_buffer(const cv::Mat &imdata, int f, int64 t) {
         lock lk(monitor);
         if(!writing_buffer){
-            cv::Mat im;
-            imdata.copyTo(im);
+            //cv::Mat im;
+            //imdata.copyTo(im);
             if(verbose) cout<<"update buffer: "<<f<<' '<<t<<endl;
-            cb.push_back(im);
+            cb.push_back(imdata.clone());
             frame_index.push_back(f);
             time_index.push_back(t);
             buffer_not_empty.notify_one();

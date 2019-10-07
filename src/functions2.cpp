@@ -181,7 +181,7 @@ void PrintCameraInfo(CameraInfo *pCamInfo)
          << endl;
 }
 
-void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7PixFmt){
+void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7PixFmt, bool triggerON){
 
     FlyCapture2::Error error;
 
@@ -245,10 +245,11 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
     mTrigger.mode = 0;
     mTrigger.source = 3;
     mTrigger.parameter = 0;
-    mTrigger.onOff = true;
+    mTrigger.onOff = triggerON;
     mTrigger.polarity = 0;
     cam->SetTriggerMode(&mTrigger);
-    
+      
+
     // Start capturing images
     cam->StartCapture();
 }
@@ -275,6 +276,7 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
     cv::createTrackbar( "brightness", "ROI selection", &ind_brightness, ind_brightness_max);
 
     // Retrieve a single image
+    cam->FireSoftwareTrigger(false);
     cam->RetrieveBuffer(&rawImage);
 
     // convert Image to Mat
@@ -387,6 +389,7 @@ int Rec_SingleCamera(void* tdata)
     if(recording){
         long int ms0 = cv::getTickCount();
         for(unsigned int i=0;i<imvec.size();i++){
+
             RSC_input->cam->RetrieveBuffer(&rawImage);
             long int ms1 = cv::getTickCount();
             double delta = (ms1-ms0)/cv::getTickFrequency();
@@ -820,86 +823,102 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format, barrag
     }
 }
 
-int WaitTrigger(Camera *cam, int &start){
 
-    // Set TRIGGER /////////////////////////////////////////////////////////////////
-    TriggerMode mTrigger;
-    mTrigger.mode = 0;
-    mTrigger.source = 3;
-    mTrigger.parameter = 0;
-    mTrigger.onOff = true;
-    mTrigger.polarity = 0;
-    cam->SetTriggerMode(&mTrigger);
+// DEPRECATED FUNCTION
+/*
+int ChangeTrigger(thread_data2 *input){
+
+
+    input->cam->StopCapture();
+    input->cam->Disconnect();
+
+    input->bus->GetCameraFromIndex(0, input->guid);
+    F7 f7;
+
+    Mode mode;
+    mode=MODE_1;
+
+    input->cam->Connect(input->guid);
+    SetCam(input->cam,f7,mode,PIXEL_FORMAT_RAW8,true);
+    input->cam->StartCapture();
 
     Image rawImage;
-    cam->RetrieveBuffer(&rawImage);
-    start=1;
-
-    mTrigger.onOff = false;
-    cam->SetTriggerMode(&mTrigger);
+    input->cam->RetrieveBuffer(&rawImage);
 
 }
+*/
 
-int Run_SingleCamera(PGRGuid guid)
+int Run_SingleCamera(PGRGuid *guid)
 {
 
+//    FlyCapture2::Error error;
+
+//    // Connect to a camera
+//    Camera cam;
+//    cam.Connect(&guid);
+
+//    // Get the camera configuration
+//    FC2Config config;
+//    error = cam.GetConfiguration(&config);
+
+//    // Set the number of driver buffers used to 20.
+//    config.numBuffers = 10;
+
+//    // Set the camera configuration
+//    cam.SetConfiguration(&config);
+
+//    CameraInfo cInfo;
+//    cam.GetCameraInfo(&cInfo);
+//    PrintCameraInfo(&cInfo);
+
+//    // Set format7 custom mode
+//    const Mode k_fmt7Mode = MODE_1;
+//    const PixelFormat k_fmt7PixFmt = PIXEL_FORMAT_RAW8;
+
+//    Format7Info fmt7Info;
+//    bool supported;
+//    fmt7Info.mode=k_fmt7Mode;
+//    cam.GetFormat7Info(&fmt7Info, &supported);
+//    PrintFormat7Capabilities(fmt7Info);
+
+//    Format7ImageSettings fmt7ImageSettings;
+//    fmt7ImageSettings.mode = k_fmt7Mode;
+//    fmt7ImageSettings.offsetX = 0;
+//    fmt7ImageSettings.offsetY = 0;
+//    fmt7ImageSettings.width = fmt7Info.maxWidth;
+//    fmt7ImageSettings.height = fmt7Info.maxHeight;
+//    fmt7ImageSettings.pixelFormat = k_fmt7PixFmt;
+//    bool valid;
+//    Format7PacketInfo fmt7PacketInfo;
+
+//    cam.ValidateFormat7Settings(&fmt7ImageSettings, &valid, &fmt7PacketInfo);
+//    cam.SetFormat7Configuration(&fmt7ImageSettings, fmt7PacketInfo.recommendedBytesPerPacket);
+
+
+// ALTERNATIVE /////////////////////////////////
     FlyCapture2::Error error;
+    BusManager busMgr;
+    busMgr.GetCameraFromIndex(0, guid);
+    F7 f7;
 
-    // Connect to a camera
+    Mode mode;
+    mode=MODE_1;
+
     Camera cam;
-    cam.Connect(&guid);
-
-    // Get the camera configuration
-    FC2Config config;
-    error = cam.GetConfiguration(&config);
-
-    // Set the number of driver buffers used to 20.
-    config.numBuffers = 10;
-
-    // Set the camera configuration
-    cam.SetConfiguration(&config);
-
-    CameraInfo cInfo;
-    cam.GetCameraInfo(&cInfo);
-    PrintCameraInfo(&cInfo);
-
-    // Set format7 custom mode
-    const Mode k_fmt7Mode = MODE_1;
-    const PixelFormat k_fmt7PixFmt = PIXEL_FORMAT_RAW8;
-
-    Format7Info fmt7Info;
-    bool supported;
-    fmt7Info.mode=k_fmt7Mode;
-    cam.GetFormat7Info(&fmt7Info, &supported);
-    PrintFormat7Capabilities(fmt7Info);
-
-    Format7ImageSettings fmt7ImageSettings;
-    fmt7ImageSettings.mode = k_fmt7Mode;
-    fmt7ImageSettings.offsetX = 0;
-    fmt7ImageSettings.offsetY = 0;
-    fmt7ImageSettings.width = fmt7Info.maxWidth;
-    fmt7ImageSettings.height = fmt7Info.maxHeight;
-    fmt7ImageSettings.pixelFormat = k_fmt7PixFmt;
-    bool valid;
-    Format7PacketInfo fmt7PacketInfo;
-
-    cam.ValidateFormat7Settings(&fmt7ImageSettings, &valid, &fmt7PacketInfo);
-    cam.SetFormat7Configuration(&fmt7ImageSettings, fmt7PacketInfo.recommendedBytesPerPacket);
-
-
-
-    // Start capturing images
-    cam.StartCapture();
+    cam.Connect(guid);
+    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,false);
+// /////////////////////////////////////////////
 
     Image rawImage;
     namedWindow("display",cv::WINDOW_NORMAL);
     int ind=0;
     int maxind=100;
     cv::createTrackbar( "Brightness", "display", &ind, maxind);
+
     while (cv::waitKey(30)!='q')
     {
-        // Retrieve an image
-        cam.RetrieveBuffer(&rawImage);        
+        // Retrieve an image        
+        cam.RetrieveBuffer(&rawImage);
 
         // Create a converted image
         Image convertedImage=rawImage;
@@ -1008,13 +1027,19 @@ void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_
 
 
             {
-                boost::mutex::scoped_lock lk(mtx);
+                // -----------------------------------
+                // This line was slowing down the acquisition by obviously locking the mutex
+                // when not (??) necessary.
+                // boost::mutex::scoped_lock lk(mtx);
+                // -----------------------------------
+
                 pMOG->apply(image_from_buffer, fgMaskMOG,learning_rate);
 
                 // Detect blobs.
 
                 std::vector<cv::KeyPoint> keypoints;
                 detector->detect( fgMaskMOG, keypoints);
+
                 // Draw detected blobs as red circles.
                 // DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures the size of the circle corresponds to the size of blob
 
@@ -1083,6 +1108,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
     Image rawImage;
 
     while(run){
+        RSC_input->cam->FireSoftwareTrigger(false);
         RSC_input->cam->RetrieveBuffer(&rawImage);
         int64 ms1 = cv::getTickCount();
 
@@ -1096,6 +1122,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
         circ_buffer.update_buffer(image,frame_counter,ms1);
 
         if(circ_buffer.get_recorder_state()){
+
             stringstream filename;
             filename<<RSC_input->proc_folder<<"/"<<fixedLengthString(frame_counter)<<".pgm";
             cv::imwrite(filename.str().c_str(),image);
@@ -1172,20 +1199,22 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     // ##############################################################################
 
     // Retrieve a single image to get the relative head ROI relative to the fish ROI
-    RSC_input->cam->RetrieveBuffer(&rawImage);
-    data = rawImage.GetData();
-    cv::Mat fishROI(rawImage.GetRows(),rawImage.GetCols(),CV_8U,(void*)data);
-    tmp_image = fishROI(cv::Range(center.pt1.y,center.pt2.y),cv::Range(center.pt1.x,center.pt2.x));
+    // NO LONGER USED
+//    RSC_input->cam->RetrieveBuffer(&rawImage);
+//    data = rawImage.GetData();
+//    cv::Mat fishROI(rawImage.GetRows(),rawImage.GetCols(),CV_8U,(void*)data);
+//    tmp_image = fishROI(cv::Range(center.pt1.y,center.pt2.y),cv::Range(center.pt1.x,center.pt2.x));
 
     // ##############################################################################
 
     // Select head ROI //////////////////////////////////////////////////////////////
     // note: center_head is now relative to the fish ROI.
-    Select_ROI(tmp_image, center_head , ROI_acquired, 40);
-    if(!ROI_acquired){
-        cout<<"Error with head ROI detection"<<endl;
-        exit(0);
-    }    
+    // NO LONGER USED
+//    Select_ROI(tmp_image, center_head , ROI_acquired, 40);
+//    if(!ROI_acquired){
+//        cout<<"Error with head ROI detection"<<endl;
+//        exit(0);
+//    }
     // ##############################################################################
 
     // Snippet for detecting laser scanning on the head ROI /////////////
@@ -1195,7 +1224,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
 //        RSC_input->cam->RetrieveBuffer(&rawImage);
 //        data = rawImage.GetData();
 //        cv::Mat cvm(rawImage.GetRows(),rawImage.GetCols(),CV_8U,(void*)data);
-//        cv::Mat image,headROI;
+//       cv::Mat image,headROI;
 //        image=cvm(cv::Range(center.pt1.y,center.pt2.y),cv::Range(center.pt1.x,center.pt2.x));
 //        headROI=image(cv::Range(center_head.pt1.y,center_head.pt2.y),cv::Range(center_head.pt1.x,center_head.pt2.x));
 //        if(old_sum<0){
@@ -1209,25 +1238,34 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
 //    }
     // ####################################################################
 
-    int triggered=0;
-    WaitTrigger(RSC_input->cam,triggered);
-    cout<<"Start!"<<endl;    
-    cout<<"Wait 30 seconds..."<<endl;
 
+    RSC_input->cam->RetrieveBuffer(&rawImage);
+    cout<<"Start!"<<endl;
 
     // Fill buffer ////////////////////////////////////////////////////////
     for(unsigned int k=0;k<BUFFER_SIZE;k++){
-        RSC_input->cam->RetrieveBuffer(&rawImage);
+        RSC_input->cam->FireSoftwareTrigger(false);
+        FlyCapture2::Error error=RSC_input->cam->RetrieveBuffer(&rawImage);
+
+
         int64 ms1 = cv::getTickCount();
 
         data = rawImage.GetData();
         cv::Mat cvm(rawImage.GetRows(),rawImage.GetCols(),CV_8U,(void*)data);
 
+
         cv::Mat image;
         image=cvm(cv::Range(center.pt1.y,center.pt2.y),cv::Range(center.pt1.x,center.pt2.x));
 
+        if (image.empty())
+        {
+
+            cout << "Press Enter to exit." << endl;
+            cin.ignore();
+        }
+
         image.copyTo(tmp_image);
-        circ_buffer.update_buffer(tmp_image,k,ms1);
+        circ_buffer.update_buffer(tmp_image,k,ms1);       
     }
     // ####################################################################
 

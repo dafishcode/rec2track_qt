@@ -28,10 +28,13 @@ void MainWindow::record(){
     mode=MODE_1;
 
     Camera cam; cam.Connect(&guid);
-    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8);
+    //SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,false);
+    cam.StartCapture();
 
     struct thread_data2 RSC_input;
     QString tmp=ui->FolderEdit->text();
+    RSC_input.bus = &busMgr;
+    RSC_input.guid = &guid;
     RSC_input.cam = &cam;
     RSC_input.proc_folder= tmp.toStdString();
     RSC_input.display="display";
@@ -61,6 +64,11 @@ void MainWindow::updateBarrage()
         StimulationBarrage.Background_ON=false;
     }
 
+    if(userIndex==3) {
+        StimulationBarrage.optstimfile="opt/StimList_TomShallcross.txt";
+        StimulationBarrage.Background_ON=false;
+    }
+
     StimulationBarrage.repeats=ui->repeats->value();
     StimulationBarrage.inter_epoch_time=ui->spinBox_inter_epoch->value();
 }
@@ -80,7 +88,7 @@ void MainWindow::on_pushButton_clicked()
 
     PGRGuid guid;
     busMgr.GetCameraFromIndex(0, &guid);
-    Run_SingleCamera(guid);
+    Run_SingleCamera(&guid);
 
 }
 
@@ -105,6 +113,7 @@ void MainWindow::on_pushButton_3_clicked()
     int userIndex = ui->comboBox->currentIndex();
     if(userIndex==0) StimulationBarrage.optstimfile="opt/StimList_Tom.txt";
     if(userIndex==1) StimulationBarrage.optstimfile="opt/StimList_Rachel.txt";
+    if(userIndex==3) StimulationBarrage.optstimfile="opt/StimList_TomShallcross.txt";
 
     bool VisualStimulation_on=ui->radioButton->isChecked();
 
@@ -129,7 +138,24 @@ void MainWindow::on_spinBox_inter_epoch_valueChanged(int arg1)
 
 void MainWindow::on_pushButton_4_clicked()
 {
-    updateBarrage();
+    updateBarrage();    
     StimulationBarrage.transform_image("opt/background.jpg");
+    cout<<"CIAO"<<endl;
     StimulationBarrage.WriteStim();
+}
+
+void MainWindow::on_pushButton_5_clicked()
+{
+    updateBarrage();
+    QString tmp=ui->FolderEdit->text();
+    CreateOutputFolder(tmp.toStdString());
+
+    bool VisualStimulation_on=ui->radioButton->isChecked();
+    cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
+
+    bool run;
+
+    if(!StimulationBarrage.Background_ON) StimulationBarrage.VisualStimulation(tmp.toStdString(),run);
+    else StimulationBarrage.VisualStimulation_BG(tmp.toStdString(),run);
+
 }

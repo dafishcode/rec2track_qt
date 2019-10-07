@@ -36,6 +36,8 @@ struct thread_data{
 };
 
 struct thread_data2{
+    BusManager *bus;
+    PGRGuid *guid;
 	Camera *cam;
     string proc_folder;
     char* display;    
@@ -46,8 +48,8 @@ struct thread_data2{
 
 void my_handler(int);
 
-void SetCam(Camera *,F7&,const Mode, const PixelFormat);
-int WaitTrigger(Camera &cam, int &start);
+void SetCam(Camera *,F7&,const Mode, const PixelFormat, bool triggerON=false);
+//int ChangeTrigger(thread_data2*);
 void CreateOutputFolder(string folder);
 void PrintBuildInfo();
 void PrintFormat7Capabilities(Format7Info fmt7Info);
@@ -59,4 +61,4 @@ void ReadImageSeq(string prefix,char* display,int mode=0,char* format=".pgm",cha
 void ReadImageSeq_vs(string prefix,char* display,int mode=0,char* format=".pgm",barrage *B = nullptr,int maxind=1);
 void ReadImageSeq_and_track(string prefix,char* display,int mode=0,char* format=".pgm",int maxind=1);
 
-int Run_SingleCamera(PGRGuid);
+int Run_SingleCamera(PGRGuid*);
