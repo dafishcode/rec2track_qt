@@ -1,5 +1,6 @@
 #include "../include/mainwindow.h"
 #include "ui_mainwindow.h"
+#include<QCoreApplication>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -28,7 +29,7 @@ void MainWindow::record(){
     mode=MODE_1;
 
     Camera cam; cam.Connect(&guid);
-    //SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,false);
+    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,true);
     cam.StartCapture();
 
     struct thread_data2 RSC_input;
@@ -55,22 +56,28 @@ void MainWindow::updateBarrage()
     int userIndex = ui->comboBox->currentIndex();
 
     if(userIndex==0) {
-        StimulationBarrage.optstimfile="opt/StimList_Tom.txt";
+        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
         StimulationBarrage.Background_ON=true;
     }
 
     if(userIndex==1) {
-        StimulationBarrage.optstimfile="opt/StimList_Rachel.txt";
+        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Rachel.txt";
+        StimulationBarrage.Background_ON=false;
+    }
+
+    if(userIndex==2) {
+        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Dominic.txt";
         StimulationBarrage.Background_ON=false;
     }
 
     if(userIndex==3) {
-        StimulationBarrage.optstimfile="opt/StimList_TomShallcross.txt";
+        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_TomShallcross.txt";
         StimulationBarrage.Background_ON=false;
     }
 
     StimulationBarrage.repeats=ui->repeats->value();
     StimulationBarrage.inter_epoch_time=ui->spinBox_inter_epoch->value();
+    StimulationBarrage.waiting_time=ui->spinBox_waiting_time->value();
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -106,20 +113,27 @@ void MainWindow::on_pushButton_3_clicked()
 
     int LN=0;
     ifstream logfile(tmp.toStdString()+"/time.log");
+
     while(getline(logfile,line)) LN++;
     logfile.close();
 
     // Get Stim file    
     int userIndex = ui->comboBox->currentIndex();
-    if(userIndex==0) StimulationBarrage.optstimfile="opt/StimList_Tom.txt";
-    if(userIndex==1) StimulationBarrage.optstimfile="opt/StimList_Rachel.txt";
-    if(userIndex==3) StimulationBarrage.optstimfile="opt/StimList_TomShallcross.txt";
+    if(userIndex==0) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
+    if(userIndex==1) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Rachel.txt";
+    if(userIndex==3) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_TomShallcross.txt";
+
+    ifstream setting_file;
 
     bool VisualStimulation_on=ui->radioButton->isChecked();
 
-    if(VisualStimulation_on)
+    if(VisualStimulation_on){
+        // Get inter-epoch time and number of repeats
+        setting_file.open(tmp.toStdString()+"/settings.log");
+        setting_file>>StimulationBarrage.repeats>>StimulationBarrage.inter_epoch_time>>StimulationBarrage.waiting_time;
+        setting_file.close();
         ReadImageSeq_vs(tmp.toStdString(),"display - track",0,".tiff",&StimulationBarrage,LN);
-    else
+    } else
         ReadImageSeq_and_track(tmp.toStdString(),"display - track",0,".tiff",LN);
 
 }
@@ -139,8 +153,7 @@ void MainWindow::on_spinBox_inter_epoch_valueChanged(int arg1)
 void MainWindow::on_pushButton_4_clicked()
 {
     updateBarrage();    
-    StimulationBarrage.transform_image("opt/background.jpg");
-    cout<<"CIAO"<<endl;
+    StimulationBarrage.transform_image(QApplication::applicationDirPath().toStdString()+"/../opt/background.jpg");
     StimulationBarrage.WriteStim();
 }
 
@@ -150,10 +163,14 @@ void MainWindow::on_pushButton_5_clicked()
     QString tmp=ui->FolderEdit->text();
     CreateOutputFolder(tmp.toStdString());
 
+    cout<<"APPfolder "<<QCoreApplication::applicationDirPath().toStdString()<<endl;
+    cout<<"opt <- "<<StimulationBarrage.optstimfile<<endl;
+    cout<<"Stimulus folder <- "<<StimulationBarrage.stimlibloc<<endl;
     bool VisualStimulation_on=ui->radioButton->isChecked();
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
-    bool run;
+
+    bool run=true;
 
     if(!StimulationBarrage.Background_ON) StimulationBarrage.VisualStimulation(tmp.toStdString(),run);
     else StimulationBarrage.VisualStimulation_BG(tmp.toStdString(),run);

@@ -22,7 +22,11 @@ enum stim {LOOM,
            DOT_90_SF26,DOT_270_SF26,
            WDOT_1, WDOT_2,WDOT_3,WDOT_4,WDOT_5,WDOT_6,WDOT_7,
            CONCENTRIC,
-           WDOT_T1,WDOT_T2,WDOT_T3
+           WDOT_T1,WDOT_T2,WDOT_T3,
+           LIGHTDOT_90_SF05,LIGHTDOT_270_SF05,
+           LIGHTDOT_90_SF15,LIGHTDOT_270_SF15,
+           LIGHTDOT_90_SF26,LIGHTDOT_270_SF26,
+           LIGHT,DARK
           };
 
 class barrage {
@@ -66,6 +70,7 @@ public:
     double dt;
     int timeEP;
     int inter_epoch_time;
+    int waiting_time;
     int repeats;
     int numEP;
     double hs;
@@ -78,18 +83,17 @@ public:
     int nframes;
     double time_bar_horizontal;
     double time_bar_vertical;
-    int nframes_vec[50];
+    int nframes_vec[58];
     bool fading;
     Point *mask;
     vector<unsigned char> background;
     string optstimfile;
+    string stimlibloc;
     bool Background_ON;
 
 private:
     double radDot(double);
     double spatFreq(double);
-
-    string stimlibloc;
 
     bool CONCENTRIC_ON;
 };

@@ -11,6 +11,7 @@
 #include <gsl/gsl_randist.h>
 #include<algorithm>
 #include <iomanip>
+#include<QCoreApplication>
 
 using namespace std;
 
@@ -67,6 +68,11 @@ barrage::barrage(){
     nframes_vec[46]=nframes; // CONCENTRIC
 
     for(unsigned int k=47;k<50;++k) nframes_vec[k]=floor(5.0/dt*1000); // WDOTS TOM
+
+    for(unsigned int k=50;k<56;++k) nframes_vec[k]=floor(time_bar_horizontal/dt*1000); // LIGHTDOTS
+
+    nframes_vec[56]=floor(2.0/dt*1000); // LIGHT
+    nframes_vec[57]=floor(2.0/dt*1000); // DARK
 
     mask = new Point[H*W];
 
@@ -207,6 +213,24 @@ string barrage::code_stim(stim s){
     case DOT_270_SF26:
         r="DOT_270_SF26";
         break;
+    case LIGHTDOT_90_SF05:
+        r="LIGHTDOT_90_SF05";
+        break;
+    case LIGHTDOT_90_SF15:
+        r="LIGHTDOT_90_SF15";
+        break;
+    case LIGHTDOT_90_SF26:
+        r="LIGHTDOT_90_SF26";
+        break;
+    case LIGHTDOT_270_SF05:
+        r="LIGHTDOT_270_SF05";
+        break;
+    case LIGHTDOT_270_SF15:
+        r="LIGHTDOT_270_SF15";
+        break;
+    case LIGHTDOT_270_SF26:
+        r="LIGHTDOT_270_SF26";
+        break;
     case WDOT_1:
         r="WDOT_1";
         break;
@@ -239,6 +263,12 @@ string barrage::code_stim(stim s){
         break;
     case CONCENTRIC :
         r = "CONCENTRIC";
+        break;
+    case DARK:
+        r = "DARK";
+        break;
+    case LIGHT:
+        r = "LIGHT";
         break;
     default:
         break;
@@ -319,6 +349,14 @@ stim barrage::string_to_stim(const char* s){
     else if(strcmp(s,"DOT_270_SF05")==0) r=DOT_270_SF05;
     else if(strcmp(s,"DOT_270_SF15")==0) r=DOT_270_SF15;
     else if(strcmp(s,"DOT_270_SF26")==0) r=DOT_270_SF26;
+
+    else if(strcmp(s,"LIGHTDOT_90_SF05")==0) r=LIGHTDOT_90_SF05;
+    else if(strcmp(s,"LIGHTDOT_90_SF15")==0) r=LIGHTDOT_90_SF15;
+    else if(strcmp(s,"LIGHTDOT_90_SF26")==0) r=LIGHTDOT_90_SF26;
+    else if(strcmp(s,"LIGHTDOT_270_SF05")==0) r=LIGHTDOT_270_SF05;
+    else if(strcmp(s,"LIGHTDOT_270_SF15")==0) r=LIGHTDOT_270_SF15;
+    else if(strcmp(s,"LIGHTDOT_270_SF26")==0) r=LIGHTDOT_270_SF26;
+
     else if(strcmp(s,"WDOT_1")==0) r=WDOT_1;
     else if(strcmp(s,"WDOT_2")==0) r=WDOT_2;
     else if(strcmp(s,"WDOT_3")==0) r=WDOT_3;
@@ -330,6 +368,9 @@ stim barrage::string_to_stim(const char* s){
     else if(strcmp(s,"WDOT_T2")==0) r=WDOT_T2;
     else if(strcmp(s,"WDOT_T3")==0) r=WDOT_T3;
     else if(strcmp(s,"CONCENTRIC")==0) r=CONCENTRIC;
+
+    else if(strcmp(s,"DARK")==0) r=DARK;
+    else if(strcmp(s,"LIGHT")==0) r=LIGHT;
     else {
         std::cout<<"Stimulus "<<s<<" not recognized"<<std::endl;
         abort();
@@ -347,7 +388,10 @@ double barrage::spatFreq(double angle){
 }
 
 void barrage::setStimLib(){
-    ifstream StimLib_optfile("/home/meyerlab/rec2track_qt/opt/StimLibFolder.txt");
+    QString prefix=QCoreApplication::applicationDirPath();
+    string optfilename = prefix.toStdString()+"/../opt/StimLibFolder.txt";
+
+    ifstream StimLib_optfile(optfilename.c_str());
     StimLib_optfile>>stimlibloc;
     StimLib_optfile.close();
 }
@@ -793,6 +837,120 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
         cout<<endl;
         break;
 
+
+    case LIGHTDOT_270_SF05: case LIGHTDOT_90_SF05:
+    case LIGHTDOT_270_SF15: case LIGHTDOT_90_SF15:
+    case LIGHTDOT_270_SF26: case LIGHTDOT_90_SF26:
+
+
+        if(s==LIGHTDOT_90_SF05 || s==LIGHTDOT_270_SF05) rad_dot=radDot(5);
+        if(s==LIGHTDOT_90_SF15 || s==LIGHTDOT_270_SF15) rad_dot=radDot(15);
+        if(s==LIGHTDOT_90_SF26 || s==LIGHTDOT_270_SF26) rad_dot=radDot(26);
+
+        if(s==LIGHTDOT_270_SF05||s==LIGHTDOT_270_SF15||s==LIGHTDOT_270_SF26){
+            cen_dots_x=-r*th_max;
+            cen_dots_y=0;
+            th_ran=0;
+            v_bar=1;
+        }
+        if(s==LIGHTDOT_90_SF05||s==LIGHTDOT_90_SF15||s==LIGHTDOT_90_SF26){
+            cen_dots_x=r*th_max;
+            cen_dots_y=0;
+            th_ran=pi;
+            v_bar=-1;
+        }
+
+        for(ti=0;ti<NF;ti++){
+
+            step_dots_y=0;
+            cen_dots_x+=v_bar*dt*tf/1000./sf_med;;
+
+            for(i = 0; i < W*H; ++i ){
+                x=(double) (i%W);
+                y=(double) i/W+1;
+                u=get_th(-xmax+(x-(W-Wp)/2)/Wp*2.0*xmax);
+                v=get_y(-ymax+(y-(H-Hp)/2)/Hp*2.0*ymax,u);
+
+                if(fabs(u)<th_max && fabs(v)<ymax ){
+                    //rp=sqrt(pow(d+(r-r*cos(u)),2)+pow(r*sin(u),2)+pow(v,2));
+                    points[ti][i].r=points[ti][i].g=points[ti][i].b=127;//*pow(rp/rp_max,2));
+                    dist_vec=pow(cen_dots_x-u*r,2)+pow(cen_dots_y-v,2);
+
+                    if (dist_vec<=pow(rad_dot,2)){
+                        if(fading){
+                            if(ti*dt/1000<2) fading_factor=ti*dt/1000./2;
+                            if(ti*dt/1000>timeEP-2) fading_factor=(timeEP-ti*dt/1000.)/2;
+                        } else fading_factor=1;
+
+                        points[ti][i].r=points[ti][i].g=points[ti][i].b=fading_factor*255+(1-fading_factor)*127;//*pow(rp/rp_max,2));
+                    }
+                } else {
+                    points[ti][i].r=points[ti][i].g=points[ti][i].b=0;
+                }
+            }
+
+            P1 = floor(((double)ti) / NF *100);
+            if(P1>=P0+1){
+                //ProgressBar(((double)ti) / NF);
+                P0=P1;
+            }
+
+        }
+
+        cout<<endl;
+        break;
+
+    case LIGHT:
+
+
+        for(ti=0;ti<NF;ti++){
+
+            for(i = 0; i < W*H; ++i ){
+                x=(double) (i%W);
+                y=(double) i/W+1;
+                u=get_th(-xmax+(x-(W-Wp)/2)/Wp*2.0*xmax);
+                v=get_y(-ymax+(y-(H-Hp)/2)/Hp*2.0*ymax,u);
+
+                if(fabs(u)<th_max && fabs(v)<ymax ){
+                    points[ti][i].r=points[ti][i].g=points[ti][i].b=255;//*pow(rp/rp_max,2));
+                } else {
+                    points[ti][i].r=points[ti][i].g=points[ti][i].b=0;
+                }
+            }
+
+            P1 = floor(((double)ti) / NF *100);
+            if(P1>=P0+1){
+                //ProgressBar(((double)ti) / NF);
+                P0=P1;
+            }
+
+        }
+
+        cout<<endl;
+        break;
+
+    case DARK:
+
+
+        for(ti=0;ti<NF;ti++){
+
+            for(i = 0; i < W*H; ++i ){
+
+                points[ti][i].r=points[ti][i].g=points[ti][i].b=0;
+
+            }
+
+            P1 = floor(((double)ti) / NF *100);
+            if(P1>=P0+1){
+                //ProgressBar(((double)ti) / NF);
+                P0=P1;
+            }
+
+        }
+
+        cout<<endl;
+        break;
+
     case WDOT_1 : case WDOT_2 : case WDOT_3 : case WDOT_4 : case WDOT_5 : case WDOT_6 : case WDOT_7:
         rad_dot=radDot(5.0);
 
@@ -1104,7 +1262,7 @@ double barrage::barrage_duration()
     ifstream StimList_file(optstimfile.c_str());
 
     string str;
-    double duration=30; // initial wait in seconds
+    double duration=waiting_time; // initial wait in seconds
     int nstim=0;
 
     while(StimList_file>>str){
@@ -1198,9 +1356,9 @@ void barrage::VisualStimulation(string prefix, bool &run){
         }
 
         StimList_tmp.push_back(StimList.back());
-        if(str!="CONCENTRIC"){
+        if(str!="CONCENTRIC"){            
+            random_order.push_back(number_of_stimuli+CONCENTRIC_ON);
             number_of_stimuli++;
-            random_order.push_back(number_of_stimuli);
         } else CONCENTRIC_ON=true;
     }
     
@@ -1209,22 +1367,32 @@ void barrage::VisualStimulation(string prefix, bool &run){
     ofstream OUTFILE;
     ofstream epoch_order;
     ofstream ticksfile;
+    ofstream setting_file;
     ostringstream epoch_order_name;
     ostringstream OUTFILE_name;
     ostringstream ticksfile_name;
+    ostringstream settings_name;
     
     OUTFILE_name<<prefix<<"/time_epoches.log";
     epoch_order_name<<prefix<<"/epoch_order.log";
     ticksfile_name<<prefix<<"/ticks.log";
+    settings_name<<prefix<<"/settings.log";
     
     OUTFILE.open(OUTFILE_name.str().c_str());
     epoch_order.open(epoch_order_name.str().c_str());
     ticksfile.open(ticksfile_name.str().c_str());
+
+    setting_file.open(settings_name.str().c_str());
+    setting_file<<repeats<<' '<<inter_epoch_time<<' '<<waiting_time<<endl;
+    setting_file.close();
+
     cout<<"Recording epoches times in "<<OUTFILE_name.str()<<endl;
     cout<<"Recording ticks in "<<ticksfile_name.str()<<endl;
     
     cout<<endl;
     cout<<"Using "<<repeats<<" repeats"<<endl;
+    cout<<"      "<<inter_epoch_time<<"s between stimuli"<<endl;
+    cout<<"      "<<waiting_time<<"s before barrage start"<<endl;
     cout<<endl;
     
     int numEP_spec = CONCENTRIC_ON+number_of_stimuli*repeats;
@@ -1293,7 +1461,7 @@ void barrage::VisualStimulation(string prefix, bool &run){
 
     for(i=0;i<numEP_spec;i++) {
         cout<<code_stim(StimList[i])<<' ';
-        if(StimList[i]==CONCENTRIC || i % number_of_stimuli == 0) cout<<endl;
+        if(StimList[i]==CONCENTRIC || (i+1-CONCENTRIC_ON) % number_of_stimuli == 0) cout<<endl;
     }
     cout<<endl;
 
@@ -1323,11 +1491,11 @@ void barrage::VisualStimulation(string prefix, bool &run){
 
     // Display the mask and wait
     cv::imshow("vs",mask_mat);
-    cout<<"Wait 30 seconds..."<<endl;
-    cv::waitKey(30000);
 
-    ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;    
-    cv::waitKey(1000);
+
+    ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
+    cout<<"Wait..."<<endl;
+    cv::waitKey(1000*waiting_time);
     cv::Mat A(H,W,CV_8U);
 
     while(c!='q' && run){
@@ -1349,7 +1517,7 @@ void barrage::VisualStimulation(string prefix, bool &run){
             OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()<<' '<<code_stim(StimList[epID-1])<<endl;
             ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
             cv::waitKey(inter_epoch_time*1000);
-        } else c=cv::waitKey(38);
+        } else c=cv::waitKey(20);
     }
 
 
@@ -1394,22 +1562,32 @@ void barrage::VisualStimulation_BG(string prefix, bool &run)
     ofstream OUTFILE;
     ofstream epoch_order;
     ofstream ticksfile;
+    ofstream setting_file;
     ostringstream epoch_order_name;
     ostringstream OUTFILE_name;
     ostringstream ticksfile_name;
+    ostringstream settings_name;
 
     OUTFILE_name<<prefix<<"/time_epoches.log";
     epoch_order_name<<prefix<<"/epoch_order.log";
     ticksfile_name<<prefix<<"/ticks.log";
+    settings_name<<prefix<<"/settings.log";
 
     OUTFILE.open(OUTFILE_name.str().c_str());
     epoch_order.open(epoch_order_name.str().c_str());
-    ticksfile.open(ticksfile_name.str().c_str());
+    ticksfile.open(ticksfile_name.str().c_str());    
+
+    setting_file.open(settings_name.str().c_str());
+    setting_file<<repeats<<' '<<inter_epoch_time<<' '<<waiting_time<<endl;
+    setting_file.close();
+
     cout<<"Recording epoches times in "<<OUTFILE_name.str()<<endl;
     cout<<"Recording ticks in "<<ticksfile_name.str()<<endl;
 
     cout<<endl;
     cout<<"Using "<<repeats<<" repeats"<<endl;
+    cout<<"      "<<inter_epoch_time<<"s between stimuli"<<endl;
+    cout<<"      "<<waiting_time<<"s before barrage start"<<endl;
     cout<<endl;
 
     int numEP_spec = 1+number_of_stimuli*repeats;
@@ -1495,8 +1673,8 @@ void barrage::VisualStimulation_BG(string prefix, bool &run)
 
     // Display the mask and wait
     cv::imshow("vs",mask_mat[background_type]);
-    cout<<"Wait 30 seconds..."<<endl;
-    cv::waitKey(30000);
+    cout<<"Wait "<< waiting_time<<" seconds..."<<endl;
+    cv::waitKey(waiting_time*1000);
 
     displayXbackground("vs",ticksfile,OUTFILE,mask_mat[background_type],numEP_spec,t0,stimdata,StimList,random_order_all,background_type);
 

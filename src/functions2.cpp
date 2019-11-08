@@ -15,6 +15,8 @@
 #include<boost/thread.hpp>
 #include<boost/chrono.hpp>
 #include"../include/barrage.h"
+#include<QMainWindow>
+#include<QMessageBox>
 
 using namespace std;
 using namespace FlyCapture2;
@@ -262,7 +264,13 @@ void CreateOutputFolder(string folder){
             printf("Error creating directory!");
             exit(1);
         }
+    } else {
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","Folder exists !");
+        messageBox.setFixedSize(500,200);
+        exit(1);
     }
+
 }
 
 void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
@@ -411,6 +419,7 @@ int Rec_SingleCamera(void* tdata)
     
     if(recording){
         CreateOutputFolder(RSC_input->proc_folder);
+
         for(unsigned int i=0;i<imvec.size();i++){
             stringstream filename;
             filename<<RSC_input->proc_folder<<"/"<<i<<".pgm";
@@ -418,7 +427,6 @@ int Rec_SingleCamera(void* tdata)
         }
     }
 
-    return 0;
 }
 
 
@@ -678,16 +686,23 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format, barrag
     // Build barrage
 
     map<int,int> StimMap;
-    ifstream StimList_file(Barrage->optstimfile.c_str());
+    ifstream StimList_file(prefix+"/epoch_order.log");
 
     vector<stim> StimList;
 
-    string str;
+    int str;
     int counter=0;
+    bool found=false;
+
     while(StimList_file>>str){
-        StimList.push_back(Barrage->string_to_stim(str.c_str()));
-        StimMap[(int)Barrage->string_to_stim(str.c_str())]=counter;
-        counter++;
+        for(unsigned int k=0;k<StimList.size();++k){
+            if(str==(int)StimList[k]) found=true;
+        }
+        if(!found){
+            StimList.push_back((stim)str);
+            StimMap[str]=counter;
+            counter++;
+        } else break;
     }
 
     cv::Mat mask_mat(Barrage->H,Barrage->W,CV_8U);
@@ -821,6 +836,8 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format, barrag
         //break;
         c=cv::waitKey(10);
     }
+
+    cv::destroyAllWindows();
 }
 
 
@@ -1094,7 +1111,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
     mtx.lock();
     cout<<"Created main on thread "<<boost::this_thread::get_id()<<endl;
     mtx.unlock();
-    int64 initial_time=cv::getTickCount();
+    int64 initial_time=cv::getTickCount();    
 
     FlyCapture2::Error error;
 
@@ -1108,7 +1125,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
     Image rawImage;
 
     while(run){
-        RSC_input->cam->FireSoftwareTrigger(false);
+        //RSC_input->cam->FireSoftwareTrigger(false);
         RSC_input->cam->RetrieveBuffer(&rawImage);
         int64 ms1 = cv::getTickCount();
 
@@ -1242,9 +1259,12 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     RSC_input->cam->RetrieveBuffer(&rawImage);
     cout<<"Start!"<<endl;
 
+    F7 f7;
+    SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false);
+
     // Fill buffer ////////////////////////////////////////////////////////
     for(unsigned int k=0;k<BUFFER_SIZE;k++){
-        RSC_input->cam->FireSoftwareTrigger(false);
+        //RSC_input->cam->FireSoftwareTrigger(false);
         FlyCapture2::Error error=RSC_input->cam->RetrieveBuffer(&rawImage);
 
 
@@ -1286,7 +1306,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
         T_PROC.join();
     }
 
-
+    cv::destroyAllWindows();
     return 0;
 }
 
