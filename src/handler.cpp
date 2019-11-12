@@ -402,7 +402,42 @@ void get_interp_quadsearch(Mat &src0, Point2i start, Point2d tgt_start,
     out<<endl;
 }
 
+// Use k-means exploration strategy
+void get_interp_kmeans(Mat &src0, Point2i start, Point2d tgt_start,
+                 int step, vector<Point2i>& anchor_pts,
+                 const size_t AP_N,int max_angle,double threshold,int blur,int circle_size){
 
+    Mat src;
+    src0.convertTo(src,CV_32F,1./255);
+    medianBlur(src0,src,blur);
+
+    Point2d tgt;
+    anchor_pts.resize(AP_N);
+    anchor_pts[0]=start;
+    unsigned int k=0;
+    ofstream out("file.log");
+    Point pt;
+
+    for(k=1;k<AP_N;k++){
+        if(k==1) tgt=tgt_start;
+        else tgt=anchor_pts[k-1]-anchor_pts[k-2];
+
+        Mat draw;
+        Mat circle1(src0.size(),CV_8U,Scalar(0));
+
+
+        circle(circle1,newp,circle_size,Scalar(1),-1);
+        src.copyTo(draw,circle1);
+
+        Moments M = moments(draw);
+
+        anchor_pts[k] = Point(anchor_pts[k-1].x+M.mu01/sqrt(tgt.dot(tgt))*step,
+                     anchor_pts[k-1].y+tgt.y/sqrt(tgt.dot(tgt))*step);
+
+        //anchor_pts[k]=Point2i(M.m10/M.m00,M.m01/M.m00);
+    }
+    out<<endl;
+}
 
 
 

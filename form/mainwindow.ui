@@ -164,7 +164,11 @@
            </widget>
           </item>
           <item row="6" column="2">
-           <widget class="QSpinBox" name="spinBox_waiting_time"/>
+           <widget class="QSpinBox" name="spinBox_waiting_time">
+            <property name="maximum">
+             <number>100000</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -274,7 +278,7 @@
      <x>0</x>
      <y>0</y>
      <width>582</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
