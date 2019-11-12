@@ -79,8 +79,10 @@ void MainWindow::updateBarrage()
     StimulationBarrage.repeats=ui->repeats->value();
     StimulationBarrage.inter_epoch_time=ui->spinBox_inter_epoch->value();
     StimulationBarrage.waiting_time=ui->spinBox_waiting_time->value();
+
 }
 
+// record button
 void MainWindow::on_pushButton_2_clicked()
 {
     close();
@@ -100,6 +102,7 @@ void MainWindow::on_pushButton_clicked()
 
 }
 
+// Analysis
 void MainWindow::on_pushButton_3_clicked()
 {
 
@@ -158,6 +161,7 @@ void MainWindow::on_pushButton_4_clicked()
     StimulationBarrage.WriteStim();
 }
 
+// Run barrage button
 void MainWindow::on_pushButton_5_clicked()
 {
     updateBarrage();
