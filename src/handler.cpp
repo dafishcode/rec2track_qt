@@ -403,6 +403,7 @@ void get_interp_quadsearch(Mat &src0, Point2i start, Point2d tgt_start,
 }
 
 // Use k-means exploration strategy
+/*
 void get_interp_kmeans(Mat &src0, Point2i start, Point2d tgt_start,
                  int step, vector<Point2i>& anchor_pts,
                  const size_t AP_N,int max_angle,double threshold,int blur,int circle_size){
@@ -439,7 +440,7 @@ void get_interp_kmeans(Mat &src0, Point2i start, Point2d tgt_start,
     out<<endl;
 }
 
-
+*/
 
 
 

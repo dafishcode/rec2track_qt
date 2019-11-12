@@ -172,6 +172,7 @@ public:
 
         spinBox_waiting_time = new QSpinBox(gridLayoutWidget_2);
         spinBox_waiting_time->setObjectName(QString::fromUtf8("spinBox_waiting_time"));
+        spinBox_waiting_time->setMaximum(100000);
 
         gridLayout_4->addWidget(spinBox_waiting_time, 6, 2, 1, 1);
 
@@ -220,7 +221,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 582, 23));
+        menubar->setGeometry(QRect(0, 0, 582, 22));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
