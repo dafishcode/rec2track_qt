@@ -48,6 +48,7 @@ barrage::barrage(){
     time_bar_horizontal=8.50115;
     time_bar_vertical=4.870141;
     fading=true;
+    flat_background_color=127;
 
     nframes_vec[0]=floor(4./dt*1000); // LOOM
 
@@ -71,25 +72,25 @@ barrage::barrage(){
 
     for(unsigned int k=50;k<56;++k) nframes_vec[k]=floor(time_bar_horizontal/dt*1000); // LIGHTDOTS
 
-    nframes_vec[56]=floor(2.0/dt*1000); // LIGHT
-    nframes_vec[57]=floor(2.0/dt*1000); // DARK
+    nframes_vec[56]=floor(4.0/dt*1000); // LIGHT
+    nframes_vec[57]=floor(4.0/dt*1000); // DARK
 
-    mask = new Point[H*W];
+//    mask = new Point[H*W];
 
-    for(unsigned int i=0;i<W*H;i++){
+//    for(unsigned int i=0;i<W*H;i++){
 
-        double x = i%W;
-        double y = i/W+1;
-        double u=get_th(-xmax+(x-(W-Wp)/2)/Wp*2*xmax);
-        double v=get_y(-ymax+(y-(H-Hp)/2)/Hp*2*ymax,u);
+//        double x = i%W;
+//        double y = i/W+1;
+//        double u=get_th(-xmax+(x-(W-Wp)/2)/Wp*2*xmax);
+//        double v=get_y(-ymax+(y-(H-Hp)/2)/Hp*2*ymax,u);
 
-        if(fabs(u)<th_max && fabs(v)<ymax){
-            mask[i].r=mask[i].b=mask[i].g=127;
-        } else {
-            mask[i].r=mask[i].b=mask[i].g=0;
-        }
+//        if(fabs(u)<th_max && fabs(v)<ymax){
+//            mask[i].r=mask[i].b=mask[i].g=127;
+//        } else {
+//            mask[i].r=mask[i].b=mask[i].g=0;
+//        }
 
-    }
+//    }
 
 }
 
@@ -437,6 +438,10 @@ void barrage::getBackground(){
     background.resize(H*W);
     in.read((char*)&background[0], H*W*sizeof(unsigned char));
     in.close();
+}
+
+void barrage::setBackgroundColor(int color){
+    flat_background_color=color;
 }
 
 
@@ -1411,7 +1416,7 @@ void barrage::VisualStimulation(string prefix, bool &run){
         v=get_y(-ymax+(y-(H-Hp)/2)/Hp*2*ymax,u);
 
         if(fabs(u)<th_max && fabs(v)<ymax){
-            mask[i]=127;
+            mask[i]=flat_background_color;
         } else {
             mask[i]=0;
         }
@@ -1516,7 +1521,7 @@ void barrage::VisualStimulation(string prefix, bool &run){
             cv::imshow("vs",mask_mat);
             OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()<<' '<<code_stim(StimList[epID-1])<<endl;
             ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
-            cv::waitKey(inter_epoch_time*1000);
+            if(inter_epoch_time>0) cv::waitKey(inter_epoch_time*1000);
         } else c=cv::waitKey(20);
     }
 

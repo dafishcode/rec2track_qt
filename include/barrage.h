@@ -37,6 +37,7 @@ public:
     void setStimLib();
     void transform_image(string imfile);
     void getBackground();
+    void setBackgroundColor(int);
     void GenFrames(vector<Point*> &, stim,unsigned int);
     string code_stim(stim);
     stim string_to_stim(const char* s);
@@ -94,6 +95,7 @@ public:
 private:
     double radDot(double);
     double spatFreq(double);
+    int flat_background_color;
 
     bool CONCENTRIC_ON;
 };

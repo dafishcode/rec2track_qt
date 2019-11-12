@@ -68,6 +68,7 @@ void MainWindow::updateBarrage()
     if(userIndex==2) {
         StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Dominic.txt";
         StimulationBarrage.Background_ON=false;
+        StimulationBarrage.setBackgroundColor(0);
     }
 
     if(userIndex==3) {
