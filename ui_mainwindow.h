@@ -151,6 +151,7 @@ public:
 
         spinBox_rectime = new QSpinBox(gridLayoutWidget_2);
         spinBox_rectime->setObjectName(QString::fromUtf8("spinBox_rectime"));
+        spinBox_rectime->setMaximum(1000);
         spinBox_rectime->setValue(60);
 
         gridLayout_4->addWidget(spinBox_rectime, 8, 2, 1, 1);
