@@ -1275,15 +1275,13 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
 
     // Fill buffer ////////////////////////////////////////////////////////
     for(unsigned int k=0;k<BUFFER_SIZE;k++){
-        //RSC_input->cam->FireSoftwareTrigger(false);
+
         FlyCapture2::Error error=RSC_input->cam->RetrieveBuffer(&rawImage);
-
-
         int64 ms1 = cv::getTickCount();
+        TS=rawImage.GetTimeStamp();
 
         data = rawImage.GetData();
         cv::Mat cvm(rawImage.GetRows(),rawImage.GetCols(),CV_8U,(void*)data);
-
 
         cv::Mat image;
         image=cvm(cv::Range(center.pt1.y,center.pt2.y),cv::Range(center.pt1.x,center.pt2.x));
@@ -1296,7 +1294,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
         }
 
         image.copyTo(tmp_image);
-        circ_buffer.update_buffer(tmp_image,k,ms1);       
+        circ_buffer.update_buffer(tmp_image,k,(int64)TS.microSeconds);
     }
     // ####################################################################
 
