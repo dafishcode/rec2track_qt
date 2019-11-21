@@ -1128,7 +1128,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
         //RSC_input->cam->FireSoftwareTrigger(false);
         RSC_input->cam->RetrieveBuffer(&rawImage);
         TimeStamp TimeStamp_fromCamera = rawImage.GetTimeStamp(); // use time stamp
-        int64 TimeStamp_microseconds = TimeStamp_fromCamera.microSeconds;
+        int64 TimeStamp_microseconds = TimeStamp_fromCamera.seconds*1e6+TimeStamp_fromCamera.microSeconds;
         int64 ms1 = cv::getTickCount();  // use clock ticks (less good)
 
         data = rawImage.GetData();
@@ -1259,18 +1259,19 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     // ####################################################################
 
 
+    F7 f7;
+    SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false);
     RSC_input->cam->RetrieveBuffer(&rawImage);
     RSC_input->cam->FireSoftwareTrigger(false);
     TimeStamp TS=rawImage.GetTimeStamp();
     cout<<"Start!"<<endl;
 
-    F7 f7;
     SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false);
 
     stringstream logfilename;
     logfilename	<< RSC_input->proc_folder<<"/time.log";
     ofstream logfile(logfilename.str().c_str());
-    logfile<<cv::getTickCount()<<' '<<TS.microSeconds<<' '<<0<<endl;
+    logfile<<cv::getTickCount()<<' '<<TS.seconds*1e6+TS.microSeconds<<' '<<0<<endl;
     logfile.close();
 
     // Fill buffer ////////////////////////////////////////////////////////
@@ -1294,7 +1295,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
         }
 
         image.copyTo(tmp_image);
-        circ_buffer.update_buffer(tmp_image,k,(int64)TS.microSeconds);
+        circ_buffer.update_buffer(tmp_image,k,TS.seconds*1e6+TS.microSeconds);
     }
     // ####################################################################
 
