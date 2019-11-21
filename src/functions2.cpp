@@ -1260,6 +1260,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
 
 
     RSC_input->cam->RetrieveBuffer(&rawImage);
+    RSC_input->cam->FireSoftwareTrigger(false);
     TimeStamp TS=rawImage.GetTimeStamp();
     cout<<"Start!"<<endl;
 
