@@ -1259,13 +1259,12 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     // ####################################################################
 
 
-    F7 f7;
-    SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false);
+    
     RSC_input->cam->RetrieveBuffer(&rawImage);
-    RSC_input->cam->FireSoftwareTrigger(false);
     TimeStamp TS=rawImage.GetTimeStamp();
     cout<<"Start!"<<endl;
-
+    
+    F7 f7;
     SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false);
 
     stringstream logfilename;
