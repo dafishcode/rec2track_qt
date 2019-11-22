@@ -1500,7 +1500,7 @@ void barrage::VisualStimulation(string prefix, bool &run){
 
     ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
     cout<<"Wait..."<<endl;
-    cv::waitKey(1000*waiting_time);
+    if(waiting_time>0) cv::waitKey(1000*waiting_time);
     cv::Mat A(H,W,CV_8U);
 
     while(c!='q' && run){
