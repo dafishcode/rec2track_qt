@@ -40,7 +40,7 @@ barrage::barrage(){
 
     // Time settings
     dt=40;
-    numEP=50;
+    numEP=50; // probably this number is no longer used.
     timeEP=10;
     inter_epoch_time=20;
     //double rp_max=sqrt(pow(d+(r-r*cos(th_max)),2)+pow(r*sin(th_max),2)+pow(get_z((double)th_max,ymax),2));
@@ -74,6 +74,8 @@ barrage::barrage(){
 
     nframes_vec[56]=floor(4.0/dt*1000); // LIGHT
     nframes_vec[57]=floor(4.0/dt*1000); // DARK
+
+    for(unsigned int k=58;k<66;++k) nframes_vec[k]=floor(5.0/dt*1000); // WDOTS_Tb TOM
 
 //    mask = new Point[H*W];
 
@@ -271,6 +273,30 @@ string barrage::code_stim(stim s){
     case LIGHT:
         r = "LIGHT";
         break;
+    case WDOT_Tb1:
+        r="WDOT_Tb1";
+        break;
+    case WDOT_Tb2:
+        r="WDOT_Tb2";
+        break;
+    case WDOT_Tb3:
+        r="WDOT_Tb3";
+        break;
+    case WDOT_Tb4:
+        r="WDOT_Tb4";
+        break;
+    case WDOT_Tb5:
+        r="WDOT_Tb5";
+        break;
+    case WDOT_Tb6:
+        r="WDOT_Tb6";
+        break;
+    case WDOT_Tb7:
+        r="WDOT_Tb7";
+        break;
+    case WDOT_Tb8:
+        r="WDOT_Tb8";
+        break;
     default:
         break;
     }
@@ -372,6 +398,16 @@ stim barrage::string_to_stim(const char* s){
 
     else if(strcmp(s,"DARK")==0) r=DARK;
     else if(strcmp(s,"LIGHT")==0) r=LIGHT;
+
+    else if(strcmp(s,"WDOT_Tb1")==0) r=WDOT_Tb1;
+    else if(strcmp(s,"WDOT_Tb2")==0) r=WDOT_Tb2;
+    else if(strcmp(s,"WDOT_Tb3")==0) r=WDOT_Tb3;
+    else if(strcmp(s,"WDOT_Tb4")==0) r=WDOT_Tb4;
+    else if(strcmp(s,"WDOT_Tb5")==0) r=WDOT_Tb5;
+    else if(strcmp(s,"WDOT_Tb6")==0) r=WDOT_Tb6;
+    else if(strcmp(s,"WDOT_Tb7")==0) r=WDOT_Tb7;
+    else if(strcmp(s,"WDOT_Tb8")==0) r=WDOT_Tb8;
+
     else {
         std::cout<<"Stimulus "<<s<<" not recognized"<<std::endl;
         abort();
@@ -1037,6 +1073,90 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
         cout<<endl;
         break;
+
+    case WDOT_Tb1 : case WDOT_Tb2 : case WDOT_Tb3 : case WDOT_Tb4 : case WDOT_Tb5 : case WDOT_Tb6 : case WDOT_Tb7: case WDOT_Tb8:
+        rad_dot=radDot(5.0);
+
+        switch (s) {
+        case WDOT_Tb1: wdotx=1; break;
+        case WDOT_Tb2: wdotx=2; break;
+        case WDOT_Tb3: wdotx=3; break;
+        case WDOT_Tb4: wdotx=4; break;
+        case WDOT_Tb5: wdotx=5; break;
+        case WDOT_Tb6: wdotx=6; break;
+        case WDOT_Tb7: wdotx=7; break;
+        case WDOT_Tb8: wdotx=8; break;
+        }
+
+        // Set random generator
+        cen_dots_x=r*(15.0+10.0*(wdotx-1))/180.0*pi; // We need to check this because it might be reversed.
+        cen_dots_y=-ymax/2.0;
+
+        th_ran=gsl_ran_flat(rg,0,2*pi);
+        for(ti=0;ti<NF;ti++){
+            //step_dots_x=gsl_ran_flat(rg,-dot_diff,dot_diff);
+            //step_dots_y=gsl_ran_flat(rg,-dot_diff,dot_diff);
+
+            step_dots_x=dot_diff*cos(th_ran);
+            step_dots_y=dot_diff*sin(th_ran);
+            th_ran+=gsl_ran_gaussian(rg,pi/12);
+
+            //cout<<"CHECK GenFrames: \n"<<
+            //      "   rad_dot    = "<< rad_dot<<endl<<
+            //      "   step_dot_x = "<<step_dots_x<<endl<<
+            //      "   step_dot_y = "<<step_dots_y<<endl<<
+            //      "   rthmax     = "<<r*th_max<<endl<<
+            //      "   ymax       = "<<ymax<<endl;
+
+            while(cen_dots_x+step_dots_x+2*rad_dot>2*r*th_max*wdotx/7.0 - r*th_max ||
+                  cen_dots_x+step_dots_x-2*rad_dot<2*r*th_max*(wdotx-1)/7.0 - r*th_max ||
+                  cen_dots_y+step_dots_y+2*rad_dot>0 ||
+                  cen_dots_y+step_dots_y-2*rad_dot<-ymax){
+
+                th_ran+=gsl_ran_gaussian(rg,pi/12);
+                step_dots_x=dot_diff*cos(th_ran);
+                step_dots_y=dot_diff*sin(th_ran);
+                //cout<<cen_dots_y<<' '<<step_dots_y<<' '<<rad_dot<<' '<<ymax/2<<endl;
+            }
+
+            cen_dots_x+=step_dots_x;
+            cen_dots_y+=step_dots_y;
+
+            for(i = 0; i < W*H; ++i ){
+                x=(double) (i%W);
+                y=(double) i/W+1;
+                u=get_th(-xmax+(x-(W-Wp)/2)/Wp*2.0*xmax);
+                v=get_y(-ymax+(y-(H-Hp)/2)/Hp*2.0*ymax,u);
+
+                if(fabs(u)<th_max && fabs(v)<ymax ){
+                    //rp=sqrt(pow(d+(r-r*cos(u)),2)+pow(r*sin(u),2)+pow(v,2));
+                    points[ti][i].r=points[ti][i].g=points[ti][i].b=127;//*pow(rp/rp_max,2));
+                    dist_vec=pow(cen_dots_x-u*r,2)+pow(cen_dots_y-v,2);
+
+                    if (dist_vec<=pow(rad_dot,2)){
+                        if(fading){
+                            if(ti*dt/1000<2) fading_factor=ti*dt/1000./2;
+                            if(ti*dt/1000>timeEP-2) fading_factor=(timeEP-ti*dt/1000.)/2;
+                        } else fading_factor=1;
+
+                        points[ti][i].r=points[ti][i].g=points[ti][i].b=(1-fading_factor)*127;//*pow(rp/rp_max,2));
+                    }
+                } else {
+                    points[ti][i].r=points[ti][i].g=points[ti][i].b=0;
+                }
+            }
+
+            P1 = floor(((double)ti) / NF *100);
+            if(P1>=P0+1){
+                //ProgressBar(((double)ti) / NF);
+                P0=P1;
+            }
+
+        }
+
+        cout<<endl;
+        break;
+
 
     case WDOT_T1 : case WDOT_T2 : case WDOT_T3 :
         rad_dot=radDot(5.0);
