@@ -1090,7 +1090,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
         // Set random generator
         cen_dots_x=r*(15.0+10.0*(wdotx-1))/180.0*pi; // We need to check this because it might be reversed.
-        cen_dots_y=-ymax/2.0;
+        cen_dots_y=ymax/10.0;
 
         th_ran=gsl_ran_flat(rg,0,2*pi);
         for(ti=0;ti<NF;ti++){
@@ -1108,10 +1108,10 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
             //      "   rthmax     = "<<r*th_max<<endl<<
             //      "   ymax       = "<<ymax<<endl;
 
-            while(cen_dots_x+step_dots_x+2*rad_dot>2*r*th_max*wdotx/7.0 - r*th_max ||
-                  cen_dots_x+step_dots_x-2*rad_dot<2*r*th_max*(wdotx-1)/7.0 - r*th_max ||
-                  cen_dots_y+step_dots_y+2*rad_dot>0 ||
-                  cen_dots_y+step_dots_y-2*rad_dot<-ymax){
+            while(cen_dots_x+step_dots_x+1*rad_dot>r*(15.0+10.0*(wdotx-1))/180*pi + 0.5*rdelta||
+                  cen_dots_x+step_dots_x-1*rad_dot<r*(15.0+10.0*(wdotx-1))/180*pi - 0.5*rdelta ||
+                  cen_dots_y+step_dots_y+2*rad_dot>ymax/3. ||
+                  cen_dots_y+step_dots_y-2*rad_dot<0){
 
                 th_ran+=gsl_ran_gaussian(rg,pi/12);
                 step_dots_x=dot_diff*cos(th_ran);
@@ -1130,7 +1130,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
                 if(fabs(u)<th_max && fabs(v)<ymax ){
                     //rp=sqrt(pow(d+(r-r*cos(u)),2)+pow(r*sin(u),2)+pow(v,2));
-                    points[ti][i].r=points[ti][i].g=points[ti][i].b=127;//*pow(rp/rp_max,2));
+                    points[ti][i].r=points[ti][i].g=points[ti][i].b=0;//*pow(rp/rp_max,2));
                     dist_vec=pow(cen_dots_x-u*r,2)+pow(cen_dots_y-v,2);
 
                     if (dist_vec<=pow(rad_dot,2)){
@@ -1139,7 +1139,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
                             if(ti*dt/1000>timeEP-2) fading_factor=(timeEP-ti*dt/1000.)/2;
                         } else fading_factor=1;
 
-                        points[ti][i].r=points[ti][i].g=points[ti][i].b=(1-fading_factor)*127;//*pow(rp/rp_max,2));
+                        points[ti][i].r=points[ti][i].g=points[ti][i].b=(fading_factor)*127;//*pow(rp/rp_max,2));
                     }
                 } else {
                     points[ti][i].r=points[ti][i].g=points[ti][i].b=0;
@@ -1362,13 +1362,13 @@ void barrage::WriteStim()
         cout<<"Generating epoch "<<code_stim(sti_ind[i])<<' '<<sti_ind[i]<<' '<<nframes_vec[sti_ind[i]]<<endl;
         cout<<"CHECK: "<<points.size()<<' '<<nframes_vec[sti_ind[i]]<<endl;
         GenFrames(points,sti_ind[i],nframes_vec[sti_ind[i]]);
-
-        ostringstream ss;
+        
+ 	ostringstream ss;
         ss<<stimlibloc<<"/"<<code_stim(sti_ind[i])<<".bin";
         ofstream output(ss.str().c_str(),ios::out | ios::binary);
-
-        cout<<"writing on "<<ss.str()<<endl;
-        for(j=0;j<nframes_vec[sti_ind[i]]+1;j++) {
+        
+	cout<<"writing on "<<ss.str()<<endl;
+        for(j=0;j<nframes_vec[sti_ind[i]];j++) {
             for(k=0;k<W*H;k++) r_tmp[k]=points[j][k].r;
             output.write((char*)r_tmp,sizeof r_tmp);
             //for(k=0;k<W*H;k++) {

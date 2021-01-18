@@ -158,6 +158,7 @@ void MainWindow::on_pushButton_4_clicked()
 {
     updateBarrage();    
     StimulationBarrage.transform_image(QApplication::applicationDirPath().toStdString()+"/../opt/background.jpg");
+    cout<<"CIAO"<<endl;
     StimulationBarrage.WriteStim();
 }
 
