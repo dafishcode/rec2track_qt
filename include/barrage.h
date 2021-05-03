@@ -27,7 +27,17 @@ enum stim {LOOM,
            LIGHTDOT_90_SF15,LIGHTDOT_270_SF15,
            LIGHTDOT_90_SF26,LIGHTDOT_270_SF26,
            LIGHT,DARK,
-           WDOT_Tb1,WDOT_Tb2,WDOT_Tb3,WDOT_Tb4,WDOT_Tb5,WDOT_Tb6,WDOT_Tb7,WDOT_Tb8
+           WDOT_Tb1,WDOT_Tb2,WDOT_Tb3,WDOT_Tb4,WDOT_Tb5,WDOT_Tb6,WDOT_Tb7,WDOT_Tb8,
+           WDOT_CONTRAST_1,
+           WDOT_CONTRAST_2,
+           WDOT_CONTRAST_3,
+           WDOT_CONTRAST_4,
+           WDOT_CONTRAST_5,
+           WDOT_CONTRAST_6,
+           WDOT_CONTRAST_7,
+           WDOT_CONTRAST_8,
+           WDOT_CONTRAST_9,
+           WDOT_CONTRAST_10,
           };
 
 class barrage {
@@ -86,7 +96,7 @@ public:
     double time_bar_horizontal;
     double time_bar_vertical;
     //int nframes_vec[58]; before adding WDOT_Tb
-    int nframes_vec[66];
+    int nframes_vec[76];
     bool fading;
     Point *mask;
     vector<unsigned char> background;
