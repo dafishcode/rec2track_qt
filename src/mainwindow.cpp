@@ -57,7 +57,8 @@ void MainWindow::updateBarrage()
 
     if(userIndex==0) {
         StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
-        StimulationBarrage.Background_ON=true;
+        //StimulationBarrage.Background_ON=true;
+        StimulationBarrage.Background_ON=false;
     }
 
     if(userIndex==1) {

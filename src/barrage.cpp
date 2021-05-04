@@ -1282,16 +1282,16 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
         int dot_contrast;
 
         switch (s) {
-            case WDOT_CONTRAST_1: dot_contrast=129.56; break;
-            case WDOT_CONTRAST_2: dot_contrast=131; break;
-            case WDOT_CONTRAST_3: dot_contrast=133; break;
-            case WDOT_CONTRAST_4: dot_contrast=136; break;
-            case WDOT_CONTRAST_5: dot_contrast=141; break;
-            case WDOT_CONTRAST_6: dot_contrast=149; break;
-            case WDOT_CONTRAST_7: dot_contrast=161; break;
-            case WDOT_CONTRAST_8: dot_contrast=180; break;
-            case WDOT_CONTRAST_9: dot_contrast=209; break;
-            case WDOT_CONTRAST_10: dot_contrast=255; break;
+            case WDOT_CONTRAST_1: dot_contrast=125; break;
+            case WDOT_CONTRAST_2: dot_contrast=124; break;
+            case WDOT_CONTRAST_3: dot_contrast=122; break;
+            case WDOT_CONTRAST_4: dot_contrast=120; break;
+            case WDOT_CONTRAST_5: dot_contrast=114; break;
+            case WDOT_CONTRAST_6: dot_contrast=107; break;
+            case WDOT_CONTRAST_7: dot_contrast=95; break;
+            case WDOT_CONTRAST_8: dot_contrast=76; break;
+            case WDOT_CONTRAST_9: dot_contrast=45; break;
+            case WDOT_CONTRAST_10: dot_contrast=0; break;
         }
 
         // Set random generator
