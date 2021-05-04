@@ -1280,6 +1280,7 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
         rad_dot=radDot(5.0);
         int dot_contrast;
+        gsl_rng_set(rg,101); // seed
 
         switch (s) {
             case WDOT_CONTRAST_1: dot_contrast=125; break;
