@@ -438,16 +438,16 @@ stim barrage::string_to_stim(const char* s){
     else if(strcmp(s,"WDOT_Tb7")==0) r=WDOT_Tb7;
     else if(strcmp(s,"WDOT_Tb8")==0) r=WDOT_Tb8;
 
-    else if(strcmp(s,"WDOT_CONTRAST_1") r=WDOT_CONTRAST_1;
-    else if(strcmp(s,"WDOT_CONTRAST_2") r=WDOT_CONTRAST_2;
-    else if(strcmp(s,"WDOT_CONTRAST_3") r=WDOT_CONTRAST_3;
-    else if(strcmp(s,"WDOT_CONTRAST_4") r=WDOT_CONTRAST_4;
-    else if(strcmp(s,"WDOT_CONTRAST_5") r=WDOT_CONTRAST_5;
-    else if(strcmp(s,"WDOT_CONTRAST_6") r=WDOT_CONTRAST_6;
-    else if(strcmp(s,"WDOT_CONTRAST_7") r=WDOT_CONTRAST_7;
-    else if(strcmp(s,"WDOT_CONTRAST_8") r=WDOT_CONTRAST_8;
-    else if(strcmp(s,"WDOT_CONTRAST_9") r=WDOT_CONTRAST_9;
-    else if(strcmp(s,"WDOT_CONTRAST_10") r=WDOT_CONTRAST_10;
+    else if(strcmp(s,"WDOT_CONTRAST_1")==0) r=WDOT_CONTRAST_1;
+    else if(strcmp(s,"WDOT_CONTRAST_2")==0) r=WDOT_CONTRAST_2;
+    else if(strcmp(s,"WDOT_CONTRAST_3")==0) r=WDOT_CONTRAST_3;
+    else if(strcmp(s,"WDOT_CONTRAST_4")==0) r=WDOT_CONTRAST_4;
+    else if(strcmp(s,"WDOT_CONTRAST_5")==0) r=WDOT_CONTRAST_5;
+    else if(strcmp(s,"WDOT_CONTRAST_6")==0) r=WDOT_CONTRAST_6;
+    else if(strcmp(s,"WDOT_CONTRAST_7")==0) r=WDOT_CONTRAST_7;
+    else if(strcmp(s,"WDOT_CONTRAST_8")==0) r=WDOT_CONTRAST_8;
+    else if(strcmp(s,"WDOT_CONTRAST_9")==0) r=WDOT_CONTRAST_9;
+    else if(strcmp(s,"WDOT_CONTRAST_10")==0) r=WDOT_CONTRAST_10;
 
     else {
         std::cout<<"Stimulus "<<s<<" not recognized"<<std::endl;
