@@ -57,6 +57,12 @@
           </item>
           <item row="5" column="2">
            <widget class="QSpinBox" name="spinBox_inter_epoch">
+            <property name="toolTip">
+             <string extracomment="YTou need 25 to 30 sec for Calcium Probe to decay">Pause Between Stim Epochs (Shows Blank -Grey BG)</string>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
             <property name="value">
              <number>20</number>
             </property>
@@ -64,13 +70,19 @@
           </item>
           <item row="4" column="0" colspan="2">
            <widget class="QLabel" name="label_2">
+            <property name="toolTip">
+             <string>Repeats (Randomized but never consecutive) per Stimulus  (except CONCENTIC which does not repeat)</string>
+            </property>
             <property name="text">
-             <string>Repeats</string>
+             <string>Repeats per stimulus</string>
             </property>
            </widget>
           </item>
           <item row="5" column="0" colspan="2">
            <widget class="QLabel" name="label_4">
+            <property name="toolTip">
+             <string>Pause Between Stim Epochs (Shows Blank -Grey BG)</string>
+            </property>
             <property name="text">
              <string>Inter epoch time (s)</string>
             </property>
@@ -105,10 +117,31 @@
               <string>Tom Shallcross</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>Kostas L</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>visitor A</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>visitor B</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="4" column="2">
            <widget class="QSpinBox" name="repeats">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Repeats (Randomized but never consecutive) per Stimulus  (except CONCENTIC which does not repeat)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="maximum">
+             <number>3000</number>
+            </property>
             <property name="value">
              <number>1</number>
             </property>
@@ -137,6 +170,9 @@
           </item>
           <item row="8" column="2">
            <widget class="QSpinBox" name="spinBox_rectime">
+            <property name="toolTip">
+             <string>Camera Total time it will be on trigger mode </string>
+            </property>
             <property name="maximum">
              <number>1000</number>
             </property>
@@ -147,6 +183,9 @@
           </item>
           <item row="10" column="0">
            <widget class="QPushButton" name="pushButton_4">
+            <property name="toolTip">
+             <string>Genrates the StimFiles</string>
+            </property>
             <property name="text">
              <string>Generate barrage</string>
             </property>
@@ -154,6 +193,9 @@
           </item>
           <item row="10" column="2">
            <widget class="QPushButton" name="pushButton_2">
+            <property name="toolTip">
+             <string extracomment="Shows Tail view - to select ROI - Then Start session by pressing R,  Wait for 2p Scope Trigger ">Shows Tail view - to select ROI - Then Start session by pressing &quot;R&quot;,  It will wait for 2p Scope Trigger </string>
+            </property>
             <property name="text">
              <string>Record</string>
             </property>
@@ -161,6 +203,9 @@
           </item>
           <item row="6" column="0" colspan="2">
            <widget class="QLabel" name="label_7">
+            <property name="toolTip">
+             <string>Initial Lag time prior to stim barrage initiations</string>
+            </property>
             <property name="text">
              <string>Waiting time (s)</string>
             </property>
@@ -168,8 +213,14 @@
           </item>
           <item row="6" column="2">
            <widget class="QSpinBox" name="spinBox_waiting_time">
+            <property name="toolTip">
+             <string>Initial Lag time prior to stim barrage initiations</string>
+            </property>
             <property name="maximum">
              <number>100000</number>
+            </property>
+            <property name="value">
+             <number>25</number>
             </property>
            </widget>
           </item>
@@ -211,6 +262,9 @@
              <height>27</height>
             </rect>
            </property>
+           <property name="toolTip">
+            <string>Bring up View to show Bhavioural Camera - For Checking Validation prior to recording</string>
+           </property>
            <property name="text">
             <string>Show camera</string>
            </property>
@@ -223,6 +277,9 @@
              <width>99</width>
              <height>27</height>
             </rect>
+           </property>
+           <property name="toolTip">
+            <string>(Not muscope trigger) Start Displaying Barage Withou waiting for Muscope Trigger</string>
            </property>
            <property name="text">
             <string>Run barrage</string>
@@ -255,6 +312,9 @@
              <width>98</width>
              <height>27</height>
             </rect>
+           </property>
+           <property name="toolTip">
+            <string>- Not sure (Likely for real-time Tail -Tracking)</string>
            </property>
            <property name="text">
             <string>Track</string>
