@@ -54,7 +54,7 @@ void MainWindow::record(){
 void MainWindow::updateBarrage()
 {
     int userIndex = ui->comboBox->currentIndex();
-
+    /// \TODO: Use Some Key Value - THis is really messy
     if(userIndex==0) {
         StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
         //StimulationBarrage.Background_ON=true;
@@ -76,6 +76,20 @@ void MainWindow::updateBarrage()
         StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_TomShallcross.txt";
         StimulationBarrage.Background_ON=false;
     }
+
+    if(userIndex==4) {
+        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_kostasl.txt";
+        StimulationBarrage.Background_ON=false;
+    }
+    if(userIndex==5) {
+        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorA.txt";
+        StimulationBarrage.Background_ON=false;
+    }
+    if(userIndex==6) {
+        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorB.txt";
+        StimulationBarrage.Background_ON=false;
+    }
+
 
     StimulationBarrage.repeats=ui->repeats->value();
     StimulationBarrage.inter_epoch_time=ui->spinBox_inter_epoch->value();
