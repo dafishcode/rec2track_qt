@@ -10,24 +10,24 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QComboBox>
-#include <QtGui/QGridLayout>
-#include <QtGui/QGroupBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenuBar>
-#include <QtGui/QProgressBar>
-#include <QtGui/QPushButton>
-#include <QtGui/QRadioButton>
-#include <QtGui/QSpinBox>
-#include <QtGui/QStatusBar>
-#include <QtGui/QWidget>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QSpinBox>
+#include <QStatusBar>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 
@@ -235,31 +235,31 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Rec2Track", 0, QApplication::UnicodeUTF8));
-        groupBox_2->setTitle(QApplication::translate("MainWindow", "Settings", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("MainWindow", "Folder", 0, QApplication::UnicodeUTF8));
-        radioButton->setText(QApplication::translate("MainWindow", "Visual Stimulation", 0, QApplication::UnicodeUTF8));
-        label_2->setText(QApplication::translate("MainWindow", "Repeats", 0, QApplication::UnicodeUTF8));
-        label_4->setText(QApplication::translate("MainWindow", "Inter epoch time (s)", 0, QApplication::UnicodeUTF8));
-        Duration->setText(QApplication::translate("MainWindow", "0 s", 0, QApplication::UnicodeUTF8));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Rec2Track", 0));
+        groupBox_2->setTitle(QApplication::translate("MainWindow", "Settings", 0));
+        label->setText(QApplication::translate("MainWindow", "Folder", 0));
+        radioButton->setText(QApplication::translate("MainWindow", "Visual Stimulation", 0));
+        label_2->setText(QApplication::translate("MainWindow", "Repeats", 0));
+        label_4->setText(QApplication::translate("MainWindow", "Inter epoch time (s)", 0));
+        Duration->setText(QApplication::translate("MainWindow", "0 s", 0));
         comboBox->clear();
         comboBox->insertItems(0, QStringList()
-         << QApplication::translate("MainWindow", "Tom", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("MainWindow", "Rachel", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("MainWindow", "Dominic", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("MainWindow", "Tom Shallcross", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("MainWindow", "Tom", 0)
+         << QApplication::translate("MainWindow", "Rachel", 0)
+         << QApplication::translate("MainWindow", "Dominic", 0)
+         << QApplication::translate("MainWindow", "Tom Shallcross", 0)
         );
-        label_3->setText(QApplication::translate("MainWindow", "User", 0, QApplication::UnicodeUTF8));
-        label_5->setText(QApplication::translate("MainWindow", "Barrage duration", 0, QApplication::UnicodeUTF8));
-        label_6->setText(QApplication::translate("MainWindow", "Recording time (m)", 0, QApplication::UnicodeUTF8));
-        pushButton_4->setText(QApplication::translate("MainWindow", "Generate barrage", 0, QApplication::UnicodeUTF8));
-        pushButton_2->setText(QApplication::translate("MainWindow", "Record", 0, QApplication::UnicodeUTF8));
-        label_7->setText(QApplication::translate("MainWindow", "Waiting time (s)", 0, QApplication::UnicodeUTF8));
-        groupBox->setTitle(QApplication::translate("MainWindow", "Display", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QApplication::translate("MainWindow", "Show camera", 0, QApplication::UnicodeUTF8));
-        pushButton_5->setText(QApplication::translate("MainWindow", "Run barrage", 0, QApplication::UnicodeUTF8));
-        groupBox_3->setTitle(QApplication::translate("MainWindow", "Analysis", 0, QApplication::UnicodeUTF8));
-        pushButton_3->setText(QApplication::translate("MainWindow", "Track", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("MainWindow", "User", 0));
+        label_5->setText(QApplication::translate("MainWindow", "Barrage duration", 0));
+        label_6->setText(QApplication::translate("MainWindow", "Recording time (m)", 0));
+        pushButton_4->setText(QApplication::translate("MainWindow", "Generate barrage", 0));
+        pushButton_2->setText(QApplication::translate("MainWindow", "Record", 0));
+        label_7->setText(QApplication::translate("MainWindow", "Waiting time (s)", 0));
+        groupBox->setTitle(QApplication::translate("MainWindow", "Display", 0));
+        pushButton->setText(QApplication::translate("MainWindow", "Show camera", 0));
+        pushButton_5->setText(QApplication::translate("MainWindow", "Run barrage", 0));
+        groupBox_3->setTitle(QApplication::translate("MainWindow", "Analysis", 0));
+        pushButton_3->setText(QApplication::translate("MainWindow", "Track", 0));
     } // retranslateUi
 
 };
