@@ -14,22 +14,23 @@ Output files:
 
 ## List of Available Stimulus codes
 
+```
 GRAT_90_SF05;
 GRAT_270_SF05;
 GRAT_0_SF05;
 GRAT_180_SF05;
 GRAT_90_SF15;
 GRAT_270_SF15;
-    else if(strcmp(s,"GRAT_0_SF15")==0) r=GRAT_0_SF15;
-    else if(strcmp(s,"GRAT_180_SF15")==0) r=GRAT_180_SF15;
-    else if(strcmp(s,"GRAT_90_SF26")==0) r=GRAT_90_SF26;
-    else if(strcmp(s,"GRAT_270_SF26")==0) r=GRAT_270_SF26;
-    else if(strcmp(s,"GRAT_0_SF26")==0) r=GRAT_0_SF26;
-    else if(strcmp(s,"GRAT_180_SF26")==0) r=GRAT_180_SF26;
-    else if(strcmp(s,"BAR_0")==0) r=BAR_0;
-    else if(strcmp(s,"BAR_90")==0) r=BAR_90;
-    else if(strcmp(s,"BAR_180")==0) r=BAR_180;
-    else if(strcmp(s,"BAR_270")==0) r=BAR_270;
+GRAT_0_SF15;
+GRAT_180_SF15;
+GRAT_90_SF26;
+GRAT_270_SF26;
+GRAT_0_SF26;
+GRAT_180_SF26;
+BAR_0;
+BAR_90;
+BAR_180;
+BAR_270;
 LIGHTBAR_0;
 LIGHTBAR_90;
 LIGHTBAR_180;
@@ -95,3 +96,5 @@ LOOM;
     else if(strcmp(s,"WDOT_CONTRAST_8")==0) r=WDOT_CONTRAST_8;
     else if(strcmp(s,"WDOT_CONTRAST_9")==0) r=WDOT_CONTRAST_9;
     else if(strcmp(s,"WDOT_CONTRAST_10")==0) r=WDOT_CONTRAST_10;
+ 
+ ```
