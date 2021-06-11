@@ -46,7 +46,20 @@
            </widget>
           </item>
           <item row="1" column="1" colspan="2">
-           <widget class="QLineEdit" name="FolderEdit"/>
+           <widget class="QLineEdit" name="FolderEdit">
+            <property name="toolTip">
+             <string>Directory to be created where output log files will be saved</string>
+            </property>
+            <property name="whatsThis">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory to be created where output log files will be saved&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>/home/</string>
+            </property>
+            <property name="placeholderText">
+             <string/>
+            </property>
+           </widget>
           </item>
           <item row="0" column="0" colspan="3">
            <widget class="QRadioButton" name="radioButton">

@@ -1472,7 +1472,7 @@ void barrage::WriteStim()
 
     int ngen;
 
-    cout<<optstimfile<<endl;
+    cout<< "Reading list of stimuli to generate from: " <<  optstimfile << endl;
     while(stimfile>>stim_string){
         sti_ind.push_back(string_to_stim(stim_string.c_str()));
     }
@@ -1491,7 +1491,7 @@ void barrage::WriteStim()
         ss<<stimlibloc<<"/"<<code_stim(sti_ind[i])<<".bin";
         ofstream output(ss.str().c_str(),ios::out | ios::binary);
         
-	cout<<"writing on "<<ss.str()<<endl;
+    cout << "output to " << ss.str()<<endl;
         for(j=0;j<nframes_vec[sti_ind[i]];j++) {
             for(k=0;k<W*H;k++) r_tmp[k]=points[j][k].r;
             output.write((char*)r_tmp,sizeof r_tmp);
