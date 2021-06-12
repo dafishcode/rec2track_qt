@@ -1,7 +1,24 @@
 # rec2track_qt
 C++ tool for stimuli presentation and behavioural recording
+Used in conjunction with the Meyer lab 2p microscope to produce visual stimulation patterns synchronized to the 2p brain images.
 
-Used in conjuction with the Meyer lab 2p microscope to produce visual stimulation patterns synchronized to the 2p brain images.
+
+```
+ // Important note on projection screen: //////////////////////////////////////////
+    // The second screen needs to be positioned as
+    //
+    //       |^^^^^^^^^||^^^|
+    //       |         || 2 |
+    //       |    1    | ---
+    //       |         |
+    //       -----------
+    //
+    // The projection screen size must be 800x600 (4:3).
+    // To avoid the appearance of the topbar use GNOME Classic as desktop environment
+    // 
+```
+ *Remember to Switch projector to HDMI input*, so it becomes the Desktop's 2nd screen. 
+
 The opt directory needs be found one up from the folder where the binary is being executed, and needs to contain the following input files :
 
 -   StimLibFolder.txt : the folder where the stimulus barrage binaries are to be saved and loaded from.
@@ -92,3 +109,14 @@ WDOT_CONTRAST_8;
 WDOT_CONTRAST_9;
 WDOT_CONTRAST_10;
  ```
+## Behavioural recording and Tracking 
+
+During behavioural recording a display of the realtime video is shown. 
+Going through the code i Found the following keys give the user some control over options:
+```
+while(c!='q'){
+       if(c=='f') ind+=speed;
+        if(c=='t') ind+=40;
+        if(c=='b') ind=max(0,ind-speed);
+        if(c=='h') hide_trace=!hide_trace;
+```

@@ -810,7 +810,7 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format, barrag
         filename<<prefix<<'/'<<fixedLengthString(ind)<<".pgm";
 
         image=cv::imread(filename.str().c_str(),cv::IMREAD_UNCHANGED);
-
+        /// ???
         ind_vs=Barrage->matchtime(tcam[ind],tvs);
 
         if(stimseq[ind_vs]<0){

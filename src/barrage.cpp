@@ -470,8 +470,13 @@ void barrage::setStimLib(){
     string optfilename = prefix.toStdString()+"/../opt/StimLibFolder.txt";
 
     ifstream StimLib_optfile(optfilename.c_str());
+    // Make sure the file is open
+    if(!StimLib_optfile.is_open())
+        throw std::runtime_error("could not open StimLibFolder.txt settings file to set Stimulus .bin directory");
+
     StimLib_optfile>>stimlibloc;
     StimLib_optfile.close();
+
 }
 
 void barrage::transform_image(string imfile){
@@ -1578,6 +1583,9 @@ void barrage::displayXbackground(char* window,
     }
 }
 
+
+/// \brief Runs The visual stimulation routine based on user settings
+///
 void barrage::VisualStimulation(string prefix, bool &run){
 
     double t0 = (double)cv::getTickCount();
@@ -1632,7 +1640,9 @@ void barrage::VisualStimulation(string prefix, bool &run){
     ticksfile.open(ticksfile_name.str().c_str());
 
     setting_file.open(settings_name.str().c_str());
-    setting_file<<repeats<<' '<<inter_epoch_time<<' '<<waiting_time<<endl;
+
+    setting_file << repeats<<' '<<inter_epoch_time<<' '<< waiting_time<< std::endl;
+    setting_file << "repeats"<<' '<<"inter_epoch_time"<<' ' << "waiting_time" << std::endl; //Add field Names on Bottom So they do not interfere with file reading
     setting_file.close();
 
     cout<<"Recording epoches times in "<<OUTFILE_name.str()<<endl;
@@ -1710,7 +1720,8 @@ void barrage::VisualStimulation(string prefix, bool &run){
 
     for(i=0;i<numEP_spec;i++) {
         cout<<code_stim(StimList[i])<<' ';
-        if(StimList[i]==CONCENTRIC || (i+1-CONCENTRIC_ON) % number_of_stimuli == 0) cout<<endl;
+        if(StimList[i]==CONCENTRIC || (i+1-CONCENTRIC_ON) % number_of_stimuli == 0)
+            cout<<endl;
     }
     cout<<endl;
 
@@ -1743,7 +1754,7 @@ void barrage::VisualStimulation(string prefix, bool &run){
 
 
     ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
-    cout<<"Wait..."<<endl;
+    cout<<"Waiting for " << waiting_time << " sec. Press any key to override wait."<<endl;
     if(waiting_time>0) cv::waitKey(1000*waiting_time);
     cv::Mat A(H,W,CV_8U);
 
