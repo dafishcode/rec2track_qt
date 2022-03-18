@@ -51,6 +51,7 @@ void MainWindow::record(){
     Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
 }
 
+//Reads settings from GUI form
 void MainWindow::updateBarrage()
 {
     int userIndex = ui->comboBox->currentIndex();
@@ -91,9 +92,11 @@ void MainWindow::updateBarrage()
     }
 
 
-    StimulationBarrage.repeats=ui->repeats->value();
-    StimulationBarrage.inter_epoch_time=ui->spinBox_inter_epoch->value();
-    StimulationBarrage.waiting_time=ui->spinBox_waiting_time->value();
+    StimulationBarrage.repeats           = ui->repeats->value();
+    StimulationBarrage.inter_epoch_time  = ui->spinBox_inter_epoch->value();
+    StimulationBarrage.waiting_time      = ui->spinBox_waiting_time->value();
+    // Update Duration in UI
+    ui->Duration->setText(QString::number(StimulationBarrage.barrage_duration())+" s");
 
 }
 
@@ -117,7 +120,7 @@ void MainWindow::on_pushButton_clicked()
 
 }
 
-// Analysis
+/// (Track Button Pushed) "Analysis "
 void MainWindow::on_pushButton_3_clicked()
 {
 
@@ -136,11 +139,18 @@ void MainWindow::on_pushButton_3_clicked()
     while(getline(logfile,line)) LN++;
     logfile.close();
 
-    // Get Stim file    
+    /// TODO: this is a serious mess that needs to be moved
+    // Get Stim file
     int userIndex = ui->comboBox->currentIndex();
     if(userIndex==0) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
     if(userIndex==1) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Rachel.txt";
     if(userIndex==3) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_TomShallcross.txt";
+    if(userIndex==4) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_kostasl.txt";
+    if(userIndex==5) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorA.txt";
+    if(userIndex==6) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorB.txt";
+
+
+
 
     ifstream setting_file;
 
@@ -149,8 +159,11 @@ void MainWindow::on_pushButton_3_clicked()
     if(VisualStimulation_on){
         // Get inter-epoch time and number of repeats
         setting_file.open(tmp.toStdString()+"/settings.log");
+
         setting_file>>StimulationBarrage.repeats>>StimulationBarrage.inter_epoch_time>>StimulationBarrage.waiting_time;
         setting_file.close();
+
+
         ReadImageSeq_vs(tmp.toStdString(),"display - track",0,".tiff",&StimulationBarrage,LN);
     } else
         ReadImageSeq_and_track(tmp.toStdString(),"display - track",0,".tiff",LN);
@@ -187,7 +200,7 @@ void MainWindow::on_pushButton_5_clicked()
     cout<<"APPfolder "<<QCoreApplication::applicationDirPath().toStdString()<<endl;
     cout<<"opt <- "<<StimulationBarrage.optstimfile<<endl;
     cout<<"Stimulus folder <- "<<StimulationBarrage.stimlibloc<<endl;
-    bool VisualStimulation_on=ui->radioButton->isChecked();
+    bool VisualStimulation_on = ui->radioButton->isChecked();
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
 
@@ -195,5 +208,12 @@ void MainWindow::on_pushButton_5_clicked()
 
     if(!StimulationBarrage.Background_ON) StimulationBarrage.VisualStimulation(tmp.toStdString(),run);
     else StimulationBarrage.VisualStimulation_BG(tmp.toStdString(),run);
+
+}
+
+/// \brief Refresh Calculation of duration given user options in GUI
+void MainWindow::on_btn_CalcDuration_clicked()
+{
+    updateBarrage();
 
 }

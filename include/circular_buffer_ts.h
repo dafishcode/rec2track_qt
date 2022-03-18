@@ -1,22 +1,26 @@
 #ifndef CIRCULAR_BUFFER_TS_H
 #define CIRCULAR_BUFFER_TS_H
 
+#include <iostream>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
 #include <boost/circular_buffer.hpp>
+#include <boost/noncopyable.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <signal.h>
 
+#include "handler.h"
 // Thread safe circular buffer
 
 using namespace std;
-
-class circular_buffer_ts : private boost::noncopyable
+//To prevent copying a class, you can very easily declare a private copy constructor / assignment operators. But you can also inherit boost::noncopyable.
+//: private boost::noncopyable
+class circular_buffer_ts: private boost::noncopyable
 {
 public:
-
+circular_buffer_ts
     typedef boost::mutex::scoped_lock lock;
 
     circular_buffer_ts() {}
@@ -38,7 +42,7 @@ public:
         if(!writing_buffer){
             //cv::Mat im;
             //imdata.copyTo(im);
-            if(verbose) cout<<"update buffer: "<<f<<' '<<t<<endl;
+            if(verbose) std::cout<<"update buffer: "<<f<<' '<<t<<endl;
             cb.push_back(imdata.clone());
             frame_index.push_back(f);
             time_index.push_back(t);
@@ -71,6 +75,7 @@ public:
         cb.set_capacity(capacity);
     }
 
+    // WHen In recording State the Caller Updating the Cbuffer handles writing of images to disk directly
     void set_recorder_state(bool rs){
         lock lk(monitor);
         recording_state=rs;
@@ -81,6 +86,7 @@ public:
         last_recorded_index=f;
     }
 
+    // Write Buffer Images to Disk
     void set_writing_buffer(bool br){
         lock lk(monitor);
         writing_buffer = br;

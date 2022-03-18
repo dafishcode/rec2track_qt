@@ -49,6 +49,8 @@ private slots:
 
     void on_pushButton_5_clicked();
 
+    void on_btn_CalcDuration_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

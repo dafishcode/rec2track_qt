@@ -193,6 +193,8 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
 
     error = cam->GetConfiguration(&(f7.config));
 
+    std::cerr << "GetConfiguration returned Error:" << error.GetDescription() << std::endl;
+
     // Set the number of driver buffers used to 10.
     //f7.config.numBuffers = 10; THIS IS CORRECT
     f7.config.numBuffers = 10;
@@ -219,7 +221,9 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
     error = cam->SetEmbeddedImageInfo(&imageInfo);
     if (error != PGRERROR_OK)
     {
-        delete cam;
+        cerr << "Error setting camera imageInfo." << std::endl;
+        if (cam)
+            delete cam;
         cout << "Press Enter to exit." << endl;
         cin.ignore();
     }
@@ -806,7 +810,7 @@ void ReadImageSeq_vs(string prefix,char* display, int mode, char* format, barrag
         filename<<prefix<<'/'<<fixedLengthString(ind)<<".pgm";
 
         image=cv::imread(filename.str().c_str(),cv::IMREAD_UNCHANGED);
-
+        /// ???
         ind_vs=Barrage->matchtime(tcam[ind],tvs);
 
         if(stimseq[ind_vs]<0){
