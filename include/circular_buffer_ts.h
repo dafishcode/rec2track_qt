@@ -20,7 +20,7 @@ using namespace std;
 class circular_buffer_ts: private boost::noncopyable
 {
 public:
-
+circular_buffer_ts
     typedef boost::mutex::scoped_lock lock;
 
     circular_buffer_ts() {}
@@ -75,6 +75,7 @@ public:
         cb.set_capacity(capacity);
     }
 
+    // WHen In recording State the Caller Updating the Cbuffer handles writing of images to disk directly
     void set_recorder_state(bool rs){
         lock lk(monitor);
         recording_state=rs;
@@ -85,6 +86,7 @@ public:
         last_recorded_index=f;
     }
 
+    // Write Buffer Images to Disk
     void set_writing_buffer(bool br){
         lock lk(monitor);
         writing_buffer = br;
