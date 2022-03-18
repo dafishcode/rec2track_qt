@@ -183,7 +183,8 @@ void PrintCameraInfo(CameraInfo *pCamInfo)
          << endl;
 }
 
-void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7PixFmt, bool triggerON){
+// Set Camera Options - Trigger and FrameRate , Shutter - And Timestamp on IMage If Wanted
+void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7PixFmt, bool triggerON, float pfFrameRate, float pfShutter){
 
     FlyCapture2::Error error;
 
@@ -240,11 +241,45 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
     prop.autoManualMode = false;
     //Ensure the property is set up to use absolute value control.
     prop.absControl = true;
-    //Set the absolute value of shutter to 1 ms.
-    prop.absValue = 1;
+    //Set the absolute value of shutter to X ms. (Too short and Image Is not Bright Enough)
+    prop.absValue = pfShutter;
     //Set the property.
     error = cam->SetProperty( &prop );
+    cout << "Shutter time set to " << fixed << pfShutter << "ms" << endl;
     // #############################################################################
+
+
+    /// SET FRAME RATE ///
+    // - FRAME RATE CONTROL Check if the camera supports the FRAME_RATE property //
+    PropertyInfo propInfo;
+    propInfo.type = FRAME_RATE;
+    error = cam->GetPropertyInfo(&propInfo);
+    if (error != PGRERROR_OK)
+    {
+        PrintError(error);
+        return;
+    }
+    // Turn off Auto frame rate
+    Property propF;
+    propF.type = FRAME_RATE;
+    //Ensure the property is on.
+    propF.onOff = true;
+    //Ensure auto-adjust mode is off.
+    propF.autoManualMode = false;
+    //Ensure the property is set up to use absolute value control.
+    propF.absControl = true;
+    //Set the absolute Frame Rate . Too Fast and
+    propF.absValue = pfFrameRate; // SET  TARGET FRAMERATE
+    error = cam->SetProperty(&propF);
+    if (error != PGRERROR_OK)
+    {
+        PrintError(error);
+        return ;
+    }
+    std::cout << "FrameRate set to to " << fixed << prop.absValue << " fps" << std::endl;
+    // ##########  //
+
+
 
     // Set TRIGGER /////////////////////////////////////////////////////////////////
     TriggerMode mTrigger;
@@ -258,7 +293,8 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
 
     // Start capturing images
     cam->StartCapture();
-}
+
+} //END OF SetCam //
 
 void CreateOutputFolder(string folder){
     struct stat sb;
@@ -870,7 +906,7 @@ int ChangeTrigger(thread_data2 *input){
 }
 */
 
-int Run_SingleCamera(PGRGuid *guid)
+int Run_SingleCamera(PGRGuid *guid,float pFrameRate, float pfShutter)
 {
 
 //    FlyCapture2::Error error;
@@ -928,7 +964,8 @@ int Run_SingleCamera(PGRGuid *guid)
 
     Camera cam;
     cam.Connect(guid);
-    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,false);
+
+    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,false,pFrameRate,pfShutter);
 // /////////////////////////////////////////////
 
     Image rawImage;

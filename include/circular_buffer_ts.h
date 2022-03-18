@@ -4,6 +4,7 @@
 #include <iostream>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/thread.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/noncopyable.hpp>
@@ -20,8 +21,7 @@ using namespace std;
 class circular_buffer_ts: private boost::noncopyable
 {
 public:
-circular_buffer_ts
-    typedef boost::mutex::scoped_lock lock;
+    typedef boost::mutex::scoped_lock mutex_lock;
 
     circular_buffer_ts() {}
 
@@ -38,7 +38,7 @@ circular_buffer_ts
 
 
     void update_buffer(const cv::Mat &imdata, int f, int64 t) {
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         if(!writing_buffer){
             //cv::Mat im;
             //imdata.copyTo(im);
@@ -51,7 +51,7 @@ circular_buffer_ts
     }
 
     void retrieve_last(cv::Mat &image, long int &cf) {
-        lock lk(monitor);
+        mutex_lock lk(monitor);
 
         if(verbose)
             cout<<"retrieve frame: "<<frame_index.back()<<' '<<time_index.back()<<endl;
@@ -61,44 +61,44 @@ circular_buffer_ts
     }
 
     void clear() {
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         cb.clear();
     }
 
     int size() {
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         return cb.size();
     }
 
     void set_capacity(int capacity) {
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         cb.set_capacity(capacity);
     }
 
     // WHen In recording State the Caller Updating the Cbuffer handles writing of images to disk directly
     void set_recorder_state(bool rs){
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         recording_state=rs;
     }
 
     void set_last_recorded_index(long int f){
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         last_recorded_index=f;
     }
 
     // Write Buffer Images to Disk
     void set_writing_buffer(bool br){
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         writing_buffer = br;
     }
 
     bool get_recorder_state(){
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         return recording_state;
     }
 
     bool get_writing_buffer(){
-        lock lk(monitor);
+        mutex_lock lk(monitor);
         return writing_buffer;
     }
 
@@ -111,7 +111,7 @@ circular_buffer_ts
 
         // set writing_buffer, get last recorded index
         {
-            lock lk(monitor);
+            mutex_lock lk(monitor);
             writing_buffer=true;
             lri=last_recorded_index;
             cout<<"writing whole buffer"<<endl;
@@ -129,7 +129,7 @@ circular_buffer_ts
 
         // update last recorded index and turn off writing_buffer
         {
-            lock lk(monitor);
+            mutex_lock lk(monitor);
             last_recorded_index=frame_index[i-1];
             writing_buffer=false;
         }

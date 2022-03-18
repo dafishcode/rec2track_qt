@@ -27,7 +27,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void record();
+    void record(float fFrameRate,float fShutterDuration);
 
     barrage StimulationBarrage;
 
@@ -50,6 +50,10 @@ private slots:
     void on_pushButton_5_clicked();
 
     void on_btn_CalcDuration_clicked();
+
+    void on_spinBox_framerate_valueChanged(int arg1);
+
+    void on_spinBox_waiting_time_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;
