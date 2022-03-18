@@ -302,6 +302,7 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
     tmp_center.OrigSize=cvm.size();
     cv::setMouseCallback("ROI selection",on_mouse,&tmp_center);
 
+    cout<< "Press r to proceed" << std::endl;
     cv::Mat drawing;
     cvm.copyTo(drawing);
     

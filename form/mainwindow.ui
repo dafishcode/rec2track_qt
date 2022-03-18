@@ -34,7 +34,7 @@
            <x>10</x>
            <y>30</y>
            <width>336</width>
-           <height>278</height>
+           <height>288</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
@@ -54,7 +54,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory to be created where output log files will be saved&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>/home/</string>
+             <string>/home/meyerlab/dat/</string>
             </property>
             <property name="placeholderText">
              <string/>
@@ -367,7 +367,7 @@
      <x>0</x>
      <y>0</y>
      <width>582</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>
