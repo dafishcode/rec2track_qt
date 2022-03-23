@@ -1253,7 +1253,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     pMOG = cv::createBackgroundSubtractorMOG2(2000,16,true);
 
     // Select tail ROI //////////////////////////////////////////////////////////////
-    Select_ROI(RSC_input->cam, center , ROI_acquired, 100);
+    Select_ROI(RSC_input->cam, center , ROI_acquired, 110);
     if(!ROI_acquired){
         cout<<"Error with ROI detection"<<endl;
         exit(0);
@@ -1307,6 +1307,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     cout<<"Start!"<<endl;
     
     F7 f7;
+    //Set Options To Default FPS
     SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false);
 
     stringstream logfilename;
