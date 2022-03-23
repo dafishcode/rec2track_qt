@@ -1046,8 +1046,6 @@ void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_
 
         if(last_processed<current_frame_counter){
             timer-=(current_frame_counter-last_processed);
-
-
             {
                 // -----------------------------------
                 // This line was slowing down the acquisition by obviously locking the mutex
@@ -1066,16 +1064,18 @@ void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_
                 // DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures the size of the circle corresponds to the size of blob
 
                 cv::drawKeypoints( fgMaskMOG, keypoints, im_with_keypoints, cv::Scalar(0,0,255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
-                
-                large_blobs=false;
-                for(unsigned int l=0;l<keypoints.size();l++){
-                    if(keypoints[l].size>MIN_BLOB_SIZE ){
-                        large_blobs=true;
-                        break;
-                    }
-                }
 
-            }
+                // DETECTIOn OF LARGE BLOB Triggers Recording - SHORTCUT
+                large_blobs=true;
+//OVERIDE
+//                for(unsigned int l=0;l<keypoints.size();l++){
+//                    if(keypoints[l].size>MIN_BLOB_SIZE ){
+//                        large_blobs=true;
+//                        break;
+//                    }
+//                }
+
+            } //IF
 
 
             if(!circ_buffer.get_recorder_state()){

@@ -49,6 +49,7 @@ void MainWindow::record(){
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
     Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
+    //Rec_onDisk_SingleCamera2((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
 }
 
 //Reads settings from GUI form

@@ -1,6 +1,8 @@
 #ifndef CIRCULAR_BUFFER_TS_H
 #define CIRCULAR_BUFFER_TS_H
 
+
+
 #include <iostream>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
@@ -20,7 +22,7 @@ using namespace std;
 class circular_buffer_ts: private boost::noncopyable
 {
 public:
-circular_buffer_ts
+
     typedef boost::mutex::scoped_lock lock;
 
     circular_buffer_ts() {}
