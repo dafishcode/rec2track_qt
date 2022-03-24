@@ -17,9 +17,8 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::record(){
+void MainWindow::record(float fFrameRate,float fShutterDuration){
     PrintBuildInfo();
-
     BusManager busMgr;
     PGRGuid guid;
     busMgr.GetCameraFromIndex(0, &guid);
@@ -29,7 +28,8 @@ void MainWindow::record(){
     mode=MODE_1;
 
     Camera cam; cam.Connect(&guid);
-    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,true);
+    // Send Options to Camera - Trigger On, FrameRate And SHutter Speed /
+    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,true,fFrameRate);
     cam.StartCapture();
 
     struct thread_data2 RSC_input;
@@ -101,11 +101,12 @@ void MainWindow::updateBarrage()
 
 }
 
-// record button
+// record button PUSHED - Start
 void MainWindow::on_pushButton_2_clicked()
 {
     close();
-    record();
+    float fFrameRate = ui->spinBox_framerate_low->value();
+    record(fFrameRate,5.0f); //Set Framerate and shutter Speed
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -117,7 +118,9 @@ void MainWindow::on_pushButton_clicked()
 
     PGRGuid guid;
     busMgr.GetCameraFromIndex(0, &guid);
-    Run_SingleCamera(&guid);
+
+    float fFrameRate = ui->spinBox_framerate_low->value();
+    Run_SingleCamera(&guid,fFrameRate,5.0f);
 
 }
 
@@ -216,5 +219,15 @@ void MainWindow::on_pushButton_5_clicked()
 void MainWindow::on_btn_CalcDuration_clicked()
 {
     updateBarrage();
+
+}
+
+void MainWindow::on_spinBox_framerate_valueChanged(int arg1)
+{
+    cout<< "Camera Frame rate is now " << arg1 << std::endl;
+}
+
+void MainWindow::on_spinBox_waiting_time_valueChanged(int arg1)
+{
 
 }

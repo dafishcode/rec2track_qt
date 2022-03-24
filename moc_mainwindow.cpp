@@ -22,7 +22,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
+      11,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -39,6 +39,8 @@ static const uint qt_meta_data_MainWindow[] = {
      179,   11,   11,   11, 0x08,
      205,   11,   11,   11, 0x08,
      231,   11,   11,   11, 0x08,
+     261,  104,   11,   11, 0x08,
+     300,  104,   11,   11, 0x08,
 
        0        // eod
 };
@@ -53,6 +55,8 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "on_pushButton_4_clicked()\0"
     "on_pushButton_5_clicked()\0"
     "on_btn_CalcDuration_clicked()\0"
+    "on_spinBox_framerate_valueChanged(int)\0"
+    "on_spinBox_waiting_time_valueChanged(int)\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -70,6 +74,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 6: _t->on_pushButton_4_clicked(); break;
         case 7: _t->on_pushButton_5_clicked(); break;
         case 8: _t->on_btn_CalcDuration_clicked(); break;
+        case 9: _t->on_spinBox_framerate_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 10: _t->on_spinBox_waiting_time_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -107,9 +113,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 9)
+        if (_id < 11)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 9;
+        _id -= 11;
     }
     return _id;
 }
