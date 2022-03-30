@@ -25,7 +25,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     F7 f7;
 
     Mode mode;
-    mode=MODE_1;
+    mode=MODE_0; //MODE_0 1280x1024 -  MODE_1 640x480 for high fps
 
     Camera cam; cam.Connect(&guid);
     // Send Options to Camera - Trigger On, FrameRate And SHutter Speed /
