@@ -313,7 +313,7 @@ void CreateOutputFolder(string folder){
 
 }
 
-void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
+void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=300){
 
     int ind_brightness=0, ind_brightness_max=100;
     double brightness;
@@ -366,7 +366,7 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
     cv::destroyWindow("ROI selection");
 }
 
-void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=100){
+void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=300){
 
     int ind_brightness=0, ind_brightness_max=100;
     double brightness;
@@ -1253,7 +1253,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     pMOG = cv::createBackgroundSubtractorMOG2(2000,16,true);
 
     // Select tail ROI //////////////////////////////////////////////////////////////
-    Select_ROI(RSC_input->cam, center , ROI_acquired, 110);
+    Select_ROI(RSC_input->cam, center , ROI_acquired, 210);
     if(!ROI_acquired){
         cout<<"Error with ROI detection"<<endl;
         exit(0);
