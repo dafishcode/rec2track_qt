@@ -1,4 +1,5 @@
 #include "../include/mainwindow.h"
+#include "../include/circular_video_buffer_ts.h"
 #include "ui_mainwindow.h"
 #include<QCoreApplication>
 
@@ -41,6 +42,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     RSC_input.display="display";
     RSC_input.crop=true;
     RSC_input.recording_time=ui->spinBox_rectime->value() * 60;
+    RSC_input.eventCount = 0; //FOr Triggered/ Conditional Recording
 
     updateBarrage();
     CreateOutputFolder(RSC_input.proc_folder);
@@ -48,7 +50,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     bool VisualStimulation_on=ui->radioButton->isChecked();
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
-    Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
+    Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage,fFrameRate,outputType::zCam_RAWVID);
     //Rec_onDisk_SingleCamera2((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
 }
 

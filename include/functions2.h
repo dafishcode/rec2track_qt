@@ -3,7 +3,9 @@
 #include <FlyCapture2.h>
 #include <CameraBase.h>
 #include <iostream>
+#include <string>
 #include"../include/barrage.h"
+
 
 using namespace std;
 using namespace FlyCapture2;
@@ -43,13 +45,15 @@ struct thread_data2{
     char* display;    
     size_t seq_size;
     int recording_time;
+    uint eventCount;
     bool crop;   
 };
 
 void my_handler(int);
 
-void SetCam(Camera *,F7&,const Mode, const PixelFormat, bool triggerON=false,float pfFrameRate = 120.f, float pfShutter=3.0f);
+void SetCam(Camera *,F7&,const Mode, const PixelFormat, bool triggerON=false, float pfFrameRate, float pfShutter);
 inline void PrintError(Error error) { error.PrintErrorTrace(); }
+std::string fixedLengthString(int value, int digits);
 //int ChangeTrigger(thread_data2*);
 void CreateOutputFolder(string folder);
 void PrintBuildInfo();
@@ -57,7 +61,7 @@ void PrintFormat7Capabilities(Format7Info fmt7Info);
 void PrintCameraInfo(CameraInfo *pCamInfo);
 int Rec_SingleCamera(void*);
 void *Rec_onDisk_SingleCamera2(void *tdata, size_t &);
-void *Rec_onDisk_conditional(void *tdata,bool, barrage*);
+void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Barrage,float fFrameRate,int ioutputType);
 void ReadImageSeq(string prefix,char* display,int mode=0,char* format=".pgm",char* prefix0="",int maxind=1);
 void ReadImageSeq_vs(string prefix,char* display,int mode=0,char* format=".pgm",barrage *B = nullptr,int maxind=1);
 void ReadImageSeq_and_track(string prefix,char* display,int mode=0,char* format=".pgm",int maxind=1);

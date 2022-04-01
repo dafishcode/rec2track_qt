@@ -22,9 +22,9 @@ SOURCES += src/functions2.cpp\
     src/main.cxx
 
 HEADERS  += include/functions2.h\
+            include/circular_video_buffer_ts.h \
             include/handler.h\
             include/Point.h\
-            include/circular_buffer_ts.h\
             include/barrage.h\
             include/mainwindow.h
 
