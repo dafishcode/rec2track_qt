@@ -43,12 +43,14 @@ struct thread_data2{
     char* display;    
     size_t seq_size;
     int recording_time;
-    bool crop;   
+    bool crop;
+    float frameRate;
+    float shutterSpeed;
 };
 
 void my_handler(int);
 
-void SetCam(Camera *,F7&,const Mode, const PixelFormat, bool triggerON=false,float pfFrameRate = 120.f, float pfShutter=3.0f);
+void SetCam(Camera *,F7&,const Mode, const PixelFormat, bool triggerON=false,float pfFrameRate = 90.0f, float pfShutter=4.0f);
 inline void PrintError(Error error) { error.PrintErrorTrace(); }
 //int ChangeTrigger(thread_data2*);
 void CreateOutputFolder(string folder);

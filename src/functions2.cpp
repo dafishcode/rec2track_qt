@@ -276,7 +276,7 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
         PrintError(error);
         return ;
     }
-    std::cout << "FrameRate set to to " << fixed << prop.absValue << " fps" << std::endl;
+    std::cout << "FrameRate set to to " << fixed << propF.absValue << " fps" << std::endl;
     // ##########  //
 
 
@@ -1196,7 +1196,7 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
             circ_buffer.set_last_recorded_index(frame_counter);
         }
 
-        logfile<<ms1<<' '<<TimeStamp_microseconds<<' '<<circ_buffer.get_recorder_state()<<endl;
+        logfile<<((ms1-initial_time)/cv::getTickFrequency()) <<' '<<TimeStamp_microseconds<<' '<< circ_buffer.get_recorder_state()<<endl;
 
         mtx.lock();
         frame_counter++;
@@ -1308,7 +1308,7 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     
     F7 f7;
     //Set Options To Default FPS
-    SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false);
+    SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false,RSC_input->frameRate,RSC_input->shutterSpeed);
 
     stringstream logfilename;
     logfilename	<< RSC_input->proc_folder<<"/time.log";

@@ -42,6 +42,9 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     RSC_input.crop=true;
     RSC_input.recording_time=ui->spinBox_rectime->value() * 60;
 
+    RSC_input.frameRate = ui->spinBox_framerate_low->value();
+    RSC_input.shutterSpeed = ui->spinBox_shutterms->value();
+
     updateBarrage();
     CreateOutputFolder(RSC_input.proc_folder);
 
