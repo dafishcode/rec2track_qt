@@ -1,5 +1,5 @@
-#ifndef HANDLER_H
-#define HANDLER_H
+#ifndef LIVETRACKING_HANDLERS_H
+#define LIVETRACKING_HANDLERS_H
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>

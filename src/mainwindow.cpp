@@ -1,4 +1,5 @@
 #include "../include/mainwindow.h"
+#include "../include/circular_video_buffer_ts.h"
 #include "ui_mainwindow.h"
 #include<QCoreApplication>
 
@@ -17,19 +18,19 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::record(){
+void MainWindow::record(float fFrameRate,float fShutterDuration){
     PrintBuildInfo();
-
     BusManager busMgr;
     PGRGuid guid;
     busMgr.GetCameraFromIndex(0, &guid);
     F7 f7;
 
     Mode mode;
-    mode=MODE_1;
+    mode=MODE_0; //MODE_0 1280x1024 -  MODE_1 640x480 for high fps
 
     Camera cam; cam.Connect(&guid);
-    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,true);
+    // Send Options to Camera - Trigger On, FrameRate And SHutter Speed /
+    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,true,fFrameRate,fShutterDuration);
     cam.StartCapture();
 
     struct thread_data2 RSC_input;
@@ -41,6 +42,7 @@ void MainWindow::record(){
     RSC_input.display="display";
     RSC_input.crop=true;
     RSC_input.recording_time=ui->spinBox_rectime->value() * 60;
+    RSC_input.eventCount = 0; //FOr Triggered/ Conditional Recording
 
     updateBarrage();
     CreateOutputFolder(RSC_input.proc_folder);
@@ -48,7 +50,9 @@ void MainWindow::record(){
     bool VisualStimulation_on=ui->radioButton->isChecked();
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
-    Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
+    Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage,fFrameRate,outputType::zCam_RAWVID);
+
+    //Rec_onDisk_SingleCamera2((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
 }
 
 //Reads settings from GUI form
@@ -100,11 +104,12 @@ void MainWindow::updateBarrage()
 
 }
 
-// record button
+// record button PUSHED - Start
 void MainWindow::on_pushButton_2_clicked()
 {
     close();
-    record();
+    float fFrameRate = ui->spinBox_framerate_low->value();
+    record(fFrameRate,5.0f); //Set Framerate and shutter Speed
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -116,7 +121,9 @@ void MainWindow::on_pushButton_clicked()
 
     PGRGuid guid;
     busMgr.GetCameraFromIndex(0, &guid);
-    Run_SingleCamera(&guid);
+
+    float fFrameRate = ui->spinBox_framerate_low->value();
+    Run_SingleCamera(&guid,fFrameRate,5.0f);
 
 }
 
@@ -215,5 +222,15 @@ void MainWindow::on_pushButton_5_clicked()
 void MainWindow::on_btn_CalcDuration_clicked()
 {
     updateBarrage();
+
+}
+
+void MainWindow::on_spinBox_framerate_valueChanged(int arg1)
+{
+    cout<< "Camera Frame rate is now " << arg1 << std::endl;
+}
+
+void MainWindow::on_spinBox_waiting_time_valueChanged(int arg1)
+{
 
 }

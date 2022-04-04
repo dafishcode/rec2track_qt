@@ -3,6 +3,7 @@
 # Project created by QtCreator 2019-07-04T16:32:35
 #
 #-------------------------------------------------
+## After installing OpenCv, with opencv_contrib and QT_ON - verify with pkg-config --modversion opencv4
 
 QT       += core gui
 QMAKE_CXXFLAGS += -std=c++11
@@ -15,17 +16,19 @@ OBJECTS_DIR = .obj
 TARGET = rec2track
 TEMPLATE = app
 
-SOURCES += src/functions2.cpp\
-           src/handler.cpp\
+SOURCES +=\
+    src/camera_functions.cpp \
            src/barrage.cpp\
+    src/livetracking_handlers.cpp \
            src/mainwindow.cpp \
     src/main.cxx
 
-HEADERS  += include/functions2.h\
-            include/handler.h\
+HEADERS  +=\
+            include/camera_functions.h \
+            include/circular_video_buffer_ts.h \
             include/Point.h\
-            include/circular_buffer_ts.h\
             include/barrage.h\
+            include/livetracking_handlers.h \
             include/mainwindow.h
 
 FORMS    += form/mainwindow.ui

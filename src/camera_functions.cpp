@@ -9,9 +9,9 @@
 #include<fstream>
 #include<signal.h>
 #include<sys/stat.h>
-#include"../include/functions2.h"
-#include"../include/handler.h"
-#include"../include/circular_buffer_ts.h"
+#include"../include/camera_functions.h"
+#include"../include/livetracking_handlers.h"
+#include"../include/circular_video_buffer_ts.h"
 #include<boost/thread.hpp>
 #include<boost/chrono.hpp>
 #include"../include/barrage.h"
@@ -79,23 +79,6 @@ void setup_blob_detector(cv::Ptr<cv::SimpleBlobDetector>  &d){
 }
 
 
-std::string fixedLengthString(int value, int digits) {
-    unsigned int uvalue = value;
-    if (value < 0) {
-        uvalue = -uvalue;
-    }
-    std::string result;
-    while (digits-- > 0) {
-        result += ('0' + uvalue % 10);
-        uvalue /= 10;
-    }
-    if (value < 0) {
-        result += '-';
-    }
-    std::reverse(result.begin(), result.end());
-    return result;
-}
-
 
 void on_mouse(int event, int x, int y, int flags, void* p){    
     ioparam* param=(ioparam*)p;
@@ -118,6 +101,25 @@ void on_mouse(int event, int x, int y, int flags, void* p){
     }
 
 }
+
+
+std::string fixedLengthString(int value, int digits) {
+    unsigned int uvalue = value;
+    if (value < 0) {
+        uvalue = -uvalue;
+    }
+    std::string result;
+    while (digits-- > 0) {
+        result += ('0' + uvalue % 10);
+        uvalue /= 10;
+    }
+    if (value < 0) {
+        result += '-';
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
 
 void on_mouse2(int event, int x, int y, int flags, void* p){    
     ioparam* param=(ioparam*)p;
@@ -183,7 +185,8 @@ void PrintCameraInfo(CameraInfo *pCamInfo)
          << endl;
 }
 
-void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7PixFmt, bool triggerON){
+// Set Camera Options - Trigger and FrameRate , Shutter - And Timestamp on IMage If Wanted
+void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7PixFmt, bool triggerON=false, float pfFrameRate=90, float pfShutter = 5.0f){
 
     FlyCapture2::Error error;
 
@@ -240,11 +243,45 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
     prop.autoManualMode = false;
     //Ensure the property is set up to use absolute value control.
     prop.absControl = true;
-    //Set the absolute value of shutter to 1 ms.
-    prop.absValue = 1;
+    //Set the absolute value of shutter to X ms. (Too short and Image Is not Bright Enough)
+    prop.absValue = pfShutter;
     //Set the property.
     error = cam->SetProperty( &prop );
+    cout << "Shutter time set to " << fixed << pfShutter << "ms" << endl;
     // #############################################################################
+
+
+    /// SET FRAME RATE ///
+    // - FRAME RATE CONTROL Check if the camera supports the FRAME_RATE property //
+    PropertyInfo propInfo;
+    propInfo.type = FRAME_RATE;
+    error = cam->GetPropertyInfo(&propInfo);
+    if (error != PGRERROR_OK)
+    {
+        PrintError(error);
+        return;
+    }
+    // Turn off Auto frame rate
+    Property propF;
+    propF.type = FRAME_RATE;
+    //Ensure the property is on.
+    propF.onOff = true;
+    //Ensure auto-adjust mode is .off.
+    propF.autoManualMode = false;
+    //Ensure the property is set up to use absolute value control.
+    propF.absControl = true;
+    //Set the absolute Frame Rate . Too Fast and
+    propF.absValue = pfFrameRate; // SET  TARGET FRAMERATE
+    error = cam->SetProperty(&propF);
+    if (error != PGRERROR_OK)
+    {
+        PrintError(error);
+        return ;
+    }
+    std::cout << "FrameRate set to to " << fixed << prop.absValue << " fps" << std::endl;
+    // ##########  //
+
+
 
     // Set TRIGGER /////////////////////////////////////////////////////////////////
     TriggerMode mTrigger;
@@ -258,7 +295,8 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
 
     // Start capturing images
     cam->StartCapture();
-}
+
+} //END OF SetCam //
 
 void CreateOutputFolder(string folder){
     struct stat sb;
@@ -277,7 +315,7 @@ void CreateOutputFolder(string folder){
 
 }
 
-void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
+void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=300){
 
     int ind_brightness=0, ind_brightness_max=100;
     double brightness;
@@ -302,6 +340,7 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
     tmp_center.OrigSize=cvm.size();
     cv::setMouseCallback("ROI selection",on_mouse,&tmp_center);
 
+    cout<< "Press r to proceed" << std::endl;
     cv::Mat drawing;
     cvm.copyTo(drawing);
     
@@ -329,7 +368,7 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=100){
     cv::destroyWindow("ROI selection");
 }
 
-void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=100){
+void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=300){
 
     int ind_brightness=0, ind_brightness_max=100;
     double brightness;
@@ -869,7 +908,7 @@ int ChangeTrigger(thread_data2 *input){
 }
 */
 
-int Run_SingleCamera(PGRGuid *guid)
+int Run_SingleCamera(PGRGuid *guid,float pFrameRate, float pfShutter)
 {
 
 //    FlyCapture2::Error error;
@@ -927,7 +966,8 @@ int Run_SingleCamera(PGRGuid *guid)
 
     Camera cam;
     cam.Connect(guid);
-    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,false);
+
+    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,false,pFrameRate,pfShutter);
 // /////////////////////////////////////////////
 
     Image rawImage;
@@ -975,7 +1015,7 @@ int Run_SingleCamera(PGRGuid *guid)
 }
 
 
-void display_blobs(circular_buffer_ts &circ_buffer){
+void display_blobs(circular_video_buffer_ts &circ_buffer){
 
     mtx.lock();
     cout<<"run display_image on thread "<<boost::this_thread::get_id()<<endl;
@@ -1019,7 +1059,7 @@ void display_blobs(circular_buffer_ts &circ_buffer){
 
 
 
-void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_head){
+void blob_detector_thread(circular_video_buffer_ts &circ_buffer,const ioparam &center_head){
 
     long int last_processed=0;
     long int current_frame_counter;
@@ -1045,8 +1085,6 @@ void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_
 
         if(last_processed<current_frame_counter){
             timer-=(current_frame_counter-last_processed);
-
-
             {
                 // -----------------------------------
                 // This line was slowing down the acquisition by obviously locking the mutex
@@ -1065,16 +1103,20 @@ void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_
                 // DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures the size of the circle corresponds to the size of blob
 
                 cv::drawKeypoints( fgMaskMOG, keypoints, im_with_keypoints, cv::Scalar(0,0,255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
-                
-                large_blobs=false;
-                for(unsigned int l=0;l<keypoints.size();l++){
-                    if(keypoints[l].size>MIN_BLOB_SIZE ){
-                        large_blobs=true;
-                        break;
-                    }
-                }
 
-            }
+                // DETECTIOn OF LARGE BLOB Triggers Recording - SHORTCUT //OVERIDE
+                large_blobs=true;
+
+//OVERIDE
+//                for(unsigned int l=0;l<keypoints.size();l++){
+//                    if(keypoints[l].size>MIN_BLOB_SIZE ){
+//                        large_blobs=true;
+//                        break;
+                          /// TOdo Increment Event Count
+//                    }
+//                }
+
+            } //IF
 
 
             if(!circ_buffer.get_recorder_state()){
@@ -1086,7 +1128,7 @@ void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_
                     cout<<"------------------------"<<endl;
                     cout<<"recording at time frame "<<current_frame_counter<<endl;
                     mtx.unlock();
-                    circ_buffer.write_buffer();
+                    circ_buffer.writeNewFramesToVideostream();
                 }
             } else {
                 if(!large_blobs && timer<=0){
@@ -1110,7 +1152,7 @@ void blob_detector_thread(circular_buffer_ts &circ_buffer,const ioparam &center_
     mtx.unlock();
 }
 
-void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_input, const ioparam &center){
+void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const RSC_input, const ioparam &center){
 
     mtx.lock();
     cout<<"Created main on thread "<<boost::this_thread::get_id()<<endl;
@@ -1143,14 +1185,25 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
         image=cvm(cv::Range(center.pt1.y,center.pt2.y),cv::Range(center.pt1.x,center.pt2.x));
 
         //circ_buffer.update_buffer(image,frame_counter,ms1);
-        circ_buffer.update_buffer(image,frame_counter,TimeStamp_microseconds);
+
+        char buff[32]; //For Time Stamp
+        struct tm *sTm;
+
+        time_t now = time (0);
+        sTm = gmtime (&now);
+        strftime (buff, sizeof(buff), "%H:%M:%S", sTm);
+        stringstream logss;
+        logss << RSC_input->eventCount <<'\t' << frame_counter << "\t" << buff << "\t" << ((double)cv::getTickCount()-initial_time)/cv::getTickFrequency() << "\t" << TimeStamp_microseconds << std:: endl;
+
+
+        circ_buffer.update_buffer(image,frame_counter,TimeStamp_microseconds,logss.str());
 
         if(circ_buffer.get_recorder_state()){
 
             stringstream filename;
             filename<<RSC_input->proc_folder<<"/"<<fixedLengthString(frame_counter)<<".pgm";
-            cv::imwrite(filename.str().c_str(),image);
-
+            //cv::imwrite(filename.str().c_str(),image);
+            circ_buffer.writeNewFramesToVideostream();
             mtx.lock();
             if(verbose) cout<<"writing: "<<frame_counter<<' '<<ms1<<endl;
             mtx.unlock();
@@ -1183,11 +1236,16 @@ void recorder_thread(circular_buffer_ts &circ_buffer, thread_data2* const RSC_in
     mtx.unlock();
 }
 
-void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Barrage)
+void *Rec_onDisk_conditional(void *tdata,
+                             bool VisualStimulation_ON, barrage *Barrage,
+                             float fFrameRate,
+                             outputType ioutputType = outputType::zCam_RAWVID)
 {
 
     // Set SIGINT
     //signal(SIGINT,my_handler);
+    char buff[32]; //For Time Stamp
+    struct tm *sTm;
 
     // Retrieve RSC input from main
     struct thread_data2 * RSC_input;
@@ -1209,13 +1267,12 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     ofstream bufferfile(bufferfilename.str().c_str());
 
     // Creation of the thread-safe curcular buffer
-    circular_buffer_ts circ_buffer(BUFFER_SIZE,RSC_input->proc_folder,&bufferfile);
-
+    circular_video_buffer_ts circ_buffer(BUFFER_SIZE,RSC_input->proc_folder,&bufferfile,ioutputType,fFrameRate);
     // Setting the background model
     pMOG = cv::createBackgroundSubtractorMOG2(2000,16,true);
 
     // Select tail ROI //////////////////////////////////////////////////////////////
-    Select_ROI(RSC_input->cam, center , ROI_acquired, 100);
+    Select_ROI(RSC_input->cam, center , ROI_acquired, 210);
     if(!ROI_acquired){
         cout<<"Error with ROI detection"<<endl;
         exit(0);
@@ -1266,10 +1323,12 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
     
     RSC_input->cam->RetrieveBuffer(&rawImage);
     TimeStamp TS=rawImage.GetTimeStamp();
+    double t0 = cv::getTickCount();
     cout<<"Start!"<<endl;
-    
+
     F7 f7;
-    SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false);
+    //Set Options To Default FPS
+    SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false,fFrameRate);
 
     stringstream logfilename;
     logfilename	<< RSC_input->proc_folder<<"/time.log";
@@ -1298,8 +1357,23 @@ void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Bar
         }
 
         image.copyTo(tmp_image);
-        circ_buffer.update_buffer(tmp_image,k,TS.seconds*1e6+TS.microSeconds);
+
+        time_t now = time (0);
+        sTm = gmtime (&now);
+        strftime (buff, sizeof(buff), "%H:%M:%S", sTm);
+
+        stringstream logss;
+        logss << RSC_input->eventCount <<'\t' << k << "\t" << buff << "\t" << ((double)cv::getTickCount()-t0)/cv::getTickFrequency() << "\t" << TS.seconds*1e6+TS.microSeconds << std::endl;
+
+        circ_buffer.update_buffer(cvm,k,TS.seconds*1e6+TS.microSeconds,logss.str());
+        mtx.lock();
+        frame_counter = k;
+        mtx.unlock();
+
     }
+
+
+
     // ####################################################################
 
     // Start rec and proc threads /////////////////////////////////////////////////////////////////////
