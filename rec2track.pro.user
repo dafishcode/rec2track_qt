@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.14.0, 2021-06-12T12:27:02. -->
+<!-- Written by QtCreator 4.14.0, 2021-06-14T00:49:10. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -91,7 +91,7 @@
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Desktop Qt 5.15.2 GCC 64bit</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Desktop Qt 5.15.2 GCC 64bit</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{b8bf3cae-2297-472a-b166-056c6d852691}</value>
-   <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">3</value>
+   <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.0">
@@ -348,7 +348,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseTerminal">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory">/home/kostasl/workspace/build-rec2track-Desktop_Qt_5_15_2_GCC_64bit_b8bf3c-Debug</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/kostasl/workspace/build-rec2track-Desktop_Qt_5_15_2_GCC_64bit/bin</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/kostasl/workspace/build-rec2track-Desktop_Qt_5_15_2_GCC_64bit_b8bf3c-Debug/bin</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>
