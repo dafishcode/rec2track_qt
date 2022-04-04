@@ -47,7 +47,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     updateBarrage();
     CreateOutputFolder(RSC_input.proc_folder);
 
-    bool VisualStimulation_on=ui->radioButton->isChecked();
+    bool VisualStimulation_on=ui->radioVizStimOn->isChecked();
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
     Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage,fFrameRate,outputType::zCam_RAWVID);
@@ -105,14 +105,14 @@ void MainWindow::updateBarrage()
 }
 
 // record button PUSHED - Start
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_btn_startVideoRecording_clicked()
 {
     close();
     float fFrameRate = ui->spinBox_framerate_low->value();
     record(fFrameRate,5.0f); //Set Framerate and shutter Speed
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_btn_camLiveView_clicked()
 {
 
     PrintBuildInfo();
@@ -128,7 +128,7 @@ void MainWindow::on_pushButton_clicked()
 }
 
 /// (Track Button Pushed) "Analysis "
-void MainWindow::on_pushButton_3_clicked()
+void MainWindow::on_btnStartLiveTracking_clicked()
 {
 
     updateBarrage();
@@ -157,11 +157,9 @@ void MainWindow::on_pushButton_3_clicked()
     if(userIndex==6) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorB.txt";
 
 
-
-
     ifstream setting_file;
 
-    bool VisualStimulation_on=ui->radioButton->isChecked();
+    bool VisualStimulation_on=ui->radioVizStimOn->isChecked();
 
     if(VisualStimulation_on){
         // Get inter-epoch time and number of repeats
@@ -189,7 +187,7 @@ void MainWindow::on_spinBox_inter_epoch_valueChanged(int arg1)
     StimulationBarrage.inter_epoch_time=arg1;
 }
 
-void MainWindow::on_pushButton_4_clicked()
+void MainWindow::on_btn_genBarrageFiles_clicked()
 {
     updateBarrage();    
     StimulationBarrage.transform_image(QApplication::applicationDirPath().toStdString()+"/../opt/background.jpg");
@@ -197,8 +195,8 @@ void MainWindow::on_pushButton_4_clicked()
     StimulationBarrage.WriteStim();
 }
 
-// Run barrage button
-void MainWindow::on_pushButton_5_clicked()
+// Run barrage button - Tests projection of Viz stim  //
+void MainWindow::on_btn_testVizStimOnProjector_clicked()
 {
     updateBarrage();
     QString tmp=ui->FolderEdit->text();
@@ -207,7 +205,7 @@ void MainWindow::on_pushButton_5_clicked()
     cout<<"APPfolder "<<QCoreApplication::applicationDirPath().toStdString()<<endl;
     cout<<"opt <- "<<StimulationBarrage.optstimfile<<endl;
     cout<<"Stimulus folder <- "<<StimulationBarrage.stimlibloc<<endl;
-    bool VisualStimulation_on = ui->radioButton->isChecked();
+    bool VisualStimulation_on = ui->radioVizStimOn->isChecked();
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
 
@@ -234,3 +232,6 @@ void MainWindow::on_spinBox_waiting_time_valueChanged(int arg1)
 {
 
 }
+
+
+
