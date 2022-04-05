@@ -60,6 +60,10 @@ private slots:
 
 
 
+    void on_btn_selectStimSetFile_clicked();
+
+    void on_btn_selectfolder_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

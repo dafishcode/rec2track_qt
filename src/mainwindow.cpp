@@ -2,6 +2,8 @@
 #include "../include/circular_video_buffer_ts.h"
 #include "ui_mainwindow.h"
 #include<QCoreApplication>
+ #include <QFileDialog>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,7 +36,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     cam.StartCapture();
 
     struct thread_data2 RSC_input;
-    QString tmp=ui->FolderEdit->text();
+    QString tmp=ui->txt_outFolder->text();
     RSC_input.bus = &busMgr;
     RSC_input.guid = &guid;
     RSC_input.cam = &cam;
@@ -45,7 +47,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     RSC_input.eventCount = 0; //FOr Triggered/ Conditional Recording
 
     updateBarrage();
-    CreateOutputFolder(RSC_input.proc_folder);
+    CheckOutputFolder(RSC_input.proc_folder);
 
     bool VisualStimulation_on=ui->radioVizStimOn->isChecked();
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
@@ -58,42 +60,42 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
 //Reads settings from GUI form
 void MainWindow::updateBarrage()
 {
-    int userIndex = ui->comboBox->currentIndex();
+    int userIndex = 1 ;//ui->comboBox->currentIndex();
     /// \TODO: Use Some Key Value - THis is really messy
-    if(userIndex==0) {
-        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
-        //StimulationBarrage.Background_ON=true;
-        StimulationBarrage.Background_ON=false;
-    }
+//    if(userIndex==0) {
+//        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
+//        //StimulationBarrage.Background_ON=true;
+//        StimulationBarrage.Background_ON=false;
+//    }
 
-    if(userIndex==1) {
-        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Rachel.txt";
-        StimulationBarrage.Background_ON=false;
-    }
+//    if(userIndex==1) {
+//        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Rachel.txt";
+//        StimulationBarrage.Background_ON=false;
+//    }
 
-    if(userIndex==2) {
-        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Dominic.txt";
-        StimulationBarrage.Background_ON=false;
-        StimulationBarrage.setBackgroundColor(0);
-    }
+//    if(userIndex==2) {
+//        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Dominic.txt";
+//        StimulationBarrage.Background_ON=false;
+//        StimulationBarrage.setBackgroundColor(0);
+//    }
 
-    if(userIndex==3) {
-        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_TomShallcross.txt";
-        StimulationBarrage.Background_ON=false;
-    }
+//    if(userIndex==3) {
+//        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_TomShallcross.txt";
+//        StimulationBarrage.Background_ON=false;
+//    }
 
-    if(userIndex==4) {
-        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_kostasl.txt";
-        StimulationBarrage.Background_ON=false;
-    }
-    if(userIndex==5) {
-        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorA.txt";
-        StimulationBarrage.Background_ON=false;
-    }
-    if(userIndex==6) {
-        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorB.txt";
-        StimulationBarrage.Background_ON=false;
-    }
+//    if(userIndex==4) {
+//        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_kostasl.txt";
+//        StimulationBarrage.Background_ON=false;
+//    }
+//    if(userIndex==5) {
+//        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorA.txt";
+//        StimulationBarrage.Background_ON=false;
+//    }
+//    if(userIndex==6) {
+//        StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorB.txt";
+//        StimulationBarrage.Background_ON=false;
+//    }
 
 
     StimulationBarrage.repeats           = ui->repeats->value();
@@ -133,7 +135,7 @@ void MainWindow::on_btnStartLiveTracking_clicked()
 
     updateBarrage();
     int i;
-    QString tmp=ui->FolderEdit->text();
+    QString tmp=ui->txt_outFolder->text();
     cv::namedWindow("display - track",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     cv::resizeWindow("display - track", 800,800);
 
@@ -148,13 +150,13 @@ void MainWindow::on_btnStartLiveTracking_clicked()
 
     /// TODO: this is a serious mess that needs to be moved
     // Get Stim file
-    int userIndex = ui->comboBox->currentIndex();
-    if(userIndex==0) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
-    if(userIndex==1) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Rachel.txt";
-    if(userIndex==3) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_TomShallcross.txt";
-    if(userIndex==4) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_kostasl.txt";
-    if(userIndex==5) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorA.txt";
-    if(userIndex==6) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorB.txt";
+    //int userIndex = 1; //ui->comboBox->currentIndex();
+    //if(userIndex==0) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Tom.txt";
+    //if(userIndex==1) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_Rachel.txt";
+    //if(userIndex==3) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_TomShallcross.txt";
+    //if(userIndex==4) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_kostasl.txt";
+    //if(userIndex==5) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorA.txt";
+    //if(userIndex==6) StimulationBarrage.optstimfile=QApplication::applicationDirPath().toStdString()+"/../opt/StimList_visitorB.txt";
 
 
     ifstream setting_file;
@@ -199,8 +201,8 @@ void MainWindow::on_btn_genBarrageFiles_clicked()
 void MainWindow::on_btn_testVizStimOnProjector_clicked()
 {
     updateBarrage();
-    QString tmp=ui->FolderEdit->text();
-    CreateOutputFolder(tmp.toStdString());
+    QString tmp=ui->txt_outFolder->text();
+    CheckOutputFolder(tmp.toStdString());
 
     cout<<"APPfolder "<<QCoreApplication::applicationDirPath().toStdString()<<endl;
     cout<<"opt <- "<<StimulationBarrage.optstimfile<<endl;
@@ -234,4 +236,23 @@ void MainWindow::on_spinBox_waiting_time_valueChanged(int arg1)
 }
 
 
+
+
+void MainWindow::on_btn_selectStimSetFile_clicked()
+{
+    QStringList stimSetFilename = QFileDialog::getOpenFileNames(nullptr, "Select stimulus-set config file to load", QApplication::applicationDirPath(),
+                                                            "(*.txt *.stim)", nullptr, nullptr);
+    this->ui->txt_stimSetFile->setText(stimSetFilename.first());
+    StimulationBarrage.optstimfile = stimSetFilename.first().toStdString();
+}
+
+
+void MainWindow::on_btn_selectfolder_clicked()
+{
+    QString stimSetFilename = QFileDialog::getExistingDirectory(nullptr, "Select output folder", QApplication::applicationDirPath(),
+                                                            QFileDialog::ShowDirsOnly);
+    this->ui->txt_outFolder->setText(stimSetFilename);
+    CheckOutputFolder(stimSetFilename.toStdString());
+
+}
 

@@ -17,6 +17,8 @@
 #include"../include/barrage.h"
 #include<QMainWindow>
 #include<QMessageBox>
+#include<QDir>
+#include<QDirIterator>
 
 using namespace std;
 using namespace FlyCapture2;
@@ -298,21 +300,42 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
 
 } //END OF SetCam //
 
-void CreateOutputFolder(string folder){
+void CheckOutputFolder(string folderpath){
     struct stat sb;
-    if (stat(folder.c_str(), &sb) != 0){
-        const int dir_err = mkdir(folder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        if (-1 == dir_err){
-            printf("Error creating directory!");
-            exit(1);
-        }
-    } else {
-        QMessageBox messageBox;
-        messageBox.critical(0,"Error","Folder exists !");
-        messageBox.setFixedSize(500,200);
-        exit(1);
-    }
+    QString qsfolderpath = QString::fromStdString(folderpath);
 
+    const QFileInfo outputDir(qsfolderpath);
+    QDir oDir(qsfolderpath);
+
+    if (oDir.exists())
+    { //Check If Folder Empty -- Then ok
+        //QDir oDir(QString(folderpath));
+        if (!QDir(qsfolderpath).isEmpty(QDir::NoDotAndDotDot|QDir::AllEntries))
+        {
+            cerr << "[Warning] Output directory not empty. Creating new folder";
+            srand ( time(NULL) );
+            int random_number = rand();
+            folderpath = folderpath.append("_" + std::to_string(random_number) );
+            cout << "[Info] New folder name set :" << folderpath << std::endl;
+            CheckOutputFolder(folderpath);
+            return;
+        }
+    } else { //Make New Folder
+        QDir(qsfolderpath).mkpath(".");
+//        if (stat(folderpath.c_str(), &sb) != 0){
+//            const int dir_err = mkdir(folderpath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+//            if (-1 == dir_err){
+//                QMessageBox messageBox;
+//                messageBox.critical(0,"Error","Error creating output directory!");
+//                messageBox.setFixedSize(500,200);
+
+//                cerr << "[ERROR] Error creating output directory!" <<std::endl;
+//                return(1);
+//            }
+        }
+
+
+    std::cout << "Output folder " << folderpath << " is ready" << std::endl;
 }
 
 void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=300){
@@ -461,7 +484,7 @@ int Rec_SingleCamera(void* tdata)
     error = RSC_input->cam->Disconnect();
     
     if(recording){
-        CreateOutputFolder(RSC_input->proc_folder);
+        CheckOutputFolder(RSC_input->proc_folder);
 
         for(unsigned int i=0;i<imvec.size();i++){
             stringstream filename;
@@ -480,7 +503,7 @@ void *Rec_onDisk_SingleCamera2(void *tdata,size_t &frame_counter)
     RSC_input = (struct thread_data2*) tdata;
 
     FlyCapture2::Error error;
-    CreateOutputFolder(RSC_input->proc_folder);
+    CheckOutputFolder(RSC_input->proc_folder);
 
     Image rawImage;
     cv::Mat tmp_image;

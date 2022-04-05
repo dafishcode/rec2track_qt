@@ -96,6 +96,7 @@ barrage::barrage(){
 
 }
 
+//covert stim enum to string
 string barrage::code_stim(stim s){
     string r;
     switch (s) {
@@ -472,7 +473,11 @@ void barrage::setStimLib(){
     ifstream StimLib_optfile(optfilename.c_str());
     // Make sure the file is open
     if(!StimLib_optfile.is_open())
-        throw std::runtime_error("could not open StimLibFolder.txt settings file to set Stimulus .bin directory");
+    {
+        stringstream ssErr;
+        ssErr << "could not open "  << optfilename << "StimLibFolder.txt settings file to set Stimulus .bin directory.";
+        throw std::runtime_error(ssErr.str());
+    }
 
     StimLib_optfile>>stimlibloc;
     StimLib_optfile.close();
