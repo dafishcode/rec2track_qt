@@ -47,7 +47,7 @@ struct thread_data2{
     string proc_folder;
     char* display;    
     size_t seq_size;
-    int recording_time;
+    uint recording_time;
     uint eventCount;
     bool crop;   
 };

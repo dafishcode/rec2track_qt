@@ -20,7 +20,7 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::record(float fFrameRate,float fShutterDuration){
+void MainWindow::record(float fFrameRate,float fShutterDuration,bool btrigger = true){
     PrintBuildInfo();
     BusManager busMgr;
     PGRGuid guid;
@@ -30,9 +30,10 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     Mode mode;
     mode=MODE_0; //MODE_0 1280x1024 -  MODE_1 640x480 for high fps
 
+
     Camera cam; cam.Connect(&guid);
     // Send Options to Camera - Trigger On, FrameRate And SHutter Speed /
-    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,true,fFrameRate,fShutterDuration);
+    SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,btrigger,fFrameRate,fShutterDuration);
     cam.StartCapture();
 
     struct thread_data2 RSC_input;
@@ -43,7 +44,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     RSC_input.proc_folder= tmp.toStdString();
     RSC_input.display="display";
     RSC_input.crop=true;
-    RSC_input.recording_time=ui->spinBox_rectime->value() * 60;
+    RSC_input.recording_time = ui->spinBox_rectime->value() * 60; // Convert Duration to Seconds
     RSC_input.eventCount = 0; //FOr Triggered/ Conditional Recording
 
     updateBarrage();
@@ -52,6 +53,8 @@ void MainWindow::record(float fFrameRate,float fShutterDuration){
     bool VisualStimulation_on=ui->radioVizStimOn->isChecked();
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
+    ui->progressBar->setRange(0,RSC_input.recording_time);
+    ui->progressBar->reset();
     Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage,fFrameRate,outputType::zCam_RAWVID);
 
     //Rec_onDisk_SingleCamera2((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
@@ -111,7 +114,8 @@ void MainWindow::on_btn_startVideoRecording_clicked()
 {
     close();
     float fFrameRate = ui->spinBox_framerate_low->value();
-    record(fFrameRate,5.0f); //Set Framerate and shutter Speed
+    bool waitForTrigger = ui->checkBoxWaitForTrigger->isChecked();
+    record(fFrameRate,5.0f,waitForTrigger); //Set Framerate and shutter Speed
 }
 
 void MainWindow::on_btn_camLiveView_clicked()
@@ -177,6 +181,17 @@ void MainWindow::on_btnStartLiveTracking_clicked()
 
 }
 
+int MainWindow::TickProgress()
+{
+    ui->progressBar->setValue(ui->progressBar->value()+1);
+    ui->progressBar->value();
+}
+
+void MainWindow::ResetProgress()
+{
+    ui->progressBar->reset();
+}
+
 void MainWindow::on_repeats_valueChanged(int arg1)
 {
     updateBarrage();
@@ -213,8 +228,10 @@ void MainWindow::on_btn_testVizStimOnProjector_clicked()
 
     bool run=true;
 
-    if(!StimulationBarrage.Background_ON) StimulationBarrage.VisualStimulation(tmp.toStdString(),run);
-    else StimulationBarrage.VisualStimulation_BG(tmp.toStdString(),run);
+    if(!StimulationBarrage.Background_ON)
+        StimulationBarrage.VisualStimulation(tmp.toStdString(),run);
+    else
+        StimulationBarrage.VisualStimulation_BG(tmp.toStdString(),run);
 
 }
 
@@ -244,6 +261,13 @@ void MainWindow::on_btn_selectStimSetFile_clicked()
                                                             "(*.txt *.stim)", nullptr, nullptr);
     this->ui->txt_stimSetFile->setText(stimSetFilename.first());
     StimulationBarrage.optstimfile = stimSetFilename.first().toStdString();
+
+    QStringList stimList;
+    std::vector<string> vStim = barrage::loadStimListFromFile(StimulationBarrage.optstimfile);
+    this->ui->listStimSet->reset();
+    for(int i=0;i<vStim.size();i++)
+        this->ui->listStimSet->addItem(QString::fromStdString(vStim[i]));
+
 }
 
 

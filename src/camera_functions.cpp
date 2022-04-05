@@ -14,7 +14,8 @@
 #include"../include/circular_video_buffer_ts.h"
 #include<boost/thread.hpp>
 #include<boost/chrono.hpp>
-#include"../include/barrage.h"
+#include "../include/barrage.h"
+#include "../include/mainwindow.h"
 #include<QMainWindow>
 #include<QMessageBox>
 #include<QDir>
@@ -23,6 +24,7 @@
 using namespace std;
 using namespace FlyCapture2;
 
+extern MainWindow* gpMainwindow;
 bool run=true;
 boost::mutex mtx;
 
@@ -286,6 +288,8 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
 
 
     // Set TRIGGER /////////////////////////////////////////////////////////////////
+    /// \brief mTrigger
+    /// Recording WAits for 2Photon Microscope to initiate GRAB
     TriggerMode mTrigger;
     mTrigger.mode = 0;
     mTrigger.source = 3;
@@ -378,7 +382,8 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=300){
             cv::imshow("ROI selection",brightness*drawing);
             cv::displayStatusBar("ROI selection",info.str(),0);
             center=tmp_center;
-        } else cv::imshow("ROI selection",brightness*drawing);
+        } else
+            cv::imshow("ROI selection",brightness*drawing);
 
         key=cv::waitKey(10);
         if(key=='r'){
@@ -393,7 +398,7 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=300){
 
 void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=300){
 
-    int ind_brightness=0, ind_brightness_max=100;
+    int ind_brightness=80, ind_brightness_max=150;
     double brightness;
     cv::namedWindow("ROI selection",cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     cv::resizeWindow("ROI selection", 800,800);
@@ -1047,8 +1052,8 @@ void display_blobs(circular_video_buffer_ts &circ_buffer){
     cv::namedWindow("display",cv::WINDOW_NORMAL);
     cv::resizeWindow("display",400,400);
 
-    cv::namedWindow("camera",cv::WINDOW_NORMAL);
-    cv::resizeWindow("camera",400,400);
+    cv::namedWindow("Camera",cv::WINDOW_NORMAL);
+    cv::resizeWindow("Camera",400,400);
 
     cv::Mat image;
     cv::Mat rawImage;
@@ -1066,7 +1071,7 @@ void display_blobs(circular_video_buffer_ts &circ_buffer){
 
         if(!image.empty()){
             imshow("display",image);
-            imshow("camera",rawImage);
+            imshow("Camera",rawImage);
             cv::displayStatusBar("display",info.str(),0);
         }
 
@@ -1074,7 +1079,7 @@ void display_blobs(circular_video_buffer_ts &circ_buffer){
     }
 
     cv::destroyWindow("display");
-    cv::destroyWindow("camera");
+    cv::destroyWindow("Camera");
     boost::mutex::scoped_lock lk(mtx);
     run=false;
 
@@ -1092,6 +1097,8 @@ void blob_detector_thread(circular_video_buffer_ts &circ_buffer,const ioparam &c
     bool large_blobs=false;
     setup_blob_detector(detector);
 
+    cv::namedWindow("Camera",cv::WINDOW_NORMAL);
+    cv::resizeWindow("Camera",400,400);
 
     mtx.lock();
     cout<<"Created blob detector on thread "<<boost::this_thread::get_id()<<endl;
@@ -1100,6 +1107,8 @@ void blob_detector_thread(circular_video_buffer_ts &circ_buffer,const ioparam &c
     while(run){
         cv::Mat image_from_buffer;
         circ_buffer.retrieve_last(image_from_buffer, current_frame_counter);
+
+        //cv::imshow("Camera",image_from_buffer);
 
         // set the headROI to zero
         cv::Mat headROI = image_from_buffer(cv::Range(center_head.pt1.y,center_head.pt2.y),cv::Range(center_head.pt1.x,center_head.pt2.x));
@@ -1173,6 +1182,9 @@ void blob_detector_thread(circular_video_buffer_ts &circ_buffer,const ioparam &c
     mtx.lock();
     cout<<"out of while loop (blob detector)"<<endl;
     mtx.unlock();
+
+    cv::destroyWindow("Camera");
+
 }
 
 void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const RSC_input, const ioparam &center){
@@ -1184,7 +1196,6 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const 
 
     FlyCapture2::Error error;
 
-
     unsigned char* data;
 
     stringstream logfilename;
@@ -1192,12 +1203,15 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const 
     ofstream logfile(logfilename.str().c_str());
 
     Image rawImage;
-
+    int64 TimeStamp_microseconds_init = 0;
     while(run){
         //RSC_input->cam->FireSoftwareTrigger(false);
         RSC_input->cam->RetrieveBuffer(&rawImage);
         TimeStamp TimeStamp_fromCamera = rawImage.GetTimeStamp(); // use time stamp
         int64 TimeStamp_microseconds = TimeStamp_fromCamera.seconds*1e6+TimeStamp_fromCamera.microSeconds;
+        if (TimeStamp_microseconds_init == 0) //Start time
+            TimeStamp_microseconds_init = TimeStamp_microseconds;
+
         int64 ms1 = cv::getTickCount();  // use clock ticks (less good)
 
         data = rawImage.GetData();
@@ -1216,10 +1230,12 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const 
         sTm = gmtime (&now);
         strftime (buff, sizeof(buff), "%H:%M:%S", sTm);
         stringstream logss;
-        logss << RSC_input->eventCount <<'\t' << frame_counter << "\t" << buff << "\t" << ((double)cv::getTickCount()-initial_time)/cv::getTickFrequency() << "\t" << TimeStamp_microseconds << std:: endl;
+        logss << RSC_input->eventCount <<'\t' << frame_counter << "\t" << buff << "\t" << ((double)cv::getTickCount()-initial_time)/cv::getTickFrequency() << "\t" << TimeStamp_microseconds-TimeStamp_microseconds_init << std:: endl;
 
 
-        circ_buffer.update_buffer(image,frame_counter,TimeStamp_microseconds,logss.str());
+        circ_buffer.update_buffer(image,frame_counter,TimeStamp_microseconds-TimeStamp_microseconds_init,logss.str());
+
+        gpMainwindow->TickProgress();
 
         if(circ_buffer.get_recorder_state()){
 
@@ -1234,14 +1250,16 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const 
             circ_buffer.set_last_recorded_index(frame_counter);
         }
 
-        logfile<<ms1<<' '<<TimeStamp_microseconds<<' '<<circ_buffer.get_recorder_state()<<endl;
+        logfile<<ms1<<' '<< TimeStamp_microseconds<<' '<<circ_buffer.get_recorder_state()<<endl;
 
         mtx.lock();
         frame_counter++;
         mtx.unlock();
 
-        if((cv::getTickCount()-initial_time)/1e9>RSC_input->recording_time){
+        if( ((cv::getTickCount()-initial_time)/cv::getTickFrequency()) >RSC_input->recording_time){
             mtx.lock();
+
+
             run=false;
             mtx.unlock();
         }
@@ -1277,6 +1295,7 @@ void *Rec_onDisk_conditional(void *tdata,
     int BUFFER_SIZE=200;
     int ROI_acquired=0;
     ioparam center, center_head;
+
 
 
     // Image format from the camera and corresponding mat object
@@ -1349,8 +1368,9 @@ void *Rec_onDisk_conditional(void *tdata,
     double t0 = cv::getTickCount();
     cout<<"Start!"<<endl;
 
-    F7 f7;
+
     //Set Options To Default FPS
+    F7 f7;
     SetCam(RSC_input->cam,f7,MODE_1,PIXEL_FORMAT_RAW8,false,fFrameRate);
 
     stringstream logfilename;
@@ -1391,6 +1411,7 @@ void *Rec_onDisk_conditional(void *tdata,
         circ_buffer.update_buffer(cvm,k,TS.seconds*1e6+TS.microSeconds,logss.str());
         mtx.lock();
         frame_counter = k;
+        gpMainwindow->TickProgress();
         mtx.unlock();
 
     }
@@ -1398,7 +1419,7 @@ void *Rec_onDisk_conditional(void *tdata,
 
 
     // ####################################################################
-
+    gpMainwindow->ResetProgress();
     // Start rec and proc threads /////////////////////////////////////////////////////////////////////
     boost::thread T_REC(recorder_thread, std::ref(circ_buffer), std::ref(RSC_input),std::ref(center));
     boost::thread T_PROC(blob_detector_thread,std::ref(circ_buffer),std::ref(center_head));

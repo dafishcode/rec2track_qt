@@ -4,6 +4,8 @@
 #include <cmath>
 #include "../include/barrage.h"
 #include "../include/Point.h"
+#include "../include/mainwindow.h"
+
 #include "string.h"
 #include <sstream>
 #include <fstream>
@@ -12,6 +14,9 @@
 #include<algorithm>
 #include <iomanip>
 #include<QCoreApplication>
+
+
+extern MainWindow* gpMainwindow;
 
 using namespace std;
 
@@ -1405,6 +1410,12 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
 void barrage::FillPoints(vector<unsigned char*> & stimdata,vector<stim> &StimList){
 
+    if (StimList.empty())
+    {
+        cerr << "[ERROR] No stimuli list loaded " << std::endl;
+        return;
+    }
+
     for(unsigned int i=0;i<StimList.size();++i){
         ostringstream ss;
         ss<<stimlibloc<<"/"<<code_stim(StimList[i])<<".bin";
@@ -1414,6 +1425,8 @@ void barrage::FillPoints(vector<unsigned char*> & stimdata,vector<stim> &StimLis
         in.read((char*)stimdata[i], H*W*(nframes_vec[StimList[i]]+1)*sizeof(unsigned char));
         in.close();
     }
+
+
 
 }
 
@@ -1589,6 +1602,27 @@ void barrage::displayXbackground(char* window,
 }
 
 
+std::vector<string> barrage::loadStimListFromFile(string filename)
+{
+    ifstream StimList_file(filename.c_str());
+    std::vector<string> StimList;
+    string str;
+
+    while(StimList_file>>str){
+    //StimList.push_back(string_to_stim(str.c_str()));
+        StimList.push_back(str);
+        if(StimList.size()==1 && string_to_stim(str.c_str()) != CONCENTRIC){
+            cout << "Please put CONCENTRIC in the first line of "<<
+                    filename<<". "<<endl;
+            exit(0);
+        }
+
+    }
+
+return(StimList);
+
+}
+
 /// \brief Runs The visual stimulation routine based on user settings
 ///
 void barrage::VisualStimulation(string prefix, bool &run){
@@ -1603,7 +1637,9 @@ void barrage::VisualStimulation(string prefix, bool &run){
     bool verbose=false;
     vector<int> random_order;
 
-    // Build barrage
+
+
+    // Build barrage - Load List from File
     ifstream StimList_file(optstimfile.c_str());
     vector<stim> StimList;
     vector<stim> StimList_tmp;
@@ -1760,7 +1796,8 @@ void barrage::VisualStimulation(string prefix, bool &run){
 
     ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
     cout<<"Waiting for " << waiting_time << " sec. Press any key to override wait."<<endl;
-    if(waiting_time>0) cv::waitKey(1000*waiting_time);
+    if(waiting_time>0)
+        cv::waitKey(1000*waiting_time);
     cv::Mat A(H,W,CV_8U);
 
     while(c!='q' && run){
@@ -1776,13 +1813,21 @@ void barrage::VisualStimulation(string prefix, bool &run){
 
         if(k==nframes_vec[StimList[epID]] && epID<numEP_spec) {
             epID++;
-            cout<<endl;
+
+
             k=0;
             cv::imshow("vs",mask_mat);
-            OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()<<' '<<code_stim(StimList[epID-1])<<endl;
+            double elapsedTsec = ((double)cv::getTickCount()-t0)/cv::getTickFrequency();
+            OUTFILE << elapsedTsec  <<' '<<code_stim(StimList[epID-1])<<endl;
             ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
-            if(inter_epoch_time>0) cv::waitKey(inter_epoch_time*1000);
-        } else c=cv::waitKey(20);
+            cout << " " << elapsedTsec << std::endl;
+
+
+
+            if(inter_epoch_time>0)
+                cv::waitKey(inter_epoch_time*1000);
+        } else
+            c=cv::waitKey(20);
     }
 
 

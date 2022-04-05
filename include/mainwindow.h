@@ -27,8 +27,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void record(float fFrameRate,float fShutterDuration);
-
+    void record(float fFrameRate,float fShutterDuration,bool btrigger);
+    int TickProgress();
+    void ResetProgress();
     barrage StimulationBarrage;
 
 private slots:

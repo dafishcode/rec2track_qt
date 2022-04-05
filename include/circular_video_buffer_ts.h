@@ -256,7 +256,8 @@ public:
             slock lk(monitor);
             mbwriting_buffer=true;
             lri=idx_last_recorded; //save idx of most recently exported/saved img to file
-            cout<<"writeNewFramesToVideostream: writing buffer to vid for fidx>"<< lri <<endl;
+            if(mbverbose)
+                cout<<"writeNewFramesToVideostream: fidx>"<< lri <<endl;
         }
 
         for(i=0;i < circ_buff_img.size();i++){
@@ -266,6 +267,7 @@ public:
                 if (mbrecording_state)
                 {
                     moVideowriter.write(circ_buff_img[i]);
+
                     *mstreamlogfile << logstring[i];//frame_index[i] << '\t' <<time_index[i]<<'\t'<<cv::getTickFrequency() << endl;
                 }
                 if(mbverbose)

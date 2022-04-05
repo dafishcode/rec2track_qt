@@ -50,8 +50,8 @@ public:
     void getBackground();
     void setBackgroundColor(int);
     void GenFrames(vector<Point*> &, stim,unsigned int);
-    string code_stim(stim);
-    stim string_to_stim(const char* s);
+
+
     void get_vs_mask(cv::Mat& mask_mat);
     int matchtime(int64 timecamera, vector<int64>& trace2);
     void ProgressBar(double);
@@ -71,6 +71,10 @@ public:
 
     void VisualStimulation(string prefix, bool &run);
     void VisualStimulation_BG(string prefix, bool &run);
+
+    static string code_stim(stim);
+    static stim string_to_stim(const char* s);
+    static vector<string> loadStimListFromFile(string filename);
 
     size_t W;
     size_t H;
