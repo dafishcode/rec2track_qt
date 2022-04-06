@@ -1797,6 +1797,10 @@ void barrage::VisualStimulation(string prefix, bool &run){
     // Display the mask and wait
     cv::imshow("vs",mask_mat);
 
+    // Show Camera Live View //
+    cv::namedWindow("Camera",cv::WINDOW_NORMAL);
+    cv::resizeWindow("Camera",400,400);
+
 
     ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
     cout<<"Waiting for " << waiting_time << " sec. Press any key to override wait."<<endl;
@@ -1832,9 +1836,13 @@ void barrage::VisualStimulation(string prefix, bool &run){
                 cv::waitKey(inter_epoch_time*1000);
         } else
             c=cv::waitKey(20);
-    }
 
 
+        /// TODO  Show Live Cam To user
+    } // Main VizStim Loop
+
+
+    cv::destroywindow("Camera");
 }
 
 void barrage::VisualStimulation_BG(string prefix, bool &run)

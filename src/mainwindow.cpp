@@ -36,7 +36,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration,bool btrigger = 
     SetCam(&cam,f7,mode,PIXEL_FORMAT_RAW8,btrigger,fFrameRate,fShutterDuration);
     cam.StartCapture();
 
-    struct thread_data2 RSC_input;
+    struct recorderthread_data RSC_input;
     QString tmp=ui->txt_outFolder->text();
     RSC_input.bus = &busMgr;
     RSC_input.guid = &guid;

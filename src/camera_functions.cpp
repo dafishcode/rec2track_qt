@@ -443,8 +443,8 @@ int Rec_SingleCamera(void* tdata)
 {
     FlyCapture2::Error error;
 
-    struct thread_data2 * RSC_input;
-    RSC_input = (struct thread_data2*) tdata;
+    struct recorderthread_data * RSC_input;
+    RSC_input = (struct recorderthread_data*) tdata;
     size_t seq_size = RSC_input->seq_size;
     ioparam center;
     int recording=0;
@@ -505,8 +505,8 @@ int Rec_SingleCamera(void* tdata)
 void *Rec_onDisk_SingleCamera2(void *tdata,size_t &frame_counter)
 {
     signal(SIGINT,my_handler);
-    struct thread_data2 * RSC_input;
-    RSC_input = (struct thread_data2*) tdata;
+    struct recorderthread_data * RSC_input;
+    RSC_input = (struct recorderthread_data*) tdata;
 
     FlyCapture2::Error error;
     CheckOutputFolder(RSC_input->proc_folder);
@@ -1113,7 +1113,11 @@ void blob_detector_thread(circular_video_buffer_ts &circ_buffer,const ioparam &c
     while(run){
         cv::Mat image_from_buffer;
         circ_buffer.retrieve_last(image_from_buffer, current_frame_counter);
-
+        if (image_from_buffer.empty())
+        {
+            cerr << "No image in circ_buffer" << std::endl;
+            continue;
+        }
         // Cannot create windows In Threas
         //cv::imshow("Camera",image_from_buffer);
 
@@ -1194,7 +1198,7 @@ void blob_detector_thread(circular_video_buffer_ts &circ_buffer,const ioparam &c
 
 }
 
-void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const RSC_input, const ioparam &center){
+void recorder_thread(circular_video_buffer_ts &circ_buffer, recorderthread_data* const RSC_input, const ioparam &center){
 
     mtx.lock();
     cout<<"Running recorder_thread on thread "<<boost::this_thread::get_id()<<endl;
@@ -1295,8 +1299,8 @@ void *Rec_onDisk_conditional(void *tdata,
     struct tm *sTm;
 
     // Retrieve RSC input from main
-    struct thread_data2 * RSC_input;
-    RSC_input = (struct thread_data2*) tdata;
+    struct recorderthread_data * RSC_input;
+    RSC_input = (struct recorderthread_data*) tdata;
 
     int BUFFER_SIZE=200;
     int ROI_acquired=0;
@@ -1316,6 +1320,7 @@ void *Rec_onDisk_conditional(void *tdata,
 
     // Creation of the thread-safe curcular buffer
     circular_video_buffer_ts circ_buffer(BUFFER_SIZE,RSC_input->proc_folder,&bufferfile,ioutputType,fFrameRate);
+    RSC_input->pVideoBuffer =&circ_buffer;
     // Setting the background model
     pMOG = cv::createBackgroundSubtractorMOG2(2000,16,true);
 
@@ -1414,7 +1419,7 @@ void *Rec_onDisk_conditional(void *tdata,
         stringstream logss;
         logss << RSC_input->eventCount <<'\t' << k << "\t" << buff << "\t" << ((double)cv::getTickCount()-t0)/cv::getTickFrequency() << "\t" << TS.seconds*1e6+TS.microSeconds << std::endl;
 
-        circ_buffer.update_buffer(cvm,k,TS.seconds*1e6+TS.microSeconds,logss.str());
+        //circ_buffer.update_buffer(cvm,k,TS.seconds*1e6+TS.microSeconds,logss.str());
         mtx.lock();
         frame_counter = k;
         gpMainwindow->TickProgress();

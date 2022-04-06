@@ -40,10 +40,11 @@ struct thread_data{
 	bool crop;
 };
 
-struct thread_data2{
+struct recorderthread_data{
     BusManager *bus;
     PGRGuid *guid;
 	Camera *cam;
+    circular_video_buffer_ts* pVideoBuffer;
     string proc_folder;
     char* display;    
     size_t seq_size;
