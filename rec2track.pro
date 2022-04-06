@@ -36,7 +36,10 @@ FORMS    += form/mainwindow.ui
 ##
 INCLUDEPATH += -I /usr/include/flycapture  -I/usr/share/qt5/mkspecs/linux-g++-64
 INCLUDEPATH += `pkg-config --cflags opencv `
-INCLUDEPATH += -I/opt/Qt/5.15.0/gcc_64/include/
+#INCLUDEPATH += -I/opt/Qt/5.15.2/gcc_64/include/
+INCLUDEPATH += -I/opt/Qt/5.11.2/gcc_64/include/
 
-LIBS += `pkg-config --libs opencv ` -L/usr/local/lib/ -lflycapture  -lboost_thread -lboost_system -lgsl -lblas #-L/usr/lib/x86_64-linux-gnu
-LIBS += -L/opt/Qt/5.15.0/gcc_64/lib
+
+LIBS += `pkg-config --libs opencv ` -L/usr/local/lib/ -lflycapture  -lboost_thread -lboost_system -lgsl -lblas -L/usr/lib/x86_64-linux-gnu
+#LIBS += -L/opt/Qt/5.15.2/gcc_64/lib
+LIBS += -L/opt/Qt/5.11.2/gcc_64/lib

@@ -304,7 +304,7 @@ void SetCam(Camera *cam, F7 &f7, const Mode k_fmt7Mode, const PixelFormat k_fmt7
 
 } //END OF SetCam //
 
-void CheckOutputFolder(string folderpath){
+string CheckOutputFolder(string folderpath){
     struct stat sb;
     QString qsfolderpath = QString::fromStdString(folderpath);
 
@@ -321,8 +321,8 @@ void CheckOutputFolder(string folderpath){
             int random_number = rand();
             folderpath = folderpath.append("_" + std::to_string(random_number) );
             cout << "[Info] New folder name set :" << folderpath << std::endl;
-            CheckOutputFolder(folderpath);
-            return;
+            folderpath = CheckOutputFolder(folderpath);
+            return folderpath;
         }
     } else { //Make New Folder
         QDir(qsfolderpath).mkpath(".");
@@ -340,6 +340,7 @@ void CheckOutputFolder(string folderpath){
 
 
     std::cout << "Output folder " << folderpath << " is ready" << std::endl;
+    return(folderpath);
 }
 
 void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=300){
@@ -1046,7 +1047,7 @@ int Run_SingleCamera(PGRGuid *guid,float pFrameRate, float pfShutter)
 void display_blobs(circular_video_buffer_ts &circ_buffer){
 
     mtx.lock();
-    cout<<"run display_image on thread "<<boost::this_thread::get_id()<<endl;
+    cout<<" run display_image on thread "<< boost::this_thread::get_id()<<endl;
     mtx.unlock();
 
     cv::namedWindow("display",cv::WINDOW_NORMAL);
@@ -1071,9 +1072,11 @@ void display_blobs(circular_video_buffer_ts &circ_buffer){
 
         if(!image.empty()){
             imshow("display",image);
-            imshow("Camera",rawImage);
             cv::displayStatusBar("display",info.str(),0);
         }
+        if(!rawImage.empty())
+            imshow("Camera",rawImage);
+
 
         c=cv::waitKey(10);
     }
@@ -1095,19 +1098,23 @@ void blob_detector_thread(circular_video_buffer_ts &circ_buffer,const ioparam &c
     int timer_init=490*1;
     int timer=timer_init;
     bool large_blobs=false;
-    setup_blob_detector(detector);
 
-    cv::namedWindow("Camera",cv::WINDOW_NORMAL);
-    cv::resizeWindow("Camera",400,400);
 
     mtx.lock();
-    cout<<"Created blob detector on thread "<<boost::this_thread::get_id()<<endl;
+    cout<< "Created blob detector on thread "<<boost::this_thread::get_id()<<endl;
     mtx.unlock();
+
+    setup_blob_detector(detector);
+
+    //cv::namedWindow("Camera",cv::WINDOW_NORMAL);
+    //cv::resizeWindow("Camera",400,400);
+
 
     while(run){
         cv::Mat image_from_buffer;
         circ_buffer.retrieve_last(image_from_buffer, current_frame_counter);
 
+        // Cannot create windows In Threas
         //cv::imshow("Camera",image_from_buffer);
 
         // set the headROI to zero
@@ -1183,14 +1190,14 @@ void blob_detector_thread(circular_video_buffer_ts &circ_buffer,const ioparam &c
     cout<<"out of while loop (blob detector)"<<endl;
     mtx.unlock();
 
-    cv::destroyWindow("Camera");
+    //cv::destroyWindow("Camera");
 
 }
 
 void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const RSC_input, const ioparam &center){
 
     mtx.lock();
-    cout<<"Created main on thread "<<boost::this_thread::get_id()<<endl;
+    cout<<"Running recorder_thread on thread "<<boost::this_thread::get_id()<<endl;
     mtx.unlock();
     int64 initial_time=cv::getTickCount();    
 
@@ -1234,7 +1241,7 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const 
 
 
         circ_buffer.update_buffer(image,frame_counter,TimeStamp_microseconds-TimeStamp_microseconds_init,logss.str());
-
+        //cv::imshow("rec",image);
         gpMainwindow->TickProgress();
 
         if(circ_buffer.get_recorder_state()){
@@ -1258,8 +1265,6 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const 
 
         if( ((cv::getTickCount()-initial_time)/cv::getTickFrequency()) >RSC_input->recording_time){
             mtx.lock();
-
-
             run=false;
             mtx.unlock();
         }
@@ -1268,7 +1273,7 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const 
 
     // Stop capturing images
     error = RSC_input->cam->StopCapture();
-
+    cout << "Stopped camera capture" << std::endl;
     // Disconnect the camera
     error = RSC_input->cam->Disconnect();
 
@@ -1426,9 +1431,12 @@ void *Rec_onDisk_conditional(void *tdata,
     // ################################################################################################
 
     if(VisualStimulation_ON && run){
-        if(!Barrage->Background_ON) Barrage->VisualStimulation(RSC_input->proc_folder,run);
-        else Barrage->VisualStimulation_BG(RSC_input->proc_folder,run);
-    } else display_blobs(circ_buffer);
+        if(!Barrage->Background_ON)
+            Barrage->VisualStimulation(RSC_input->proc_folder,run);
+        else
+            Barrage->VisualStimulation_BG(RSC_input->proc_folder,run);
+    } else
+        display_blobs(circ_buffer);
 
     if(T_REC.joinable()){
         T_REC.join();

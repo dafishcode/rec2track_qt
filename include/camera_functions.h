@@ -58,7 +58,7 @@ void SetCam(Camera *,F7&,const Mode, const PixelFormat, bool triggerON, float pf
 inline void PrintError(Error error) { error.PrintErrorTrace(); }
 std::string fixedLengthString(int value, int digits);
 //int ChangeTrigger(thread_data2*);
-void CheckOutputFolder(string folder);
+string CheckOutputFolder(string folder);
 void PrintBuildInfo();
 void PrintFormat7Capabilities(Format7Info fmt7Info);
 void PrintCameraInfo(CameraInfo *pCamInfo);

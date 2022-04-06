@@ -48,9 +48,12 @@ void MainWindow::record(float fFrameRate,float fShutterDuration,bool btrigger = 
     RSC_input.eventCount = 0; //FOr Triggered/ Conditional Recording
 
     updateBarrage();
-    CheckOutputFolder(RSC_input.proc_folder);
+    RSC_input.proc_folder = CheckOutputFolder(RSC_input.proc_folder);
 
     bool VisualStimulation_on=ui->radioVizStimOn->isChecked();
+    if (VisualStimulation_on)
+        cout << "Camera Recording simultaneously with barrage display " << std::endl;
+
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
     ui->progressBar->setRange(0,RSC_input.recording_time);

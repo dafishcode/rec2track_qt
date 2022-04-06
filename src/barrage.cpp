@@ -493,13 +493,17 @@ void barrage::transform_image(string imfile){
     double x,y,u,v;
 
     cv::Mat im;
+
     im=cv::imread(imfile);
-    cvtColor(im,im, cv::COLOR_BGR2GRAY);
-    im.convertTo(im,CV_8U);
     if(im.empty()){
-        cout<<"Background image not found."<<endl;
+        cerr<<"Background image not found in: " << imfile <<endl;
         exit(0);
     }
+//    if (im.rows == 0)
+//        throw("Failed to load background image");
+    cvtColor(im,im, cv::COLOR_BGR2GRAY);
+    im.convertTo(im,CV_8U);
+
 
     background.resize(W*H);
 
