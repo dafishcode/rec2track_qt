@@ -1816,13 +1816,14 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     cout<<"Waiting for " << waiting_time << " sec. Press any key to override wait."<<endl;
     if(waiting_time>0)
         cv::waitKey(1000*waiting_time);
-    cv::Mat A(H,W,CV_8U);
 
+    cv::Mat A(H,W,CV_8U);
+    double inter_epoch_timer = 0.0; inter_epoch_time;
     while(c!='q' && run){
         if(k==0 && epID==numEP_spec) break;
         A.data=(stimdata[random_order_all[epID]]+W*H*k);
         if(k==0){
-            OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()<<' '<<code_stim(StimList[epID])<<endl;
+            OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()  << "\t" << nCurrentCameraFrame <<'\t'<<code_stim(StimList[epID])<<endl;
         }
         ticksfile<<cv::getTickCount()<<' '<<code_stim(StimList[epID])<<' '<<k<<endl;
         cv::imshow("vs",A);
@@ -1832,7 +1833,6 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
         if(k==nframes_vec[StimList[epID]] && epID<numEP_spec) {
             epID++;
 
-
             k=0;
             cv::imshow("vs",mask_mat);
             double elapsedTsec = ((double)cv::getTickCount()-t0)/cv::getTickFrequency();
@@ -1840,20 +1840,21 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
             ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
             cout << " " << elapsedTsec << std::endl;
 
-
-
+            ///\TODO Convert Waits To Timed intervals
+            //inter_epoch_timer_t0 = (double)cv::getTickCount();
             if(inter_epoch_time>0)
                 cv::waitKey(inter_epoch_time*1000);
-        } else
-            c=cv::waitKey(20);
+            else
+                c=cv::waitKey(20);
 
-
-        /// Show Live Cam To user and Obtain behaviour video frame
-        {
-            boost::mutex::scoped_lock lk(mtx);
-            pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
-            cv::imshow("Camera",imgCameraLive);
-        }
+            ///Camera Only Shows When Not Paused Between Epochs - Need t change method of Waiting
+            /// Show Live Cam To user and Obtain behaviour video frame
+            {
+                boost::mutex::scoped_lock lk(mtx);
+                pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
+                cv::imshow("Camera",imgCameraLive);
+            }
+      }
 
     } // Main VizStim Loop
 

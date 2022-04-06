@@ -344,7 +344,7 @@ string CheckOutputFolder(string folderpath){
     return(folderpath);
 }
 
-void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=300){
+void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=420){
 
     int ind_brightness=0, ind_brightness_max=100;
     double brightness;
@@ -398,7 +398,7 @@ void Select_ROI(Camera *cam, ioparam &center, int &recording, int ROISize=300){
     cv::destroyWindow("ROI selection");
 }
 
-void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=300){
+void Select_ROI(cv::Mat &cvm, ioparam &center, int &recording, int ROISize=420){
 
     int ind_brightness=80, ind_brightness_max=150;
     double brightness;
@@ -1326,7 +1326,7 @@ void *Rec_onDisk_conditional(void *tdata,
     pMOG = cv::createBackgroundSubtractorMOG2(2000,16,true);
 
     // Select tail ROI //////////////////////////////////////////////////////////////
-    Select_ROI(RSC_input->cam, center , ROI_acquired, 210);
+    Select_ROI(RSC_input->cam, center , ROI_acquired, 360);
     if(!ROI_acquired){
         cout<<"Error with ROI detection"<<endl;
         exit(0);
@@ -1388,13 +1388,13 @@ void *Rec_onDisk_conditional(void *tdata,
 
 
     stringstream logfilename;
-    logfilename	<< RSC_input->proc_folder<<"/time.log";
+    logfilename	<< RSC_input->proc_folder<<"/time_ticks.log";
     ofstream logfile(logfilename.str().c_str());
-    logfile<<cv::getTickCount()<<' '<<TS.seconds*1e6+TS.microSeconds<<' '<<0<<endl;
+    logfile << cv::getTickCount()<<' '<< TS.seconds*1e6+TS.microSeconds<<' '<<0<<endl;
     logfile.close();
 
     // Fill buffer ////////////////////////////////////////////////////////
-    for(unsigned int k=0;k<10;k++){
+    for(unsigned int k=0;k<2;k++){
 
         FlyCapture2::Error error=RSC_input->cam->RetrieveBuffer(&rawImage);
         int64 ms1 = cv::getTickCount();
