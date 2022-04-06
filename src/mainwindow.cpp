@@ -61,7 +61,7 @@ void MainWindow::record(float fFrameRate,float fShutterDuration,bool btrigger = 
 
     ui->progressBar->setRange(0,RSC_input.recording_time);
     ui->progressBar->reset();
-    Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage,outputType::zCam_MJPGVID);
+    Rec_onDisk_conditional((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage,outputType::zCam_RAWVID); //outputType::zCam_MJPGVID
 
     //Rec_onDisk_SingleCamera2((void*)&RSC_input, VisualStimulation_on, &StimulationBarrage);
 }

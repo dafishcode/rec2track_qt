@@ -1259,7 +1259,6 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, recorderthread_data*
             mtx.lock();
             if(verbose) cout<<"writing: "<<frame_counter<<' '<<ms1<<endl;
             mtx.unlock();
-
             circ_buffer.set_last_recorded_index(frame_counter);
         }
 
@@ -1395,7 +1394,7 @@ void *Rec_onDisk_conditional(void *tdata,
     logfile.close();
 
     // Fill buffer ////////////////////////////////////////////////////////
-    for(unsigned int k=0;k<BUFFER_SIZE;k++){
+    for(unsigned int k=0;k<10;k++){
 
         FlyCapture2::Error error=RSC_input->cam->RetrieveBuffer(&rawImage);
         int64 ms1 = cv::getTickCount();
@@ -1424,7 +1423,7 @@ void *Rec_onDisk_conditional(void *tdata,
         logss << RSC_input->eventCount <<'\t' << k << "\t" << buff << "\t" << ((double)cv::getTickCount()-t0)/cv::getTickFrequency() << "\t" << TS.seconds*1e6+TS.microSeconds << std::endl;
 
         /// TODO : Check if prefil is really required
-        circ_buffer.update_buffer(cvm,k,TS.seconds*1e6+TS.microSeconds,logss.str());
+        circ_buffer.update_buffer(image,k,TS.seconds*1e6+TS.microSeconds,logss.str());
         mtx.lock();
         frame_counter = k;
         gpMainwindow->TickProgress();

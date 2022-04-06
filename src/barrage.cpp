@@ -1669,6 +1669,12 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     }
     
     // log files
+    if (StimList_tmp.size() == 0)
+    {
+        cerr << "No Stimuli Loaded. Exiting VisualStimulation Barrage display" << std::endl;
+        return;
+    }
+
 
     ofstream OUTFILE;
     ofstream epoch_order;

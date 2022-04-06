@@ -175,11 +175,11 @@ public:
              moVideowriter.open(stroutputfile, 0 , mvidfps, mszFrame, false); //initialize the VideoWriter object //('Y','8','0','0') cv::VideoWriter::fourcc('M','J','P','G') cv::VideoWriter::fourcc('X','V','I','D')
         }
          if (moutputType == outputType::zCam_MJPGVID){
-              stroutputfile = mproc_folder + string("/exp_video_mpeg.mp4");
+              stroutputfile = mproc_folder + string("/exp_video_mpeg.avi");
               moVideowriter.open(stroutputfile, cv::VideoWriter::fourcc('M','J','P','G') , mvidfps, mszFrame, false); //initialize the VideoWriter object cv::VideoWriter::fourcc('Y','8','0','0')
          }
          if (moutputType == outputType::zCam_XVID){
-              stroutputfile = mproc_folder + string("/exp_video_xvid.mp4");
+              stroutputfile = mproc_folder + string("/exp_video_xvid.avi");
               moVideowriter.open(stroutputfile, cv::VideoWriter::fourcc('X','V','I','D') , mvidfps, mszFrame, false); //initialize the VideoWriter object cv::VideoWriter::fourcc('Y','8','0','0')
          }
 
