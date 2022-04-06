@@ -167,19 +167,19 @@ public:
 
         string stroutputfile;
         if (moutputType == outputType::zCam_SEQIMAGES){
-           stroutputfile = mproc_folder.append("/img_%09d.bmp");
+           stroutputfile = mproc_folder + string("/img_%09d.bmp");
            moVideowriter.open(stroutputfile, 0, 0, mszFrame, false); //initialize the VideoWriter object
          }
         if (moutputType == outputType::zCam_RAWVID){
-             stroutputfile = mproc_folder.append("/exp_video_y800.avi");
-             moVideowriter.open(stroutputfile, cv::VideoWriter::fourcc('Y','8','0','0') , mvidfps, mszFrame, false); //initialize the VideoWriter object //('Y','8','0','0') cv::VideoWriter::fourcc('M','J','P','G') cv::VideoWriter::fourcc('X','V','I','D')
+             stroutputfile = mproc_folder + string("/exp_video_y800.avi"); //cv::VideoWriter::fourcc('Y','8','0','0')
+             moVideowriter.open(stroutputfile, 0 , mvidfps, mszFrame, false); //initialize the VideoWriter object //('Y','8','0','0') cv::VideoWriter::fourcc('M','J','P','G') cv::VideoWriter::fourcc('X','V','I','D')
         }
          if (moutputType == outputType::zCam_MJPGVID){
-              stroutputfile = mproc_folder.append("/exp_video_mpeg.mp4");
+              stroutputfile = mproc_folder + string("/exp_video_mpeg.mp4");
               moVideowriter.open(stroutputfile, cv::VideoWriter::fourcc('M','J','P','G') , mvidfps, mszFrame, false); //initialize the VideoWriter object cv::VideoWriter::fourcc('Y','8','0','0')
          }
          if (moutputType == outputType::zCam_XVID){
-              stroutputfile = mproc_folder.append("/exp_video_xvid.mp4");
+              stroutputfile = mproc_folder + string("/exp_video_xvid.mp4");
               moVideowriter.open(stroutputfile, cv::VideoWriter::fourcc('X','V','I','D') , mvidfps, mszFrame, false); //initialize the VideoWriter object cv::VideoWriter::fourcc('Y','8','0','0')
          }
 
