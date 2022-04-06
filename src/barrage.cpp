@@ -18,6 +18,7 @@
 
 
 extern MainWindow* gpMainwindow;
+boost::mutex mtx;
 
 using namespace std;
 
@@ -1845,13 +1846,13 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
         {
             boost::mutex::scoped_lock lk(mtx);
             pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
-            cv::imshow("Camera",imgCameraLive)
+            cv::imshow("Camera",imgCameraLive);
         }
 
     } // Main VizStim Loop
 
 
-    cv::destroywindow("Camera");
+    cv::destroyWindow("Camera");
 }
 
 void barrage::VisualStimulation_BG(recorderthread_data* pRSC_input, bool &run)

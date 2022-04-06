@@ -7,8 +7,8 @@
 #include <CameraBase.h>
 #include <iostream>
 #include <string>
-#include"../include/barrage.h"
-#include "../include/circular_video_buffer_ts.h"
+#include "barrage.h"
+#include "circular_video_buffer_ts.h"
 
 using namespace std;
 using namespace FlyCapture2;

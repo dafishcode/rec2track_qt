@@ -2,7 +2,7 @@
 #define BARRAGE_H
 
 #include "../include/Point.h"
-#include "../include/camera_functions.h"
+//#include "../include/camera_functions.h"
 
 #include<vector>
 #include<string>

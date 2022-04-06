@@ -229,12 +229,23 @@ void MainWindow::on_btn_testVizStimOnProjector_clicked()
     cout<<"inter epoch times = "<<StimulationBarrage.inter_epoch_time<<endl;
 
 
+    struct recorderthread_data RSC_input;
+    QString tmp=ui->txt_outFolder->text();
+    RSC_input.bus = 0;
+    RSC_input.guid = 0;
+    RSC_input.cam = 0;
+    RSC_input.proc_folder= tmp.toStdString();
+    RSC_input.display="display";
+    RSC_input.crop=true;
+    RSC_input.recording_time = ui->spinBox_rectime->value() * 60; // Convert Duration to Seconds
+    RSC_input.eventCount = 0; //FOr Triggered/ Conditional Recording
+
     bool run=true;
 
     if(!StimulationBarrage.Background_ON)
-        StimulationBarrage.VisualStimulation(tmp.toStdString(),run);
+        StimulationBarrage.VisualStimulation(&RSC_input,run);
     else
-        StimulationBarrage.VisualStimulation_BG(tmp.toStdString(),run);
+        StimulationBarrage.VisualStimulation_BG(&RSC_input,run);
 
 }
 
