@@ -220,7 +220,7 @@ void MainWindow::on_btn_testVizStimOnProjector_clicked()
 {
     updateBarrage();
     QString tmp=ui->txt_outFolder->text();
-    CheckOutputFolder(tmp.toStdString());
+    tmp = tmp.fromStdString(CheckOutputFolder(tmp.toStdString()) ) ;
 
     cout<<"APPfolder "<<QCoreApplication::applicationDirPath().toStdString()<<endl;
     cout<<"opt <- "<<StimulationBarrage.optstimfile<<endl;
@@ -278,8 +278,10 @@ void MainWindow::on_btn_selectfolder_clicked()
 {
     QString stimSetFilename = QFileDialog::getExistingDirectory(nullptr, "Select output folder", QApplication::applicationDirPath(),
                                                             QFileDialog::ShowDirsOnly);
+
+    stimSetFilename = stimSetFilename.fromStdString( CheckOutputFolder(stimSetFilename.toStdString()) );
+
     this->ui->txt_outFolder->setText(stimSetFilename);
-    CheckOutputFolder(stimSetFilename.toStdString());
 
 }
 

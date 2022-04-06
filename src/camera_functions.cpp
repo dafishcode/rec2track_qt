@@ -1250,6 +1250,7 @@ void recorder_thread(circular_video_buffer_ts &circ_buffer, thread_data2* const 
             filename<<RSC_input->proc_folder<<"/"<<fixedLengthString(frame_counter)<<".pgm";
             //cv::imwrite(filename.str().c_str(),image);
             circ_buffer.writeNewFramesToVideostream();
+            //circ_buffer.writeNewFramesToImageSequence();
             mtx.lock();
             if(verbose) cout<<"writing: "<<frame_counter<<' '<<ms1<<endl;
             mtx.unlock();
