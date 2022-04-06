@@ -213,9 +213,10 @@ public:
                 if (mbrecording_state)
                 {
                     cv::imwrite(filename.str().c_str(),circ_buff_img[i]);
-                    *mstreamlogfile <<  logstring[i];// frame_index[i] << '\t' <<time_index[i]<<'\t'<<cv::getTickFrequency() << endl;
+                    *mstreamlogfile << logstring[i];// << std::endl;// frame_index[i] << '\t' <<time_index[i]<<'\t'<<cv::getTickFrequency() << endl;
                 }
-                if(mbverbose) cout<<"write buffer: "<<'\t'<<frame_index[i]<<'\t'<<time_index[i]<<endl;
+                if(mbverbose)
+                    cout<<"write buffer: "<<'\t'<<frame_index[i]<<'\t'<<time_index[i]<<endl;
             }
         }
 

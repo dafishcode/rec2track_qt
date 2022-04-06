@@ -32,15 +32,15 @@ class F7 {
 	bool supported;
 };
 
-struct thread_data{
+typedef struct thread_data{
 	PGRGuid *guid;
 	char* proc_folder;
 	char* display;
 	size_t seq_size;
 	bool crop;
-};
+} thread_data;
 
-struct recorderthread_data{
+typedef struct recorderthread_data{
     BusManager *bus;
     PGRGuid *guid;
 	Camera *cam;
@@ -51,7 +51,9 @@ struct recorderthread_data{
     uint recording_time;
     uint eventCount;
     bool crop;   
-};
+} recorderthread_data;
+
+typedef struct recorderthread_data recorderthread_data;
 
 void my_handler(int);
 

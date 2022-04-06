@@ -2,10 +2,14 @@
 #define BARRAGE_H
 
 #include "../include/Point.h"
+#include "../include/camera_functions.h"
+
 #include<vector>
 #include<string>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+
+typedef struct recorderthread_data recorderthread_data;
 
 using namespace std;
 
@@ -69,8 +73,9 @@ public:
                           const vector<int>& random_order_all,
                           int background_type);
 
-    void VisualStimulation(string prefix, bool &run);
-    void VisualStimulation_BG(string prefix, bool &run);
+    ///TODO: Why do we need to separate ones for BG and Non BG?
+    void VisualStimulation(recorderthread_data* pRSC_input, bool &run);
+    void VisualStimulation_BG(recorderthread_data* pRSC_input, bool &run);
 
     static string code_stim(stim);
     static stim string_to_stim(const char* s);

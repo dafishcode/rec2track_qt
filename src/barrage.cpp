@@ -5,6 +5,7 @@
 #include "../include/barrage.h"
 #include "../include/Point.h"
 #include "../include/mainwindow.h"
+#include "../include/camera_functions.h"
 
 #include "string.h"
 #include <sstream>
@@ -1629,18 +1630,20 @@ return(StimList);
 
 /// \brief Runs The visual stimulation routine based on user settings
 ///
-void barrage::VisualStimulation(string prefix, bool &run){
+void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
     double t0 = (double)cv::getTickCount();
+    string prefix = pRSC_input->proc_folder;
     size_t i;
     int counter;
+    long int nCurrentCameraFrame = 0;
     int number_of_stimuli=0;
     double u,v;
     double x,y;
     CONCENTRIC_ON=false;
     bool verbose=false;
     vector<int> random_order;
-
+    cv::Mat imgCameraLive;
 
 
     // Build barrage - Load List from File
@@ -1826,7 +1829,7 @@ void barrage::VisualStimulation(string prefix, bool &run){
             k=0;
             cv::imshow("vs",mask_mat);
             double elapsedTsec = ((double)cv::getTickCount()-t0)/cv::getTickFrequency();
-            OUTFILE << elapsedTsec  <<' '<<code_stim(StimList[epID-1])<<endl;
+            OUTFILE << elapsedTsec  << "\t" << nCurrentCameraFrame << '\t' <<code_stim(StimList[epID-1])<<endl;
             ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
             cout << " " << elapsedTsec << std::endl;
 
@@ -1838,17 +1841,24 @@ void barrage::VisualStimulation(string prefix, bool &run){
             c=cv::waitKey(20);
 
 
-        /// TODO  Show Live Cam To user
+        /// Show Live Cam To user and Obtain behaviour video frame
+        {
+            boost::mutex::scoped_lock lk(mtx);
+            pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
+            cv::imshow("Camera",imgCameraLive)
+        }
+
     } // Main VizStim Loop
 
 
     cv::destroywindow("Camera");
 }
 
-void barrage::VisualStimulation_BG(string prefix, bool &run)
+void barrage::VisualStimulation_BG(recorderthread_data* pRSC_input, bool &run)
 {
     double t0 = (double)cv::getTickCount();
     size_t i;
+    string prefix = pRSC_input->proc_folder;
     int counter;
     int number_of_stimuli=0;
     double u,v;

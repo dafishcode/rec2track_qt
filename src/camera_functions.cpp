@@ -1299,8 +1299,8 @@ void *Rec_onDisk_conditional(void *tdata,
     struct tm *sTm;
 
     // Retrieve RSC input from main
-    struct recorderthread_data * RSC_input;
-    RSC_input = (struct recorderthread_data*) tdata;
+    recorderthread_data* RSC_input;
+    RSC_input = ( recorderthread_data*) tdata;
 
     int BUFFER_SIZE=200;
     int ROI_acquired=0;
@@ -1320,7 +1320,7 @@ void *Rec_onDisk_conditional(void *tdata,
 
     // Creation of the thread-safe curcular buffer
     circular_video_buffer_ts circ_buffer(BUFFER_SIZE,RSC_input->proc_folder,&bufferfile,ioutputType,fFrameRate);
-    RSC_input->pVideoBuffer =&circ_buffer;
+    RSC_input->pVideoBuffer =&circ_buffer; // Save Pointer So We can Call on buffer from VizStim
     // Setting the background model
     pMOG = cv::createBackgroundSubtractorMOG2(2000,16,true);
 
@@ -1419,7 +1419,8 @@ void *Rec_onDisk_conditional(void *tdata,
         stringstream logss;
         logss << RSC_input->eventCount <<'\t' << k << "\t" << buff << "\t" << ((double)cv::getTickCount()-t0)/cv::getTickFrequency() << "\t" << TS.seconds*1e6+TS.microSeconds << std::endl;
 
-        //circ_buffer.update_buffer(cvm,k,TS.seconds*1e6+TS.microSeconds,logss.str());
+        /// TODO : Check if prefil is really required
+        circ_buffer.update_buffer(cvm,k,TS.seconds*1e6+TS.microSeconds,logss.str());
         mtx.lock();
         frame_counter = k;
         gpMainwindow->TickProgress();
@@ -1438,9 +1439,9 @@ void *Rec_onDisk_conditional(void *tdata,
 
     if(VisualStimulation_ON && run){
         if(!Barrage->Background_ON)
-            Barrage->VisualStimulation(RSC_input->proc_folder,run);
+            Barrage->VisualStimulation(RSC_input,run);
         else
-            Barrage->VisualStimulation_BG(RSC_input->proc_folder,run);
+            Barrage->VisualStimulation_BG(RSC_input,run);
     } else
         display_blobs(circ_buffer);
 
