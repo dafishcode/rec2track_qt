@@ -1,9 +1,14 @@
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <FlyCapture2.h>
 #include <CameraBase.h>
 #include <iostream>
-#include"../include/barrage.h"
+#include <string>
+#include "barrage.h"
+#include "circular_video_buffer_ts.h"
 
 using namespace std;
 using namespace FlyCapture2;
@@ -27,41 +32,50 @@ class F7 {
 	bool supported;
 };
 
-struct thread_data{
+typedef struct thread_data{
 	PGRGuid *guid;
 	char* proc_folder;
 	char* display;
 	size_t seq_size;
 	bool crop;
-};
+} thread_data;
 
-struct thread_data2{
+typedef struct recorderthread_data{
     BusManager *bus;
     PGRGuid *guid;
 	Camera *cam;
+    circular_video_buffer_ts* pVideoBuffer;
     string proc_folder;
     char* display;    
     size_t seq_size;
-    int recording_time;
-    bool crop;
     float frameRate;
     float shutterSpeed;
-};
+    uint recording_time;
+    uint eventCount;
+    bool crop;
+} recorderthread_data;
+
+
+typedef struct recorderthread_data recorderthread_data;
 
 void my_handler(int);
 
-void SetCam(Camera *,F7&,const Mode, const PixelFormat, bool triggerON=false,float pfFrameRate = 90.0f, float pfShutter=4.0f);
+void SetCam(Camera *,F7&,const Mode, const PixelFormat, bool triggerON, float pfFrameRate, float pfShutter);
+
 inline void PrintError(Error error) { error.PrintErrorTrace(); }
+std::string fixedLengthString(int value, int digits);
 //int ChangeTrigger(thread_data2*);
-void CreateOutputFolder(string folder);
+string CheckOutputFolder(string folder);
 void PrintBuildInfo();
 void PrintFormat7Capabilities(Format7Info fmt7Info);
 void PrintCameraInfo(CameraInfo *pCamInfo);
 int Rec_SingleCamera(void*);
 void *Rec_onDisk_SingleCamera2(void *tdata, size_t &);
-void *Rec_onDisk_conditional(void *tdata,bool, barrage*);
-void ReadImageSeq(string prefix,char* display,int mode=0,char* format=".pgm",char* prefix0="",int maxind=1);
-void ReadImageSeq_vs(string prefix,char* display,int mode=0,char* format=".pgm",barrage *B = nullptr,int maxind=1);
+void *Rec_onDisk_conditional(void *tdata,bool VisualStimulation_ON, barrage *Barrage,outputType ioutputType);
+void ReadImageSeq(string prefix, char* display, int mode=0, char* format=".pgm", char* prefix0="", int maxind=1);
+void ReadImageSeq_vs(string prefix, char* display, int mode=0, char* format=".pgm", barrage *B = nullptr, int maxind=1);
 void ReadImageSeq_and_track(string prefix,char* display,int mode=0,char* format=".pgm",int maxind=1);
 
 int Run_SingleCamera(PGRGuid*,float pFrameRate, float pfShutter);
+
+#endif

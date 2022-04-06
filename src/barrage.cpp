@@ -4,6 +4,9 @@
 #include <cmath>
 #include "../include/barrage.h"
 #include "../include/Point.h"
+#include "../include/mainwindow.h"
+#include "../include/camera_functions.h"
+
 #include "string.h"
 #include <sstream>
 #include <fstream>
@@ -12,6 +15,10 @@
 #include<algorithm>
 #include <iomanip>
 #include<QCoreApplication>
+
+
+extern MainWindow* gpMainwindow;
+extern boost::mutex mtx;
 
 using namespace std;
 
@@ -96,6 +103,7 @@ barrage::barrage(){
 
 }
 
+//covert stim enum to string
 string barrage::code_stim(stim s){
     string r;
     switch (s) {
@@ -472,7 +480,11 @@ void barrage::setStimLib(){
     ifstream StimLib_optfile(optfilename.c_str());
     // Make sure the file is open
     if(!StimLib_optfile.is_open())
-        throw std::runtime_error("could not open StimLibFolder.txt settings file to set Stimulus .bin directory");
+    {
+        stringstream ssErr;
+        ssErr << "could not open "  << optfilename << "StimLibFolder.txt settings file to set Stimulus .bin directory.";
+        throw std::runtime_error(ssErr.str());
+    }
 
     StimLib_optfile>>stimlibloc;
     StimLib_optfile.close();
@@ -483,13 +495,17 @@ void barrage::transform_image(string imfile){
     double x,y,u,v;
 
     cv::Mat im;
+
     im=cv::imread(imfile);
-    cvtColor(im,im, cv::COLOR_BGR2GRAY);
-    im.convertTo(im,CV_8U);
     if(im.empty()){
-        cout<<"Background image not found."<<endl;
+        cerr<<"Background image not found in: " << imfile <<endl;
         exit(0);
     }
+//    if (im.rows == 0)
+//        throw("Failed to load background image");
+    cvtColor(im,im, cv::COLOR_BGR2GRAY);
+    im.convertTo(im,CV_8U);
+
 
     background.resize(W*H);
 
@@ -1400,6 +1416,12 @@ void barrage::GenFrames(vector<Point*> &points, stim s, unsigned int NF){
 
 void barrage::FillPoints(vector<unsigned char*> & stimdata,vector<stim> &StimList){
 
+    if (StimList.empty())
+    {
+        cerr << "[ERROR] No stimuli list loaded " << std::endl;
+        return;
+    }
+
     for(unsigned int i=0;i<StimList.size();++i){
         ostringstream ss;
         ss<<stimlibloc<<"/"<<code_stim(StimList[i])<<".bin";
@@ -1409,6 +1431,8 @@ void barrage::FillPoints(vector<unsigned char*> & stimdata,vector<stim> &StimLis
         in.read((char*)stimdata[i], H*W*(nframes_vec[StimList[i]]+1)*sizeof(unsigned char));
         in.close();
     }
+
+
 
 }
 
@@ -1584,21 +1608,46 @@ void barrage::displayXbackground(char* window,
 }
 
 
+std::vector<string> barrage::loadStimListFromFile(string filename)
+{
+    ifstream StimList_file(filename.c_str());
+    std::vector<string> StimList;
+    string str;
+
+    while(StimList_file>>str){
+    //StimList.push_back(string_to_stim(str.c_str()));
+        StimList.push_back(str);
+        if(StimList.size()==1 && string_to_stim(str.c_str()) != CONCENTRIC){
+            cout << "Please put CONCENTRIC in the first line of "<<
+                    filename<<". "<<endl;
+            exit(0);
+        }
+
+    }
+
+return(StimList);
+
+}
+
 /// \brief Runs The visual stimulation routine based on user settings
 ///
-void barrage::VisualStimulation(string prefix, bool &run){
+void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
     double t0 = (double)cv::getTickCount();
+    string prefix = pRSC_input->proc_folder;
     size_t i;
     int counter;
+    long int nCurrentCameraFrame = 0;
     int number_of_stimuli=0;
     double u,v;
     double x,y;
     CONCENTRIC_ON=false;
     bool verbose=false;
     vector<int> random_order;
+    cv::Mat imgCameraLive;
 
-    // Build barrage
+
+    // Build barrage - Load List from File
     ifstream StimList_file(optstimfile.c_str());
     vector<stim> StimList;
     vector<stim> StimList_tmp;
@@ -1752,10 +1801,15 @@ void barrage::VisualStimulation(string prefix, bool &run){
     // Display the mask and wait
     cv::imshow("vs",mask_mat);
 
+    // Show Camera Live View //
+    cv::namedWindow("Camera",cv::WINDOW_NORMAL);
+    cv::resizeWindow("Camera",400,400);
+
 
     ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
     cout<<"Waiting for " << waiting_time << " sec. Press any key to override wait."<<endl;
-    if(waiting_time>0) cv::waitKey(1000*waiting_time);
+    if(waiting_time>0)
+        cv::waitKey(1000*waiting_time);
     cv::Mat A(H,W,CV_8U);
 
     while(c!='q' && run){
@@ -1771,22 +1825,41 @@ void barrage::VisualStimulation(string prefix, bool &run){
 
         if(k==nframes_vec[StimList[epID]] && epID<numEP_spec) {
             epID++;
-            cout<<endl;
+
+
             k=0;
             cv::imshow("vs",mask_mat);
-            OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()<<' '<<code_stim(StimList[epID-1])<<endl;
+            double elapsedTsec = ((double)cv::getTickCount()-t0)/cv::getTickFrequency();
+            OUTFILE << elapsedTsec  << "\t" << nCurrentCameraFrame << '\t' <<code_stim(StimList[epID-1])<<endl;
             ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
-            if(inter_epoch_time>0) cv::waitKey(inter_epoch_time*1000);
-        } else c=cv::waitKey(20);
-    }
+            cout << " " << elapsedTsec << std::endl;
 
 
+
+            if(inter_epoch_time>0)
+                cv::waitKey(inter_epoch_time*1000);
+        } else
+            c=cv::waitKey(20);
+
+
+        /// Show Live Cam To user and Obtain behaviour video frame
+        {
+            boost::mutex::scoped_lock lk(mtx);
+            pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
+            cv::imshow("Camera",imgCameraLive);
+        }
+
+    } // Main VizStim Loop
+
+
+    cv::destroyWindow("Camera");
 }
 
-void barrage::VisualStimulation_BG(string prefix, bool &run)
+void barrage::VisualStimulation_BG(recorderthread_data* pRSC_input, bool &run)
 {
     double t0 = (double)cv::getTickCount();
     size_t i;
+    string prefix = pRSC_input->proc_folder;
     int counter;
     int number_of_stimuli=0;
     double u,v;
