@@ -1635,7 +1635,7 @@ return(StimList);
 void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
     double t0 = (double)cv::getTickCount(); //Start Of Viz Stim - Used to measure Total Elapsed Time Viz Is Shown
-    double stim_t0 = (double)cv::getTickCount(); //used to measure Time Stimulus was presented for
+    double stim_t0 = 0.0; //used to measure Time Stimulus was presented for
     string prefix = pRSC_input->proc_folder;
     size_t i;
     int counter;
@@ -1833,10 +1833,10 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
         A.data=(stimdata[random_order_all[epID]]+W*H*k);
         if(k==0){
-            stim_t0 = 0.0; //Reset Stim Presentation Timer
-            OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()  << "\t" << nCurrentCameraFrame <<'\t'<<code_stim(StimList[epID]) << "\t" << stim_t0 <<endl;
+            stim_t0 = cv::getTickCount(); //Reset Stim Presentation Timer
+            OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()  << "\t" << nCurrentCameraFrame <<'\t'<<code_stim(StimList[epID]) << "\t" << 0.0 <<endl;
         }
-        ticksfile<<cv::getTickCount()<<' '<<code_stim(StimList[epID])<<' '<<k<<endl;
+        ticksfile << cv::getTickCount()-t0 <<'\t'<< code_stim(StimList[epID])<< '\t' << k <<endl;
         cv::imshow("vs",A);
         k++;
         cout<< code_stim(StimList[epID])<<"    \r"<<flush;
