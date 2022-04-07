@@ -1863,12 +1863,12 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
         while(elapsed_interstimTime < pause_epoch_time_sec)
         {
             elapsed_interstimTime = ((double)cv::getTickCount() - inter_epoch_timer_t0)/cv::getTickFrequency();
-            c=cv::waitKey(1);
+            c=cv::waitKey(2);
 
             /// UPDATE LIVE VIEW Camera Only Shows When Not Paused Between Epochs - Need t change method of Waiting
             if (pRSC_input->pVideoBuffer)
             {
-                boost::mutex::scoped_lock lk(mtx);
+                //boost::mutex::scoped_lock lk(mtx);
                 pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
                 if (!imgCameraLive.empty())
                     cv::imshow("Camera",imgCameraLive);
