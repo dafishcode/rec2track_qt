@@ -65,6 +65,8 @@ private slots:
 
     void on_btn_selectfolder_clicked();
 
+    void on_radioVizStimOn_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

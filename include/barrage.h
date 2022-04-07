@@ -111,14 +111,14 @@ public:
     vector<unsigned char> background;
     string optstimfile;
     string stimlibloc;
-    bool Background_ON;
+    bool Background_ON =false;
 
 private:
     double radDot(double);
     double spatFreq(double);
     int flat_background_color;
 
-    bool CONCENTRIC_ON;
+    bool CONCENTRIC_ON = true;
 };
 
 #endif

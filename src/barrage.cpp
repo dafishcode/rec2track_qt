@@ -1698,8 +1698,8 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
     setting_file.open(settings_name.str().c_str());
 
-    setting_file << repeats<<' '<<inter_epoch_time<<' '<< waiting_time<< std::endl;
-    setting_file << "repeats"<<' '<<"inter_epoch_time"<<' ' << "waiting_time" << std::endl; //Add field Names on Bottom So they do not interfere with file reading
+    setting_file << repeats<<'\t'<<inter_epoch_time<<'\t'<< waiting_time<< std::endl;
+    setting_file << "repeats"<<' '<<"inter_epoch_time"<<'\t' << "waiting_time" << std::endl; //Add field Names on Bottom So they do not interfere with file reading
     setting_file.close();
 
     cout<<"Recording epoches times in "<<OUTFILE_name.str()<<endl;
@@ -1776,7 +1776,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     }
 
     for(i=0;i<numEP_spec;i++) {
-        cout<<code_stim(StimList[i])<<' ';
+        cout<<code_stim(StimList[i])<<'\t';
         if(StimList[i]==CONCENTRIC || (i+1-CONCENTRIC_ON) % number_of_stimuli == 0)
             cout<<endl;
     }
@@ -1817,7 +1817,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     }
 
 
-    ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
+    ticksfile<< cv::getTickCount()-t0 <<'\t'<< code_stim(StimList[epID]) << "0"<<endl;
     cout<<"Waiting for " << waiting_time << " sec. Press any key to override wait."<<endl;
     if(waiting_time>0)
         cv::waitKey(1000*waiting_time);
@@ -1834,7 +1834,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
         A.data=(stimdata[random_order_all[epID]]+W*H*k);
         if(k==0){
             stim_t0 = cv::getTickCount(); //Reset Stim Presentation Timer
-            cout<< code_stim(StimList[epID])<<"    \r"<<flush;
+            cout<< code_stim(StimList[epID])<<"    \r"<<flush; //Tell Which Stimulus is about to be presented
             OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()  << "\t" << nCurrentCameraFrame <<'\t'<<code_stim(StimList[epID]) << "\t" << 0.0 <<endl;
         }
         ticksfile << cv::getTickCount()-t0 <<'\t'<< code_stim(StimList[epID])<< '\t' << k <<endl;
@@ -1850,7 +1850,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
             stimelapsedTsec = ((double)cv::getTickCount()-stim_t0)/cv::getTickFrequency();
 
             OUTFILE << totalelapsedTsec  << "\t" << nCurrentCameraFrame << '\t' <<code_stim(StimList[epID-1]) << "\t" << stimelapsedTsec <<endl;
-            ticksfile<<cv::getTickCount()<<' '<<"-1 0"<<endl;
+            ticksfile<<cv::getTickCount()<<'\t'<<"-1 0"<<endl;
             cout <<  "Runtime :" << totalelapsedTsec << " last stimulus duration " <<  stimelapsedTsec << std::endl;
             pause_epoch_time_sec = inter_epoch_time; //Pause For Inter Stimulus Time Interval
         }
@@ -1885,6 +1885,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
 void barrage::VisualStimulation_BG(recorderthread_data* pRSC_input, bool &run)
 {
+    cout << "Runnning - VisualStimulation_BG" << std::endl;
     double t0 = (double)cv::getTickCount();
     size_t i;
     string prefix = pRSC_input->proc_folder;
@@ -1908,12 +1909,13 @@ void barrage::VisualStimulation_BG(recorderthread_data* pRSC_input, bool &run)
     StimList_tmp.push_back(CONCENTRIC);
 
     while(StimList_file>>str){
-        StimList.push_back(string_to_stim(str.c_str()));
+
         if(StimList.back()==CONCENTRIC){
-            cout << "Please remove CONCENTRIC from the StimList file "
-                 << optstimfile <<". Thanks."<<endl;
+            cout << "-->(Ignore)Please remove CONCENTRIC from the StimList file "
+                 << optstimfile <<". "<<endl;
             exit(0);
-        }
+        }else
+            StimList.push_back(string_to_stim(str.c_str()));
 
         StimList_tmp.push_back(StimList.back());
         number_of_stimuli++;

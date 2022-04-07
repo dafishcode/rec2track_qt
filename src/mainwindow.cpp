@@ -299,3 +299,8 @@ void MainWindow::on_btn_selectfolder_clicked()
 
 }
 
+
+void MainWindow::on_radioVizStimOn_clicked()
+{
+
+}
