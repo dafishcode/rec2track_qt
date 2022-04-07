@@ -1834,12 +1834,13 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
         A.data=(stimdata[random_order_all[epID]]+W*H*k);
         if(k==0){
             stim_t0 = cv::getTickCount(); //Reset Stim Presentation Timer
+            cout<< code_stim(StimList[epID])<<"    \r"<<flush;
             OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()  << "\t" << nCurrentCameraFrame <<'\t'<<code_stim(StimList[epID]) << "\t" << 0.0 <<endl;
         }
         ticksfile << cv::getTickCount()-t0 <<'\t'<< code_stim(StimList[epID])<< '\t' << k <<endl;
         cv::imshow("vs",A);
         k++;
-        cout<< code_stim(StimList[epID])<<"    \r"<<flush;
+
 
         if(k==nframes_vec[StimList[epID]] && epID<numEP_spec) {
             epID++;
@@ -1862,7 +1863,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
         while(elapsed_interstimTime < pause_epoch_time_sec)
         {
             elapsed_interstimTime = ((double)cv::getTickCount() - inter_epoch_timer_t0)/cv::getTickFrequency();
-            c=cv::waitKey(2);
+            c=cv::waitKey(1);
 
             /// UPDATE LIVE VIEW Camera Only Shows When Not Paused Between Epochs - Need t change method of Waiting
             if (pRSC_input->pVideoBuffer)
@@ -1874,7 +1875,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
             }
 
         } // While Pause Time Has not elapsed
-        cout << "Paused for " << elapsed_interstimTime << " sec " << std::endl;
+        //cout << "Paused for " << elapsed_interstimTime << " sec " << std::endl;
 
     } // Main VizStim Loop
 
