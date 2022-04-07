@@ -1702,6 +1702,9 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     setting_file << "repeats"<<' '<<"inter_epoch_time"<<'\t' << "waiting_time" << std::endl; //Add field Names on Bottom So they do not interfere with file reading
     setting_file.close();
 
+    int numEP_spec = CONCENTRIC_ON+number_of_stimuli*repeats;
+
+
     cout<<"Recording epoches times in "<<OUTFILE_name.str()<<endl;
     cout<<"Recording ticks in "<<ticksfile_name.str()<<endl;
     
@@ -1709,9 +1712,9 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     cout<<"Using "<<repeats<<" repeats"<<endl;
     cout<<"      "<<inter_epoch_time<<"s between stimuli"<<endl;
     cout<<"      "<<waiting_time<<"s before barrage start"<<endl;
+    cout << "for " << number_of_stimuli << " shown in " << numEP_spec << " episodes" << std::endl;
     cout<<endl;
     
-    int numEP_spec = CONCENTRIC_ON+number_of_stimuli*repeats;
 
     vector<unsigned char*> stimdata(number_of_stimuli+CONCENTRIC_ON);
     vector<int> random_order_all(numEP_spec);
@@ -1851,7 +1854,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
             OUTFILE << totalelapsedTsec  << "\t" << nCurrentCameraFrame << '\t' <<code_stim(StimList[epID-1]) << "\t" << stimelapsedTsec <<endl;
             ticksfile<<cv::getTickCount()<<'\t'<<"-1 0"<<endl;
-            cout <<  "Runtime :" << totalelapsedTsec << " last stimulus duration " <<  stimelapsedTsec << std::endl;
+            cout <<  epID << ". Runtime :" << totalelapsedTsec << " last stimulus duration " <<  stimelapsedTsec << std::endl;
             pause_epoch_time_sec = inter_epoch_time; //Pause For Inter Stimulus Time Interval
         }
          else
@@ -1865,8 +1868,8 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
             elapsed_interstimTime = ((double)cv::getTickCount() - inter_epoch_timer_t0)/cv::getTickFrequency();
             c=cv::waitKey(2);
 
-            /// UPDATE LIVE VIEW Camera Only Shows When Not Paused Between Epochs - Need t change method of Waiting
-            if (pRSC_input->pVideoBuffer)
+            /// UPDATE LIVE VIEW Camera - At 20ms intervals
+            if (pRSC_input->pVideoBuffer && ((uint)(elapsed_interstimTime*1000)%20 == 0) )
             {
                 //boost::mutex::scoped_lock lk(mtx);
                 pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
