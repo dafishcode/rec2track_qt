@@ -5,6 +5,9 @@
 #-------------------------------------------------
 ## After installing OpenCv 3.6, with opencv_contrib and QT_ON - verify with pkg-config --modversion opencv
 ## After install QT 5.15.1 I needed to qtchooser -install qt5.15.1 to : qtchooser -install qt5.15.1 /opt/Qt/5.15.1/gcc_64/bin/qmake
+## In the 2p Behaviour PC tho this is build using qt4 standard package - But it was problematic
+## Installing Qt5.15.0 solved the issue (make sure you clean before recompile )
+
 QT       += core gui
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -32,6 +35,8 @@ HEADERS  +=\
             include/mainwindow.h
 
 FORMS    += form/mainwindow.ui
+##Use uic-qt4  -o ui_mainwindow.h  form/mainwindow.ui <- to generate header for form if missing
+
 #-I /usr/local/include/opencv
 ##
 ##INCLUDEPATH += -I /usr/include/flycapture  -I/usr/share/qt5/mkspecs/linux-g++-64
@@ -44,7 +49,8 @@ FORMS    += form/mainwindow.ui
 #LIBS += -L/opt/Qt/5.15.2/gcc_64/lib
 #LIBS += -L/opt/Qt/5.11.2/gcc_64/lib
 
-INCLUDEPATH += -I /usr/include/flycapture -I /usr/local/include/opencv4 -I /usr/share/qt4/mkspecs/linux-g++-64
+INCLUDEPATH += -I /usr/include/flycapture -I /usr/local/include/opencv4 #-I /usr/share/qt5/mkspecs/linux-g++-64
 #INCLUDEPATH += `pkg-config --cflags opencv `
 LIBS += -lflycapture -L/usr/lib/x86_64-linux-gnu -lboost_thread -lboost_system -lgsl -lblas -L/usr/local/lib/
 LIBS += `pkg-config --libs opencv`
+

@@ -1820,7 +1820,9 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     cv::Mat A(H,W,CV_8U);
     double inter_epoch_timer = 0.0; inter_epoch_time;
     while(c!='q' && run){
-        if(k==0 && epID==numEP_spec) break;
+        if(k==0 && epID==numEP_spec)
+            break;
+
         A.data=(stimdata[random_order_all[epID]]+W*H*k);
         if(k==0){
             OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()  << "\t" << nCurrentCameraFrame <<'\t'<<code_stim(StimList[epID])<<endl;
@@ -1828,7 +1830,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
         ticksfile<<cv::getTickCount()<<' '<<code_stim(StimList[epID])<<' '<<k<<endl;
         cv::imshow("vs",A);
         k++;
-        cout<<code_stim(StimList[epID])<<"    \r"<<flush;
+        cout<< code_stim(StimList[epID])<<"    \r"<<flush;
 
         if(k==nframes_vec[StimList[epID]] && epID<numEP_spec) {
             epID++;
@@ -1849,10 +1851,12 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
             ///Camera Only Shows When Not Paused Between Epochs - Need t change method of Waiting
             /// Show Live Cam To user and Obtain behaviour video frame
+            if (pRSC_input->pVideoBuffer)
             {
                 boost::mutex::scoped_lock lk(mtx);
                 pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
-                cv::imshow("Camera",imgCameraLive);
+                if (!imgCameraLive.empty())
+                    cv::imshow("Camera",imgCameraLive);
             }
       }
 

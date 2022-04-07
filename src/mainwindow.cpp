@@ -242,7 +242,7 @@ void MainWindow::on_btn_testVizStimOnProjector_clicked()
     RSC_input.crop=true;
     RSC_input.recording_time = ui->spinBox_rectime->value() * 60; // Convert Duration to Seconds
     RSC_input.eventCount = 0; //FOr Triggered/ Conditional Recording
-
+    RSC_input.pVideoBuffer = 0;
     bool run=true;
 
     if(!StimulationBarrage.Background_ON)
