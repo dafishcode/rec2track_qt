@@ -1629,8 +1629,9 @@ return(StimList);
 
 }
 
-/// \brief Runs The visual stimulation routine based on user settings
-///
+
+///// \brief Runs The visual stimulation routine based on user settings
+/////
 void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
     double t0 = (double)cv::getTickCount();
@@ -1662,7 +1663,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
         }
 
         StimList_tmp.push_back(StimList.back());
-        if(str!="CONCENTRIC"){            
+        if(str!="CONCENTRIC"){
             random_order.push_back(number_of_stimuli+CONCENTRIC_ON);
             number_of_stimuli++;
         } else CONCENTRIC_ON=true;
@@ -1846,8 +1847,9 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
             //inter_epoch_timer_t0 = (double)cv::getTickCount();
             if(inter_epoch_time>0)
                 cv::waitKey(inter_epoch_time*1000);
-            else
-                c=cv::waitKey(20);
+        }
+         else
+            c=cv::waitKey(20); //Pause showing Frame
 
             ///Camera Only Shows When Not Paused Between Epochs - Need t change method of Waiting
             /// Show Live Cam To user and Obtain behaviour video frame
@@ -1858,7 +1860,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
                 if (!imgCameraLive.empty())
                     cv::imshow("Camera",imgCameraLive);
             }
-      }
+
 
     } // Main VizStim Loop
 
