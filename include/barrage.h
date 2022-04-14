@@ -114,7 +114,8 @@ public:
     string stimlibloc;
     bool Background_ON =false;
 
-    const int c_mliveViewUpdatePeriod_ms = 25;//Update Live View
+    const int c_mliveViewUpdatePeriod_ms = 25;//Update Live View period
+    const int c_liveviewfps = (1.0/(double)c_mliveViewUpdatePeriod_ms)*1000;
 
 private:
     double radDot(double);

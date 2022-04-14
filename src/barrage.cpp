@@ -1863,10 +1863,12 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
             //Tell Which Stimulus is about to be presented
             cout<< code_stim(StimList[epID])<<"    \r"<<flush;
             // Open New Video File To record LiveView with inset on this stim
-            if (imgCameraLive.rows > 0)
+            if (pRSC_input->pVideoBuffer->mszFrame.width > 0)
             {
-                ostringstream stroutputfile = pRSC_input->proc_folder << "/" << code_stim(StimList[epID]) << "_" << epID + string(".avi");
-                demoVideowriter.open(stroutputfile.str(), cv::VideoWriter::fourcc('M','J','P','G') , (1/c_mliveViewUpdatePeriod_ms)*1000, cv::Size(imgCameraLive.cols,imgCameraLive.rows), false); //initialize the VideoWriter object cv::VideoWriter::fourcc('Y','8','0','0')
+                stringstream stroutputfile;
+                stroutputfile << pRSC_input->proc_folder << "/" << epID << "_" << code_stim(StimList[epID]) << ".avi";
+                demoVideowriter.open(stroutputfile.str().c_str(), cv::VideoWriter::fourcc('M','J','P','G') , c_liveviewfps, pRSC_input->pVideoBuffer->mszFrame, false); //initialize the VideoWriter object cv::VideoWriter::fourcc('Y','8','0','0')
+                cout << "Liveview vid " << pRSC_input->pVideoBuffer->mszFrame.width << "x" << pRSC_input->pVideoBuffer->mszFrame.height << " in " << stroutputfile.str().c_str() << std::endl;
             }
 
 
@@ -1921,7 +1923,8 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
             if (!imgCameraLive.empty() )
             {
                 cv::imshow("Camera",imgCameraLive);
-                demoVideowriter.write(imgCameraLive);
+                if (demoVideowriter.isOpened())
+                    demoVideowriter.write(imgCameraLive);
             }
 
 

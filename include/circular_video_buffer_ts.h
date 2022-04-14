@@ -33,6 +33,7 @@ class circular_video_buffer_ts: private boost::noncopyable
 public:
 
     typedef boost::mutex::scoped_lock slock;
+    cv::Size mszFrame; //Resolution Of vid in pixels
 
     circular_video_buffer_ts() {}
 
@@ -161,7 +162,7 @@ public:
     {
 
         if (circ_buff_img.size() == 0)
-            mszFrame = cv::Size(640,512); //Default Size
+            mszFrame = cv::Size(720,720); //Default Size - Set To default camera ROI
         else
             mszFrame = cv::Size(circ_buff_img[0].cols,circ_buff_img[0].rows);
 
@@ -284,6 +285,7 @@ public:
     }
 
 
+
 private:
 
     boost::condition buffer_not_empty;
@@ -302,7 +304,7 @@ private:
     double mvidfps = 0.0;
     ofstream* mstreamlogfile;
     cv::VideoWriter moVideowriter;
-    cv::Size mszFrame; //Resolution Of vid in pixels
+
     bool mbverbose=false;
 };
 
