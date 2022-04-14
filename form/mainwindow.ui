@@ -576,6 +576,9 @@
              <string>Experiment Initiation Controls</string>
             </property>
             <widget class="QPushButton" name="btnStartLiveTracking">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="geometry">
               <rect>
                <x>10</x>

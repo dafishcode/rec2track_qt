@@ -76,6 +76,7 @@ public:
     ///TODO: Why do we need to separate ones for BG and Non BG?
     void VisualStimulation(recorderthread_data* pRSC_input, bool &run);
     void VisualStimulation_BG(recorderthread_data* pRSC_input, bool &run);
+    cv::Mat updateLiveView(cv::Mat& matVisStimFrameA, recorderthread_data *pRSC_input,double elapsed_interstimTime,long int nCurrentCameraFrame);
 
     static string code_stim(stim);
     static stim string_to_stim(const char* s);
@@ -112,6 +113,8 @@ public:
     string optstimfile;
     string stimlibloc;
     bool Background_ON =false;
+
+    const int c_mliveViewUpdatePeriod_ms = 25;//Update Live View
 
 private:
     double radDot(double);

@@ -1628,6 +1628,28 @@ std::vector<string> barrage::loadStimListFromFile(string filename)
 return(StimList);
 
 }
+// Periodically updates an image frame that show live feed from camera along with an inset of the visual Stimulus displayed
+cv::Mat barrage::updateLiveView(cv::Mat& matVisStimFrameA, recorderthread_data *pRSC_input,double elapsed_interstimTime,long int nCurrentCameraFrame)
+{
+
+    cv::Mat imgCameraLive,matViz_scaled;
+
+    /// UPDATE LIVE VIEW Camera - At 20ms intervals
+    if (pRSC_input->pVideoBuffer && ((uint)(elapsed_interstimTime*1000)%c_mliveViewUpdatePeriod_ms == 0) )
+    {
+        //boost::mutex::scoped_lock lk(mtx);
+        pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
+        if (!imgCameraLive.empty())
+        {///Paste Viz Stim frame onto live feed
+            cv::resize(matVisStimFrameA, matViz_scaled, cv::Size(), 0.30, 0.30); //Scale VizStim Inset
+            cv::Mat matVizInset = imgCameraLive(cv::Rect(imgCameraLive.cols-matViz_scaled.cols,
+                                                  matViz_scaled.rows,matViz_scaled.cols,matViz_scaled.rows));
+            matViz_scaled.copyTo(matVizInset); //Paste Image onto Live Feed
+
+        }
+    }
+        return imgCameraLive;
+}
 
 
 ///// \brief Runs The visual stimulation routine based on user settings
@@ -1646,7 +1668,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     CONCENTRIC_ON=false;
     bool verbose=false;
     vector<int> random_order;
-    cv::Mat imgCameraLive;
+    cv::Mat imgCameraLive,matViz_scaled;
 
 
     // Build barrage - Load List from File
@@ -1679,6 +1701,7 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
 
     ofstream OUTFILE;
+    cv::VideoWriter demoVideowriter;//Record Live View frame
     ofstream epoch_order;
     ofstream ticksfile;
     ofstream setting_file;
@@ -1825,23 +1848,32 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
     if(waiting_time>0)
         cv::waitKey(1000*waiting_time);
 
-    cv::Mat A(H,W,CV_8U);
+    cv::Mat matVisStimFrameA(H,W,CV_8U);
     double inter_epoch_timer_t0 = 0.0;
     double totalelapsedTsec     = 0.0; //Total Run Timer
     double stimelapsedTsec      = 0.0; //Timer for each period of stimulus presentation
     double pause_epoch_time_sec = 0.020;
-    while(c!='q' && run){
+    while(c!='q' && run){ //Main Viz Stim Loop
         if(k==0 && epID==numEP_spec)
             break;
 
-        A.data=(stimdata[random_order_all[epID]]+W*H*k);
+        matVisStimFrameA.data=(stimdata[random_order_all[epID]]+W*H*k);
         if(k==0){
             stim_t0 = cv::getTickCount(); //Reset Stim Presentation Timer
-            cout<< code_stim(StimList[epID])<<"    \r"<<flush; //Tell Which Stimulus is about to be presented
+            //Tell Which Stimulus is about to be presented
+            cout<< code_stim(StimList[epID])<<"    \r"<<flush;
+            // Open New Video File To record LiveView with inset on this stim
+            if (imgCameraLive.rows > 0)
+            {
+                ostringstream stroutputfile = pRSC_input->proc_folder << "/" << code_stim(StimList[epID]) << "_" << epID + string(".avi");
+                demoVideowriter.open(stroutputfile.str(), cv::VideoWriter::fourcc('M','J','P','G') , (1/c_mliveViewUpdatePeriod_ms)*1000, cv::Size(imgCameraLive.cols,imgCameraLive.rows), false); //initialize the VideoWriter object cv::VideoWriter::fourcc('Y','8','0','0')
+            }
+
+
             OUTFILE<<((double)cv::getTickCount()-t0)/cv::getTickFrequency()  << "\t" << nCurrentCameraFrame <<'\t'<<code_stim(StimList[epID]) << "\t" << 0.0 <<endl;
         }
         ticksfile << cv::getTickCount()-t0 <<'\t'<< code_stim(StimList[epID])<< '\t' << k <<endl;
-        cv::imshow("vs",A);
+        cv::imshow("vs",matVisStimFrameA);
         k++;
 
 
@@ -1854,13 +1886,16 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
 
             OUTFILE << totalelapsedTsec  << "\t" << nCurrentCameraFrame << '\t' <<code_stim(StimList[epID-1]) << "\t" << stimelapsedTsec <<endl;
             ticksfile<<cv::getTickCount()<<'\t'<<"-1 0"<<endl;
+
             cout <<  epID << ". Runtime :" << totalelapsedTsec << " last stimulus duration " <<  stimelapsedTsec << std::endl;
+            demoVideowriter.release();
             pause_epoch_time_sec = inter_epoch_time; //Pause For Inter Stimulus Time Interval
         }
          else
               pause_epoch_time_sec = 0.020;//Pause While Showing Frame
 
-        //PAUSE for Inter Stimulus Interval Before Showing Next
+        /// PAUSE for Inter Stimulus Interval Before Showing Next -
+        /// Update Live View
         inter_epoch_timer_t0 = (double)cv::getTickCount();
         double elapsed_interstimTime = 0.0;
         while(elapsed_interstimTime < pause_epoch_time_sec)
@@ -1868,14 +1903,27 @@ void barrage::VisualStimulation(recorderthread_data *pRSC_input, bool &run){
             elapsed_interstimTime = ((double)cv::getTickCount() - inter_epoch_timer_t0)/cv::getTickFrequency();
             c=cv::waitKey(2);
 
-            /// UPDATE LIVE VIEW Camera - At 20ms intervals
-            if (pRSC_input->pVideoBuffer && ((uint)(elapsed_interstimTime*1000)%20 == 0) )
+//            /// UPDATE LIVE VIEW Camera - At 20ms intervals
+//            if (pRSC_input->pVideoBuffer && ((uint)(elapsed_interstimTime*1000)%20 == 0) )
+//            {
+//                //boost::mutex::scoped_lock lk(mtx);
+//                pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
+//                if (!imgCameraLive.empty())
+//                {///Paste Viz Stim frame onto live feed
+//                    cv::resize(matVisStimFrameA, matViz_scaled, cv::Size(), 0.20, 0.20);
+//                    cv::Mat matVizInset = imgCameraLive(cv::Rect(imgCameraLive.cols-matViz_scaled.cols,
+//                                                          matViz_scaled.rows,matViz_scaled.cols,matViz_scaled.rows));
+//                    matViz_scaled.copyTo(matVizInset); //Paste Image onto Live Feed
+
+//                }
+//            }
+            imgCameraLive = updateLiveView(matVisStimFrameA,pRSC_input,elapsed_interstimTime,nCurrentCameraFrame);
+            if (!imgCameraLive.empty() )
             {
-                //boost::mutex::scoped_lock lk(mtx);
-                pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
-                if (!imgCameraLive.empty())
-                    cv::imshow("Camera",imgCameraLive);
+                cv::imshow("Camera",imgCameraLive);
+                demoVideowriter.write(imgCameraLive);
             }
+
 
         } // While Pause Time Has not elapsed
         //cout << "Paused for " << elapsed_interstimTime << " sec " << std::endl;
