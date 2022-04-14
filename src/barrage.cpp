@@ -1641,7 +1641,7 @@ cv::Mat barrage::updateLiveView(cv::Mat& matVisStimFrameA, recorderthread_data *
         pRSC_input->pVideoBuffer->retrieve_last(imgCameraLive, nCurrentCameraFrame);
         if (!imgCameraLive.empty())
         {///Paste Viz Stim frame onto live feed
-            cv::resize(matVisStimFrameA, matViz_scaled, cv::Size(), 0.30, 0.30); //Scale VizStim Inset
+            cv::resize(matVisStimFrameA, matViz_scaled, cv::Size(), 0.35, 0.35); //Scale VizStim Inset
             cv::Mat matVizInset = imgCameraLive(cv::Rect(imgCameraLive.cols-matViz_scaled.cols,10,
                                                   matViz_scaled.cols,matViz_scaled.rows));
             matViz_scaled.copyTo(matVizInset); //Paste Image onto Live Feed
